@@ -98,13 +98,18 @@ class _Handler(BaseHTTPRequestHandler):
         pass  # geen console-spam
 
 
-def ensure_server(port):
-    """Start de ontvanger één keer per proces (idempotent)."""
+def ensure_server(port, host='127.0.0.1'):
+    """Start de ontvanger één keer per proces (idempotent).
+
+    Standaard alleen op localhost: op een server staat nginx ervoor, dus de
+    poort hoeft niet van buiten bereikbaar te zijn. Zet host op '0.0.0.0' als
+    je er wél rechtstreeks bij moet.
+    """
     global _started_port
     with _START_LOCK:
         if _started_port is not None:
             return _started_port
-        srv = ThreadingHTTPServer(('0.0.0.0', port), _Handler)
+        srv = ThreadingHTTPServer((host, port), _Handler)
         threading.Thread(target=srv.serve_forever, daemon=True).start()
         _started_port = port
         return port

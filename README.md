@@ -30,9 +30,9 @@ streamlit run app.py
 ```
 
 De app draait op <http://localhost:8501>, de ontvanger van de bookmarklet op
-poort **8766** (de mentoruur-app gebruikt 8765). Vanaf de https-pagina van
-Magister posten naar `http://localhost` mag: browsers zien localhost als een
-veilige origin.
+poort **8766** (in te stellen met `VERZUIM_TL_INGEST_PORT`; de mentoruur-app
+gebruikt 8765). Vanaf de https-pagina van Magister posten naar
+`http://localhost` mag: browsers zien localhost als een veilige origin.
 
 Zonder Magister kijken? Klik onderaan op **Voorbeelddata bekijken** — dat is
 `voorbeeld_school.json` met 90 verzonnen leerlingen (opnieuw te maken met
@@ -138,7 +138,7 @@ de app meldt hoeveel dat er zijn.
 |---|---|
 | `app.py` | de Streamlit-app: instellingen, bookmarklet-installatie, dashboard |
 | `bookmarklet.py` | genereert de bookmarklet (downloadvariant en directe variant) |
-| `ingest.py` | ontvanger op poort 8766 waar de bookmarklet naartoe post |
+| `ingest.py` | ontvanger (localhost, poort uit `VERZUIM_TL_INGEST_PORT`) waar de bookmarklet naartoe post |
 | `dashboard.py` | rekent de payload om en bouwt het HTML-dashboard |
 | `template.html` | de opmaak van het dashboard (styling + lege panelen) |
 | `render.js` | tekent de panelen uit de data; draait in de pagina zelf |
@@ -150,16 +150,89 @@ Zo geven de app en het gedownloade HTML-bestand altijd dezelfde cijfers.
 
 ## Op een server draaien
 
-De directe flow heeft een adres nodig dat vanaf magister.net bereikbaar is:
+Voorbeeld met de poorten zoals ze hier draaien: de app op **8507**, de
+ontvanger op **8767** (8765 is van de mentoruur-app, 8766 van de inhaaltool).
+
+### 1. Omgevingsvariabelen
 
 ```bash
-export VERZUIM_TL_INGEST_URL="https://verzuim-tl.example.nl/ingest"  # reverse proxy → poort 8766
-export VERZUIM_TL_INGEST_PORT=8766
-export VERZUIM_TL_SECRET="een-lang-geheim"                           # anders wordt .secret gebruikt
+VERZUIM_TL_INGEST_URL=https://<jouw-domein>/verzuim-tl-ingest   # publiek pad, niet de poort
+VERZUIM_TL_INGEST_PORT=8767                                     # interne poort achter nginx
+VERZUIM_TL_SECRET=<lang-geheim>                                  # anders wordt .secret gebruikt
 ```
 
-Zet `VERZUIM_TL_INGEST_URL` leeg om alleen de download/upload-variant aan te
-bieden; die werkt altijd en heeft geen extra route nodig.
+`VERZUIM_TL_INGEST_URL` is het adres dat **in de bookmarklet** terechtkomt, dus
+het publieke pad. Wijzigt dat pad later, dan moet iedereen de knop opnieuw
+installeren.
+
+### 2. systemd
+
+```ini
+[Unit]
+Description=Verzuimsignalering (teamleider)
+After=network.target
+
+[Service]
+User=www-data
+WorkingDirectory=/opt/verzuimsignalering
+Environment=VERZUIM_TL_INGEST_URL=https://<jouw-domein>/verzuim-tl-ingest
+Environment=VERZUIM_TL_INGEST_PORT=8767
+Environment=VERZUIM_TL_SECRET=<lang-geheim>
+ExecStart=/opt/verzuimsignalering/env/bin/streamlit run app.py           --server.port 8507 --server.headless true --browser.gatherUsageStats false
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+```
+
+De service-gebruiker moet in de projectmap mogen **schrijven**: `codes.json` en
+`mentoren.json` worden vanuit de app opgeslagen, en zonder
+`VERZUIM_TL_SECRET` wordt `.secret` aangemaakt.
+
+### 3. nginx
+
+```nginx
+# De app zelf (Streamlit heeft websockets nodig)
+location /verzuim-tl/ {
+    proxy_pass http://127.0.0.1:8507/;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade    $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host       $host;
+    proxy_read_timeout 3600s;
+}
+
+# Ontvanger voor de teamleider-bookmarklet
+location /verzuim-tl-ingest {
+    proxy_pass http://127.0.0.1:8767/ingest;
+    proxy_set_header Host $host;
+    client_max_body_size 20m;      # anders HTTP 413 bij een lange periode
+}
+```
+
+Draai je de app op een **subpad** (`/verzuim-tl/`) in plaats van een eigen
+(sub)domein, start Streamlit dan met `--server.baseUrlPath verzuim-tl`; anders
+laden de statische bestanden niet.
+
+Het pad achter `proxy_pass` (`/ingest`) maakt de ontvanger niet uit — die kijkt
+alleen naar de `?token=`. De querystring stuurt nginx vanzelf mee.
+
+`client_max_body_size` is de enige echte valkuil: nginx staat standaard 1 MB
+toe. Een afdeling van 250 leerlingen over 4 weken is ongeveer 0,2 MB, dus dat
+past meestal wel, maar over een heel jaar niet. Loopt het mis, dan meldt de
+bookmarklet "De app antwoordde met HTTP 413".
+
+### 4. Controleren
+
+```bash
+sudo ss -lntp | grep -E '8507|8767'     # 8767 hoort op 127.0.0.1 te staan, niet 0.0.0.0
+curl -si -X POST 'https://<jouw-domein>/verzuim-tl-ingest' --data 'x'   # 400 = nginx komt aan
+```
+
+Een `{"ok": false, "error": "bad request"}` is hier het goede antwoord: de
+ontvanger is bereikbaar en wijst het verzoek af omdat het token ontbreekt.
+Krijg je 502, dan draait de app niet; 404 betekent dat de `location` niet
+matcht.
 
 ### Naast de mentoruur-app op dezelfde server
 
@@ -169,24 +242,22 @@ anders overheen lopen:
 | | mentoruur-app | deze app |
 |---|---|---|
 | Ontvanger-URL | `VERZUIM_INGEST_URL` | `VERZUIM_TL_INGEST_URL` |
-| Poort | `VERZUIM_INGEST_PORT` (8765) | `VERZUIM_TL_INGEST_PORT` (8766) |
+| Poort | `VERZUIM_INGEST_PORT` (8765) | `VERZUIM_TL_INGEST_PORT` (8767 hier) |
 | Geheim | `JWT_SECRET` (ook voor SSO) | `VERZUIM_TL_SECRET`, anders `.secret` |
 | Bookmarklet | 📋 Verzuim ophalen — één mentorgroep | 📋 Verzuim teamleider — hele afdeling |
 | Token | per gebruiker, uit het eckid | één per installatie van deze app |
 
-Deel je toch één EnvironmentFile of docker-compose `environment:` tussen beide
-apps, gebruik dan de bovenstaande namen naast elkaar. Zetten ze allebei
-`VERZUIM_INGEST_PORT=8765`, dan krijgt de tweede die start een
-`address already in use` en start de ontvanger niet op.
+Deel je één EnvironmentFile tussen beide apps, gebruik dan de bovenstaande
+namen naast elkaar. Zetten ze allebei `VERZUIM_INGEST_PORT=8765`, dan krijgt de
+tweede die start een `address already in use` en heeft die geen ontvanger.
 
 Een gedeeld geheim is geen probleem: de tokens worden met een andere boodschap
 berekend (`verzuim:<eckid>` versus `verzuimsignalering-teamleider`), dus ze
 verschillen sowieso. En omdat elke app zijn data in het geheugen van zijn eigen
 proces houdt, kan de ene de payload van de andere niet oppikken.
 
-Let op: de ontvanger houdt de data in het geheugen van hetzelfde proces als
-Streamlit (15 minuten). Draai je meerdere workers of replica's, dan moet dat
-een gedeelde store worden (Redis of een database).
+De ontvanger luistert standaard alleen op `127.0.0.1`; nginx staat ervoor, dus
+de poort hoeft niet van buiten bereikbaar te zijn.
 
 ## Privacy
 
