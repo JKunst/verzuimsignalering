@@ -1,0 +1,6542 @@
+{
+ "period": {
+  "begin": "2026-08-31",
+  "einde": "2026-09-25"
+ },
+ "scope": "H4,H5,V4,V5,V6",
+ "students": [
+  {
+   "id": 1,
+   "roepnaam": "Daan",
+   "achternaam": "Bakker",
+   "lesgroepen": [
+    "h4mtu1",
+    "h4ane1"
+   ],
+   "studies": [
+    "H4"
+   ],
+   "klassen": [
+    "H4A"
+   ]
+  },
+  {
+   "id": 2,
+   "roepnaam": "Maud",
+   "achternaam": "Dekker",
+   "lesgroepen": [
+    "h4mtu1",
+    "h4ane1"
+   ],
+   "studies": [
+    "H4"
+   ],
+   "klassen": [
+    "H4A"
+   ]
+  },
+  {
+   "id": 3,
+   "roepnaam": "Luuk",
+   "achternaam": "de Boer",
+   "lesgroepen": [
+    "h4mtu1",
+    "h4ane1"
+   ],
+   "studies": [
+    "H4"
+   ],
+   "klassen": [
+    "H4A"
+   ]
+  },
+  {
+   "id": 4,
+   "roepnaam": "Mila",
+   "achternaam": "van der Meer",
+   "lesgroepen": [
+    "h4mtu1",
+    "h4ane1"
+   ],
+   "studies": [
+    "H4"
+   ],
+   "klassen": [
+    "H4A"
+   ]
+  },
+  {
+   "id": 5,
+   "roepnaam": "Lotte",
+   "achternaam": "van der Meer",
+   "lesgroepen": [
+    "h4mtu1",
+    "h4ane1"
+   ],
+   "studies": [
+    "H4"
+   ],
+   "klassen": [
+    "H4A"
+   ]
+  },
+  {
+   "id": 6,
+   "roepnaam": "Luuk",
+   "achternaam": "van Dijk",
+   "lesgroepen": [
+    "h4mtu1",
+    "h4ane1"
+   ],
+   "studies": [
+    "H4"
+   ],
+   "klassen": [
+    "H4A"
+   ]
+  },
+  {
+   "id": 7,
+   "roepnaam": "Luuk",
+   "achternaam": "Kok",
+   "lesgroepen": [
+    "h4mtu1",
+    "h4ane1"
+   ],
+   "studies": [
+    "H4"
+   ],
+   "klassen": [
+    "H4A"
+   ]
+  },
+  {
+   "id": 8,
+   "roepnaam": "Merel",
+   "achternaam": "Smits",
+   "lesgroepen": [
+    "h4mtu1",
+    "h4ane1"
+   ],
+   "studies": [
+    "H4"
+   ],
+   "klassen": [
+    "H4A"
+   ]
+  },
+  {
+   "id": 9,
+   "roepnaam": "Anouk",
+   "achternaam": "Bakker",
+   "lesgroepen": [
+    "h4mtu1",
+    "h4ane1"
+   ],
+   "studies": [
+    "H4"
+   ],
+   "klassen": [
+    "H4A"
+   ]
+  },
+  {
+   "id": 10,
+   "roepnaam": "Jort",
+   "achternaam": "Brouwer",
+   "lesgroepen": [
+    "h4mtu2",
+    "h4bne1"
+   ],
+   "studies": [
+    "H4"
+   ],
+   "klassen": [
+    "H4B"
+   ]
+  },
+  {
+   "id": 11,
+   "roepnaam": "Tijn",
+   "achternaam": "de Graaf",
+   "lesgroepen": [
+    "h4mtu2",
+    "h4bne1"
+   ],
+   "studies": [
+    "H4"
+   ],
+   "klassen": [
+    "H4B"
+   ]
+  },
+  {
+   "id": 12,
+   "roepnaam": "Daan",
+   "achternaam": "Mulder",
+   "lesgroepen": [
+    "h4mtu2",
+    "h4bne1"
+   ],
+   "studies": [
+    "H4"
+   ],
+   "klassen": [
+    "H4B"
+   ]
+  },
+  {
+   "id": 13,
+   "roepnaam": "Sem",
+   "achternaam": "Kok",
+   "lesgroepen": [
+    "h4mtu2",
+    "h4bne1"
+   ],
+   "studies": [
+    "H4"
+   ],
+   "klassen": [
+    "H4B"
+   ]
+  },
+  {
+   "id": 14,
+   "roepnaam": "Lieke",
+   "achternaam": "Vermeulen",
+   "lesgroepen": [
+    "h4mtu2",
+    "h4bne1"
+   ],
+   "studies": [
+    "H4"
+   ],
+   "klassen": [
+    "H4B"
+   ]
+  },
+  {
+   "id": 15,
+   "roepnaam": "Noud",
+   "achternaam": "de Wit",
+   "lesgroepen": [
+    "h4mtu2",
+    "h4bne1"
+   ],
+   "studies": [
+    "H4"
+   ],
+   "klassen": [
+    "H4B"
+   ]
+  },
+  {
+   "id": 16,
+   "roepnaam": "Elin",
+   "achternaam": "Jansen",
+   "lesgroepen": [
+    "h4mtu2",
+    "h4bne1"
+   ],
+   "studies": [
+    "H4"
+   ],
+   "klassen": [
+    "H4B"
+   ]
+  },
+  {
+   "id": 17,
+   "roepnaam": "Isa",
+   "achternaam": "Bos",
+   "lesgroepen": [
+    "h4mtu2",
+    "h4bne1"
+   ],
+   "studies": [
+    "H4"
+   ],
+   "klassen": [
+    "H4B"
+   ]
+  },
+  {
+   "id": 18,
+   "roepnaam": "Fleur",
+   "achternaam": "Dekker",
+   "lesgroepen": [
+    "h4mtu3",
+    "h4cne1"
+   ],
+   "studies": [
+    "H4"
+   ],
+   "klassen": [
+    "H4C"
+   ]
+  },
+  {
+   "id": 19,
+   "roepnaam": "Sem",
+   "achternaam": "van Dijk",
+   "lesgroepen": [
+    "h4mtu3",
+    "h4cne1"
+   ],
+   "studies": [
+    "H4"
+   ],
+   "klassen": [
+    "H4C"
+   ]
+  },
+  {
+   "id": 20,
+   "roepnaam": "Lotte",
+   "achternaam": "de Graaf",
+   "lesgroepen": [
+    "h4mtu3",
+    "h4cne1"
+   ],
+   "studies": [
+    "H4"
+   ],
+   "klassen": [
+    "H4C"
+   ]
+  },
+  {
+   "id": 21,
+   "roepnaam": "Cas",
+   "achternaam": "Vermeulen",
+   "lesgroepen": [
+    "h4mtu3",
+    "h4cne1"
+   ],
+   "studies": [
+    "H4"
+   ],
+   "klassen": [
+    "H4C"
+   ]
+  },
+  {
+   "id": 22,
+   "roepnaam": "Fenna",
+   "achternaam": "de Vries",
+   "lesgroepen": [
+    "h4mtu3",
+    "h4cne1"
+   ],
+   "studies": [
+    "H4"
+   ],
+   "klassen": [
+    "H4C"
+   ]
+  },
+  {
+   "id": 23,
+   "roepnaam": "Sara",
+   "achternaam": "Dijkstra",
+   "lesgroepen": [
+    "h4mtu3",
+    "h4cne1"
+   ],
+   "studies": [
+    "H4"
+   ],
+   "klassen": [
+    "H4C"
+   ]
+  },
+  {
+   "id": 24,
+   "roepnaam": "Teun",
+   "achternaam": "Hendriks",
+   "lesgroepen": [
+    "h4mtu3",
+    "h4cne1"
+   ],
+   "studies": [
+    "H4"
+   ],
+   "klassen": [
+    "H4C"
+   ]
+  },
+  {
+   "id": 25,
+   "roepnaam": "Jort",
+   "achternaam": "van Dijk",
+   "lesgroepen": [
+    "h4mtu3",
+    "h4cne1"
+   ],
+   "studies": [
+    "H4"
+   ],
+   "klassen": [
+    "H4C"
+   ]
+  },
+  {
+   "id": 26,
+   "roepnaam": "Sven",
+   "achternaam": "de Boer",
+   "lesgroepen": [
+    "h4mtu3",
+    "h4cne1"
+   ],
+   "studies": [
+    "H4"
+   ],
+   "klassen": [
+    "H4C"
+   ]
+  },
+  {
+   "id": 27,
+   "roepnaam": "Lotte",
+   "achternaam": "van der Meer",
+   "lesgroepen": [
+    "h4mtu3",
+    "h4cne1"
+   ],
+   "studies": [
+    "H4"
+   ],
+   "klassen": [
+    "H4C"
+   ]
+  },
+  {
+   "id": 28,
+   "roepnaam": "Sem",
+   "achternaam": "Meijer",
+   "lesgroepen": [
+    "h4mtu3",
+    "h4cne1"
+   ],
+   "studies": [
+    "H4"
+   ],
+   "klassen": [
+    "H4C"
+   ]
+  },
+  {
+   "id": 29,
+   "roepnaam": "Cas",
+   "achternaam": "Smits",
+   "lesgroepen": [
+    "h5mtu1",
+    "h5ane1"
+   ],
+   "studies": [
+    "H5"
+   ],
+   "klassen": [
+    "H5A"
+   ]
+  },
+  {
+   "id": 30,
+   "roepnaam": "Teun",
+   "achternaam": "Visser",
+   "lesgroepen": [
+    "h5mtu1",
+    "h5ane1"
+   ],
+   "studies": [
+    "H5"
+   ],
+   "klassen": [
+    "H5A"
+   ]
+  },
+  {
+   "id": 31,
+   "roepnaam": "Nina",
+   "achternaam": "Bos",
+   "lesgroepen": [
+    "h5mtu1",
+    "h5ane1"
+   ],
+   "studies": [
+    "H5"
+   ],
+   "klassen": [
+    "H5A"
+   ]
+  },
+  {
+   "id": 32,
+   "roepnaam": "Bram",
+   "achternaam": "van der Meer",
+   "lesgroepen": [
+    "h5mtu1",
+    "h5ane1"
+   ],
+   "studies": [
+    "H5"
+   ],
+   "klassen": [
+    "H5A"
+   ]
+  },
+  {
+   "id": 33,
+   "roepnaam": "Ruben",
+   "achternaam": "Smits",
+   "lesgroepen": [
+    "h5mtu1",
+    "h5ane1"
+   ],
+   "studies": [
+    "H5"
+   ],
+   "klassen": [
+    "H5A"
+   ]
+  },
+  {
+   "id": 34,
+   "roepnaam": "Sem",
+   "achternaam": "van Leeuwen",
+   "lesgroepen": [
+    "h5mtu1",
+    "h5ane1"
+   ],
+   "studies": [
+    "H5"
+   ],
+   "klassen": [
+    "H5A"
+   ]
+  },
+  {
+   "id": 35,
+   "roepnaam": "Nora",
+   "achternaam": "Bos",
+   "lesgroepen": [
+    "h5mtu1",
+    "h5ane1"
+   ],
+   "studies": [
+    "H5"
+   ],
+   "klassen": [
+    "H5A"
+   ]
+  },
+  {
+   "id": 36,
+   "roepnaam": "Yara",
+   "achternaam": "Vermeulen",
+   "lesgroepen": [
+    "h5mtu1",
+    "h5ane1"
+   ],
+   "studies": [
+    "H5"
+   ],
+   "klassen": [
+    "H5A"
+   ]
+  },
+  {
+   "id": 37,
+   "roepnaam": "Maud",
+   "achternaam": "Kok",
+   "lesgroepen": [
+    "h5mtu1",
+    "h5ane1"
+   ],
+   "studies": [
+    "H5"
+   ],
+   "klassen": [
+    "H5A"
+   ]
+  },
+  {
+   "id": 38,
+   "roepnaam": "Jesse",
+   "achternaam": "de Vries",
+   "lesgroepen": [
+    "h5mtu1",
+    "h5ane1"
+   ],
+   "studies": [
+    "H5"
+   ],
+   "klassen": [
+    "H5A"
+   ]
+  },
+  {
+   "id": 39,
+   "roepnaam": "Daan",
+   "achternaam": "de Groot",
+   "lesgroepen": [
+    "h5mtu2",
+    "h5bne1"
+   ],
+   "studies": [
+    "H5"
+   ],
+   "klassen": [
+    "H5B"
+   ]
+  },
+  {
+   "id": 40,
+   "roepnaam": "Merel",
+   "achternaam": "Jansen",
+   "lesgroepen": [
+    "h5mtu2",
+    "h5bne1"
+   ],
+   "studies": [
+    "H5"
+   ],
+   "klassen": [
+    "H5B"
+   ]
+  },
+  {
+   "id": 41,
+   "roepnaam": "Sanne",
+   "achternaam": "Dijkstra",
+   "lesgroepen": [
+    "h5mtu2",
+    "h5bne1"
+   ],
+   "studies": [
+    "H5"
+   ],
+   "klassen": [
+    "H5B"
+   ]
+  },
+  {
+   "id": 42,
+   "roepnaam": "Elin",
+   "achternaam": "Smit",
+   "lesgroepen": [
+    "h5mtu2",
+    "h5bne1"
+   ],
+   "studies": [
+    "H5"
+   ],
+   "klassen": [
+    "H5B"
+   ]
+  },
+  {
+   "id": 43,
+   "roepnaam": "Nina",
+   "achternaam": "van den Berg",
+   "lesgroepen": [
+    "h5mtu2",
+    "h5bne1"
+   ],
+   "studies": [
+    "H5"
+   ],
+   "klassen": [
+    "H5B"
+   ]
+  },
+  {
+   "id": 44,
+   "roepnaam": "Nina",
+   "achternaam": "Smit",
+   "lesgroepen": [
+    "h5mtu2",
+    "h5bne1"
+   ],
+   "studies": [
+    "H5"
+   ],
+   "klassen": [
+    "H5B"
+   ]
+  },
+  {
+   "id": 45,
+   "roepnaam": "Sem",
+   "achternaam": "Kok",
+   "lesgroepen": [
+    "h5mtu2",
+    "h5bne1"
+   ],
+   "studies": [
+    "H5"
+   ],
+   "klassen": [
+    "H5B"
+   ]
+  },
+  {
+   "id": 46,
+   "roepnaam": "Sem",
+   "achternaam": "Brouwer",
+   "lesgroepen": [
+    "v4mtu1",
+    "v4ane1"
+   ],
+   "studies": [
+    "V4"
+   ],
+   "klassen": [
+    "V4A"
+   ]
+  },
+  {
+   "id": 47,
+   "roepnaam": "Yara",
+   "achternaam": "Smits",
+   "lesgroepen": [
+    "v4mtu1",
+    "v4ane1"
+   ],
+   "studies": [
+    "V4"
+   ],
+   "klassen": [
+    "V4A"
+   ]
+  },
+  {
+   "id": 48,
+   "roepnaam": "Bram",
+   "achternaam": "Bakker",
+   "lesgroepen": [
+    "v4mtu1",
+    "v4ane1"
+   ],
+   "studies": [
+    "V4"
+   ],
+   "klassen": [
+    "V4A"
+   ]
+  },
+  {
+   "id": 49,
+   "roepnaam": "Lotte",
+   "achternaam": "Visser",
+   "lesgroepen": [
+    "v4mtu1",
+    "v4ane1"
+   ],
+   "studies": [
+    "V4"
+   ],
+   "klassen": [
+    "V4A"
+   ]
+  },
+  {
+   "id": 50,
+   "roepnaam": "Fleur",
+   "achternaam": "Kok",
+   "lesgroepen": [
+    "v4mtu1",
+    "v4ane1"
+   ],
+   "studies": [
+    "V4"
+   ],
+   "klassen": [
+    "V4A"
+   ]
+  },
+  {
+   "id": 51,
+   "roepnaam": "Merel",
+   "achternaam": "Mulder",
+   "lesgroepen": [
+    "v4mtu1",
+    "v4ane1"
+   ],
+   "studies": [
+    "V4"
+   ],
+   "klassen": [
+    "V4A"
+   ]
+  },
+  {
+   "id": 52,
+   "roepnaam": "Mila",
+   "achternaam": "Kok",
+   "lesgroepen": [
+    "v4mtu1",
+    "v4ane1"
+   ],
+   "studies": [
+    "V4"
+   ],
+   "klassen": [
+    "V4A"
+   ]
+  },
+  {
+   "id": 53,
+   "roepnaam": "Tijn",
+   "achternaam": "Vos",
+   "lesgroepen": [
+    "v4mtu2",
+    "v4bne1"
+   ],
+   "studies": [
+    "V4"
+   ],
+   "klassen": [
+    "V4B"
+   ]
+  },
+  {
+   "id": 54,
+   "roepnaam": "Roos",
+   "achternaam": "Mulder",
+   "lesgroepen": [
+    "v4mtu2",
+    "v4bne1"
+   ],
+   "studies": [
+    "V4"
+   ],
+   "klassen": [
+    "V4B"
+   ]
+  },
+  {
+   "id": 55,
+   "roepnaam": "Lotte",
+   "achternaam": "Smits",
+   "lesgroepen": [
+    "v4mtu2",
+    "v4bne1"
+   ],
+   "studies": [
+    "V4"
+   ],
+   "klassen": [
+    "V4B"
+   ]
+  },
+  {
+   "id": 56,
+   "roepnaam": "Sara",
+   "achternaam": "Brouwer",
+   "lesgroepen": [
+    "v4mtu2",
+    "v4bne1"
+   ],
+   "studies": [
+    "V4"
+   ],
+   "klassen": [
+    "V4B"
+   ]
+  },
+  {
+   "id": 57,
+   "roepnaam": "Jort",
+   "achternaam": "Kok",
+   "lesgroepen": [
+    "v4mtu2",
+    "v4bne1"
+   ],
+   "studies": [
+    "V4"
+   ],
+   "klassen": [
+    "V4B"
+   ]
+  },
+  {
+   "id": 58,
+   "roepnaam": "Ruben",
+   "achternaam": "de Graaf",
+   "lesgroepen": [
+    "v4mtu2",
+    "v4bne1"
+   ],
+   "studies": [
+    "V4"
+   ],
+   "klassen": [
+    "V4B"
+   ]
+  },
+  {
+   "id": 59,
+   "roepnaam": "Lotte",
+   "achternaam": "Visser",
+   "lesgroepen": [
+    "v4mtu2",
+    "v4bne1"
+   ],
+   "studies": [
+    "V4"
+   ],
+   "klassen": [
+    "V4B"
+   ]
+  },
+  {
+   "id": 60,
+   "roepnaam": "Teun",
+   "achternaam": "Visser",
+   "lesgroepen": [
+    "v4mtu2",
+    "v4bne1"
+   ],
+   "studies": [
+    "V4"
+   ],
+   "klassen": [
+    "V4B"
+   ]
+  },
+  {
+   "id": 61,
+   "roepnaam": "Luuk",
+   "achternaam": "Bos",
+   "lesgroepen": [
+    "v5mtu1",
+    "v5ane1"
+   ],
+   "studies": [
+    "V5"
+   ],
+   "klassen": [
+    "V5A"
+   ]
+  },
+  {
+   "id": 62,
+   "roepnaam": "Stijn",
+   "achternaam": "Dijkstra",
+   "lesgroepen": [
+    "v5mtu1",
+    "v5ane1"
+   ],
+   "studies": [
+    "V5"
+   ],
+   "klassen": [
+    "V5A"
+   ]
+  },
+  {
+   "id": 63,
+   "roepnaam": "Elin",
+   "achternaam": "van der Meer",
+   "lesgroepen": [
+    "v5mtu1",
+    "v5ane1"
+   ],
+   "studies": [
+    "V5"
+   ],
+   "klassen": [
+    "V5A"
+   ]
+  },
+  {
+   "id": 64,
+   "roepnaam": "Lotte",
+   "achternaam": "Mulder",
+   "lesgroepen": [
+    "v5mtu1",
+    "v5ane1"
+   ],
+   "studies": [
+    "V5"
+   ],
+   "klassen": [
+    "V5A"
+   ]
+  },
+  {
+   "id": 65,
+   "roepnaam": "Julia",
+   "achternaam": "Dekker",
+   "lesgroepen": [
+    "v5mtu1",
+    "v5ane1"
+   ],
+   "studies": [
+    "V5"
+   ],
+   "klassen": [
+    "V5A"
+   ]
+  },
+  {
+   "id": 66,
+   "roepnaam": "Isa",
+   "achternaam": "Kok",
+   "lesgroepen": [
+    "v5mtu1",
+    "v5ane1"
+   ],
+   "studies": [
+    "V5"
+   ],
+   "klassen": [
+    "V5A"
+   ]
+  },
+  {
+   "id": 67,
+   "roepnaam": "Isa",
+   "achternaam": "van Leeuwen",
+   "lesgroepen": [
+    "v5mtu1",
+    "v5ane1"
+   ],
+   "studies": [
+    "V5"
+   ],
+   "klassen": [
+    "V5A"
+   ]
+  },
+  {
+   "id": 68,
+   "roepnaam": "Mila",
+   "achternaam": "Jansen",
+   "lesgroepen": [
+    "v5mtu1",
+    "v5ane1"
+   ],
+   "studies": [
+    "V5"
+   ],
+   "klassen": [
+    "V5A"
+   ]
+  },
+  {
+   "id": 69,
+   "roepnaam": "Sanne",
+   "achternaam": "Smit",
+   "lesgroepen": [
+    "v5mtu1",
+    "v5ane1"
+   ],
+   "studies": [
+    "V5"
+   ],
+   "klassen": [
+    "V5A"
+   ]
+  },
+  {
+   "id": 70,
+   "roepnaam": "Mees",
+   "achternaam": "Meijer",
+   "lesgroepen": [
+    "v5mtu2",
+    "v5bne1"
+   ],
+   "studies": [
+    "V5"
+   ],
+   "klassen": [
+    "V5B"
+   ]
+  },
+  {
+   "id": 71,
+   "roepnaam": "Sara",
+   "achternaam": "Meijer",
+   "lesgroepen": [
+    "v5mtu2",
+    "v5bne1"
+   ],
+   "studies": [
+    "V5"
+   ],
+   "klassen": [
+    "V5B"
+   ]
+  },
+  {
+   "id": 72,
+   "roepnaam": "Nora",
+   "achternaam": "Brouwer",
+   "lesgroepen": [
+    "v5mtu2",
+    "v5bne1"
+   ],
+   "studies": [
+    "V5"
+   ],
+   "klassen": [
+    "V5B"
+   ]
+  },
+  {
+   "id": 73,
+   "roepnaam": "Nina",
+   "achternaam": "Smit",
+   "lesgroepen": [
+    "v5mtu2",
+    "v5bne1"
+   ],
+   "studies": [
+    "V5"
+   ],
+   "klassen": [
+    "V5B"
+   ]
+  },
+  {
+   "id": 74,
+   "roepnaam": "Thijs",
+   "achternaam": "de Groot",
+   "lesgroepen": [
+    "v5mtu2",
+    "v5bne1"
+   ],
+   "studies": [
+    "V5"
+   ],
+   "klassen": [
+    "V5B"
+   ]
+  },
+  {
+   "id": 75,
+   "roepnaam": "Thijs",
+   "achternaam": "Bos",
+   "lesgroepen": [
+    "v5mtu2",
+    "v5bne1"
+   ],
+   "studies": [
+    "V5"
+   ],
+   "klassen": [
+    "V5B"
+   ]
+  },
+  {
+   "id": 76,
+   "roepnaam": "Tijn",
+   "achternaam": "Smits",
+   "lesgroepen": [
+    "v5mtu2",
+    "v5bne1"
+   ],
+   "studies": [
+    "V5"
+   ],
+   "klassen": [
+    "V5B"
+   ]
+  },
+  {
+   "id": 77,
+   "roepnaam": "Elin",
+   "achternaam": "Peters",
+   "lesgroepen": [
+    "v5mtu2",
+    "v5bne1"
+   ],
+   "studies": [
+    "V5"
+   ],
+   "klassen": [
+    "V5B"
+   ]
+  },
+  {
+   "id": 78,
+   "roepnaam": "Roos",
+   "achternaam": "van Leeuwen",
+   "lesgroepen": [
+    "v5mtu2",
+    "v5bne1"
+   ],
+   "studies": [
+    "V5"
+   ],
+   "klassen": [
+    "V5B"
+   ]
+  },
+  {
+   "id": 79,
+   "roepnaam": "Maud",
+   "achternaam": "Smits",
+   "lesgroepen": [
+    "v5mtu2",
+    "v5bne1"
+   ],
+   "studies": [
+    "V5"
+   ],
+   "klassen": [
+    "V5B"
+   ]
+  },
+  {
+   "id": 80,
+   "roepnaam": "Anouk",
+   "achternaam": "de Boer",
+   "lesgroepen": [
+    "v5mtu2",
+    "v5bne1"
+   ],
+   "studies": [
+    "V5"
+   ],
+   "klassen": [
+    "V5B"
+   ]
+  },
+  {
+   "id": 81,
+   "roepnaam": "Ruben",
+   "achternaam": "Bakker",
+   "lesgroepen": [
+    "v6mtu1",
+    "v6ane1"
+   ],
+   "studies": [
+    "V6"
+   ],
+   "klassen": [
+    "V6A"
+   ]
+  },
+  {
+   "id": 82,
+   "roepnaam": "Sem",
+   "achternaam": "Smits",
+   "lesgroepen": [
+    "v6mtu1",
+    "v6ane1"
+   ],
+   "studies": [
+    "V6"
+   ],
+   "klassen": [
+    "V6A"
+   ]
+  },
+  {
+   "id": 83,
+   "roepnaam": "Maud",
+   "achternaam": "Dekker",
+   "lesgroepen": [
+    "v6mtu1",
+    "v6ane1"
+   ],
+   "studies": [
+    "V6"
+   ],
+   "klassen": [
+    "V6A"
+   ]
+  },
+  {
+   "id": 84,
+   "roepnaam": "Lotte",
+   "achternaam": "Hendriks",
+   "lesgroepen": [
+    "v6mtu1",
+    "v6ane1"
+   ],
+   "studies": [
+    "V6"
+   ],
+   "klassen": [
+    "V6A"
+   ]
+  },
+  {
+   "id": 85,
+   "roepnaam": "Julia",
+   "achternaam": "Jansen",
+   "lesgroepen": [
+    "v6mtu1",
+    "v6ane1"
+   ],
+   "studies": [
+    "V6"
+   ],
+   "klassen": [
+    "V6A"
+   ]
+  },
+  {
+   "id": 86,
+   "roepnaam": "Isa",
+   "achternaam": "van Leeuwen",
+   "lesgroepen": [
+    "v6mtu1",
+    "v6ane1"
+   ],
+   "studies": [
+    "V6"
+   ],
+   "klassen": [
+    "V6A"
+   ]
+  },
+  {
+   "id": 87,
+   "roepnaam": "Yara",
+   "achternaam": "de Wit",
+   "lesgroepen": [
+    "v6mtu1",
+    "v6ane1"
+   ],
+   "studies": [
+    "V6"
+   ],
+   "klassen": [
+    "V6A"
+   ]
+  },
+  {
+   "id": 88,
+   "roepnaam": "Nina",
+   "achternaam": "Brouwer",
+   "lesgroepen": [
+    "v6mtu1",
+    "v6ane1"
+   ],
+   "studies": [
+    "V6"
+   ],
+   "klassen": [
+    "V6A"
+   ]
+  },
+  {
+   "id": 89,
+   "roepnaam": "Fleur",
+   "achternaam": "Meijer",
+   "lesgroepen": [
+    "v6mtu1",
+    "v6ane1"
+   ],
+   "studies": [
+    "V6"
+   ],
+   "klassen": [
+    "V6A"
+   ]
+  },
+  {
+   "id": 90,
+   "roepnaam": "Evi",
+   "achternaam": "Vermeulen",
+   "lesgroepen": [
+    "v6mtu1",
+    "v6ane1"
+   ],
+   "studies": [
+    "V6"
+   ],
+   "klassen": [
+    "V6A"
+   ]
+  }
+ ],
+ "own_ids": [
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19,
+  20,
+  21,
+  22,
+  23,
+  24,
+  25,
+  26,
+  27,
+  28,
+  29,
+  30,
+  31,
+  32,
+  33,
+  34,
+  35,
+  36,
+  37,
+  38,
+  39,
+  40,
+  41,
+  42,
+  43,
+  44,
+  45,
+  46,
+  47,
+  48,
+  49,
+  50,
+  51,
+  52,
+  53,
+  54,
+  55,
+  56,
+  57,
+  58,
+  59,
+  60,
+  61,
+  62,
+  63,
+  64,
+  65,
+  66,
+  67,
+  68,
+  69,
+  70,
+  71,
+  72,
+  73,
+  74,
+  75,
+  76,
+  77,
+  78,
+  79,
+  80,
+  81,
+  82,
+  83,
+  84,
+  85,
+  86,
+  87,
+  88,
+  89,
+  90
+ ],
+ "entries": {
+  "1": [
+   {
+    "date": "2026-09-23",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Nederlands"
+   }
+  ],
+  "2": [
+   {
+    "date": "2026-09-01",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-01",
+    "time": "13:30",
+    "code": "SP",
+    "period": 6,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-01",
+    "time": "14:30",
+    "code": "SP",
+    "period": 7,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-02",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Frans"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Maatschappijleer"
+   }
+  ],
+  "3": [
+   {
+    "date": "2026-09-03",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Wiskunde B"
+   }
+  ],
+  "4": [
+   {
+    "date": "2026-09-04",
+    "time": "11:30",
+    "code": "AO",
+    "period": 4,
+    "subject": "Geschiedenis"
+   }
+  ],
+  "5": [
+   {
+    "date": "2026-09-02",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "10:30",
+    "code": "SP",
+    "period": 3,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "11:30",
+    "code": "A",
+    "period": 4,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Bedrijfseconomie"
+   }
+  ],
+  "6": [
+   {
+    "date": "2026-08-31",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Economie"
+   }
+  ],
+  "7": [
+   {
+    "date": "2026-09-22",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "10:30",
+    "code": "A",
+    "period": 3,
+    "subject": "Maatschappijleer"
+   }
+  ],
+  "8": [
+   {
+    "date": "2026-08-31",
+    "time": "10:30",
+    "code": "A",
+    "period": 3,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-08-31",
+    "time": "11:30",
+    "code": "SP",
+    "period": 4,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-08",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Biologie"
+   }
+  ],
+  "9": [
+   {
+    "date": "2026-09-07",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-09",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "08:30",
+    "code": "A",
+    "period": 1,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "10:30",
+    "code": "SP",
+    "period": 3,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "11:30",
+    "code": "A",
+    "period": 4,
+    "subject": "Maatschappijleer"
+   }
+  ],
+  "10": [
+   {
+    "date": "2026-09-01",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-02",
+    "time": "08:30",
+    "code": "A",
+    "period": 1,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-08",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Frans"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Duits"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "08:30",
+    "code": "A",
+    "period": 1,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "09:30",
+    "code": "SP",
+    "period": 2,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "10:30",
+    "code": "A",
+    "period": 3,
+    "subject": "Engels"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "08:30",
+    "code": "SP",
+    "period": 1,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Geschiedenis"
+   }
+  ],
+  "11": [
+   {
+    "date": "2026-09-04",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "13:30",
+    "code": "SP",
+    "period": 6,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "14:30",
+    "code": "SP",
+    "period": 7,
+    "subject": "Geschiedenis"
+   }
+  ],
+  "12": [
+   {
+    "date": "2026-09-11",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "13:30",
+    "code": "ZI",
+    "period": 6,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "12:30",
+    "code": "SP",
+    "period": 5,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "11:30",
+    "code": "A",
+    "period": 4,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "13:30",
+    "code": "SP",
+    "period": 6,
+    "subject": "Engels"
+   }
+  ],
+  "13": [
+   {
+    "date": "2026-08-31",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "LO"
+   }
+  ],
+  "14": [
+   {
+    "date": "2026-09-11",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "12:30",
+    "code": "AO",
+    "period": 5,
+    "subject": "Scheikunde"
+   }
+  ],
+  "15": [
+   {
+    "date": "2026-09-01",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-02",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "12:30",
+    "code": "SP",
+    "period": 5,
+    "subject": "Duits"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Engels"
+   },
+   {
+    "date": "2026-09-09",
+    "time": "10:30",
+    "code": "SP",
+    "period": 3,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-09",
+    "time": "11:30",
+    "code": "A",
+    "period": 4,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-09",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "09:30",
+    "code": "A",
+    "period": 2,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Frans"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "13:30",
+    "code": "ZI",
+    "period": 6,
+    "subject": "Bedrijfseconomie"
+   }
+  ],
+  "16": [
+   {
+    "date": "2026-09-02",
+    "time": "11:30",
+    "code": "AO",
+    "period": 4,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-08",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-09",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "10:30",
+    "code": "A",
+    "period": 3,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Frans"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Bedrijfseconomie"
+   }
+  ],
+  "17": [
+   {
+    "date": "2026-09-02",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-02",
+    "time": "12:30",
+    "code": "BV",
+    "period": 5,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-08",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Mentoruur"
+   }
+  ],
+  "18": [
+   {
+    "date": "2026-09-10",
+    "time": "08:30",
+    "code": "A",
+    "period": 1,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "09:30",
+    "code": "A",
+    "period": 2,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "10:30",
+    "code": "SP",
+    "period": 3,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Engels"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "08:30",
+    "code": "AO",
+    "period": 1,
+    "subject": "Mentoruur"
+   }
+  ],
+  "19": [
+   {
+    "date": "2026-09-03",
+    "time": "11:30",
+    "code": "A",
+    "period": 4,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "12:30",
+    "code": "SP",
+    "period": 5,
+    "subject": "Duits"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "10:30",
+    "code": "AO",
+    "period": 3,
+    "subject": "Scheikunde"
+   }
+  ],
+  "20": [
+   {
+    "date": "2026-09-01",
+    "time": "10:30",
+    "code": "A",
+    "period": 3,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-01",
+    "time": "11:30",
+    "code": "A",
+    "period": 4,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-04",
+    "time": "13:30",
+    "code": "SP",
+    "period": 6,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "14:30",
+    "code": "A",
+    "period": 7,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "14:30",
+    "code": "A",
+    "period": 7,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "15:30",
+    "code": "SP",
+    "period": 8,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "13:30",
+    "code": "SP",
+    "period": 6,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "14:30",
+    "code": "SP",
+    "period": 7,
+    "subject": "Engels"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "15:30",
+    "code": "A",
+    "period": 8,
+    "subject": "Aardrijkskunde"
+   }
+  ],
+  "21": [
+   {
+    "date": "2026-09-09",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Geschiedenis"
+   }
+  ],
+  "22": [
+   {
+    "date": "2026-08-31",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-01",
+    "time": "09:30",
+    "code": "SP",
+    "period": 2,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-04",
+    "time": "10:30",
+    "code": "SP",
+    "period": 3,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-08",
+    "time": "09:30",
+    "code": "A",
+    "period": 2,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-08",
+    "time": "10:30",
+    "code": "SP",
+    "period": 3,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-08",
+    "time": "11:30",
+    "code": "SP",
+    "period": 4,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-08",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "13:30",
+    "code": "SP",
+    "period": 6,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "14:30",
+    "code": "SP",
+    "period": 7,
+    "subject": "Engels"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "15:30",
+    "code": "A",
+    "period": 8,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "10:30",
+    "code": "A",
+    "period": 3,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Biologie"
+   }
+  ],
+  "23": [
+   {
+    "date": "2026-09-17",
+    "time": "12:30",
+    "code": "SP",
+    "period": 5,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "14:30",
+    "code": "SP",
+    "period": 7,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "11:30",
+    "code": "SP",
+    "period": 4,
+    "subject": "Engels"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "12:30",
+    "code": "SP",
+    "period": 5,
+    "subject": "Engels"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Frans"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Engels"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "13:30",
+    "code": "ZI",
+    "period": 6,
+    "subject": "Geschiedenis"
+   }
+  ],
+  "24": [
+   {
+    "date": "2026-09-03",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Duits"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Aardrijkskunde"
+   }
+  ],
+  "25": [
+   {
+    "date": "2026-09-02",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-02",
+    "time": "14:30",
+    "code": "SP",
+    "period": 7,
+    "subject": "Engels"
+   },
+   {
+    "date": "2026-09-02",
+    "time": "15:30",
+    "code": "SP",
+    "period": 8,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Filosofie"
+   }
+  ],
+  "26": [
+   {
+    "date": "2026-09-03",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-04",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Duits"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "13:30",
+    "code": "SP",
+    "period": 6,
+    "subject": "Engels"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "14:30",
+    "code": "A",
+    "period": 7,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Bedrijfseconomie"
+   }
+  ],
+  "27": [
+   {
+    "date": "2026-09-07",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-07",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-07",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-07",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-07",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-07",
+    "time": "13:30",
+    "code": "ZI",
+    "period": 6,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-07",
+    "time": "14:30",
+    "code": "ZI",
+    "period": 7,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Filosofie"
+   }
+  ],
+  "28": [
+   {
+    "date": "2026-09-01",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-01",
+    "time": "14:30",
+    "code": "SP",
+    "period": 7,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-04",
+    "time": "08:30",
+    "code": "A",
+    "period": 1,
+    "subject": "Frans"
+   },
+   {
+    "date": "2026-09-04",
+    "time": "09:30",
+    "code": "A",
+    "period": 2,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-04",
+    "time": "10:30",
+    "code": "SP",
+    "period": 3,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-07",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-08",
+    "time": "10:30",
+    "code": "A",
+    "period": 3,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-08",
+    "time": "11:30",
+    "code": "A",
+    "period": 4,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "09:30",
+    "code": "SP",
+    "period": 2,
+    "subject": "Frans"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "10:30",
+    "code": "SP",
+    "period": 3,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-15",
+    "time": "09:30",
+    "code": "SP",
+    "period": 2,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-15",
+    "time": "10:30",
+    "code": "SP",
+    "period": 3,
+    "subject": "Frans"
+   },
+   {
+    "date": "2026-09-15",
+    "time": "11:30",
+    "code": "A",
+    "period": 4,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "09:30",
+    "code": "SP",
+    "period": 2,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "10:30",
+    "code": "SP",
+    "period": 3,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "11:30",
+    "code": "A",
+    "period": 4,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Filosofie"
+   }
+  ],
+  "29": [
+   {
+    "date": "2026-09-11",
+    "time": "13:30",
+    "code": "SP",
+    "period": 6,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "09:30",
+    "code": "A",
+    "period": 2,
+    "subject": "Duits"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "10:30",
+    "code": "A",
+    "period": 3,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Biologie"
+   }
+  ],
+  "30": [],
+  "31": [
+   {
+    "date": "2026-08-31",
+    "time": "10:30",
+    "code": "A",
+    "period": 3,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-08-31",
+    "time": "11:30",
+    "code": "A",
+    "period": 4,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-08",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "10:30",
+    "code": "A",
+    "period": 3,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "11:30",
+    "code": "SP",
+    "period": 4,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-15",
+    "time": "09:30",
+    "code": "A",
+    "period": 2,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-15",
+    "time": "10:30",
+    "code": "SP",
+    "period": 3,
+    "subject": "Duits"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "14:30",
+    "code": "SP",
+    "period": 7,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "15:30",
+    "code": "A",
+    "period": 8,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Duits"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "14:30",
+    "code": "A",
+    "period": 7,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Geschiedenis"
+   }
+  ],
+  "32": [
+   {
+    "date": "2026-09-03",
+    "time": "11:30",
+    "code": "SP",
+    "period": 4,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "12:30",
+    "code": "SP",
+    "period": 5,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-04",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-09",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "12:30",
+    "code": "SP",
+    "period": 5,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "14:30",
+    "code": "SP",
+    "period": 7,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "09:30",
+    "code": "SP",
+    "period": 2,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "10:30",
+    "code": "SP",
+    "period": 3,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "11:30",
+    "code": "A",
+    "period": 4,
+    "subject": "Natuurkunde"
+   }
+  ],
+  "33": [
+   {
+    "date": "2026-08-31",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-01",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-01",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-01",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Duits"
+   },
+   {
+    "date": "2026-09-01",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-01",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-01",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-01",
+    "time": "13:30",
+    "code": "ZI",
+    "period": 6,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "11:30",
+    "code": "A",
+    "period": 4,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "12:30",
+    "code": "SP",
+    "period": 5,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "10:30",
+    "code": "A",
+    "period": 3,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "11:30",
+    "code": "A",
+    "period": 4,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "12:30",
+    "code": "SP",
+    "period": 5,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-15",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "13:30",
+    "code": "SP",
+    "period": 6,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "14:30",
+    "code": "SP",
+    "period": 7,
+    "subject": "Engels"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "15:30",
+    "code": "SP",
+    "period": 8,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Natuurkunde"
+   }
+  ],
+  "34": [
+   {
+    "date": "2026-09-11",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Filosofie"
+   }
+  ],
+  "35": [
+   {
+    "date": "2026-08-31",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-08-31",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-08-31",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-08-31",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-08-31",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-08-31",
+    "time": "13:30",
+    "code": "ZI",
+    "period": 6,
+    "subject": "Frans"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-08",
+    "time": "08:30",
+    "code": "A",
+    "period": 1,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "12:30",
+    "code": "SP",
+    "period": 5,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "13:30",
+    "code": "SP",
+    "period": 6,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "14:30",
+    "code": "A",
+    "period": 7,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Aardrijkskunde"
+   }
+  ],
+  "36": [],
+  "37": [
+   {
+    "date": "2026-09-07",
+    "time": "09:30",
+    "code": "AO",
+    "period": 2,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Frans"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Wiskunde B"
+   }
+  ],
+  "38": [],
+  "39": [
+   {
+    "date": "2026-09-11",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "10:30",
+    "code": "A",
+    "period": 3,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "11:30",
+    "code": "SP",
+    "period": 4,
+    "subject": "Biologie"
+   }
+  ],
+  "40": [
+   {
+    "date": "2026-09-01",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Frans"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Filosofie"
+   }
+  ],
+  "41": [
+   {
+    "date": "2026-09-02",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-02",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-15",
+    "time": "10:30",
+    "code": "A",
+    "period": 3,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-15",
+    "time": "11:30",
+    "code": "A",
+    "period": 4,
+    "subject": "Engels"
+   },
+   {
+    "date": "2026-09-15",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "Scheikunde"
+   }
+  ],
+  "42": [
+   {
+    "date": "2026-09-02",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "12:30",
+    "code": "SP",
+    "period": 5,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "14:30",
+    "code": "A",
+    "period": 7,
+    "subject": "Engels"
+   },
+   {
+    "date": "2026-09-04",
+    "time": "12:30",
+    "code": "SP",
+    "period": 5,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-04",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-07",
+    "time": "08:30",
+    "code": "A",
+    "period": 1,
+    "subject": "Engels"
+   },
+   {
+    "date": "2026-09-07",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-08",
+    "time": "11:30",
+    "code": "SP",
+    "period": 4,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-08",
+    "time": "12:30",
+    "code": "SP",
+    "period": 5,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Frans"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "14:30",
+    "code": "A",
+    "period": 7,
+    "subject": "Frans"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "15:30",
+    "code": "A",
+    "period": 8,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Duits"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "13:30",
+    "code": "ZI",
+    "period": 6,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "13:30",
+    "code": "SP",
+    "period": 6,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "14:30",
+    "code": "SP",
+    "period": 7,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Nederlands"
+   }
+  ],
+  "43": [
+   {
+    "date": "2026-09-22",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "14:30",
+    "code": "BV",
+    "period": 7,
+    "subject": "Geschiedenis"
+   }
+  ],
+  "44": [
+   {
+    "date": "2026-09-02",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Frans"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "09:30",
+    "code": "AO",
+    "period": 2,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Scheikunde"
+   }
+  ],
+  "45": [
+   {
+    "date": "2026-09-08",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Engels"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Engels"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "14:30",
+    "code": "A",
+    "period": 7,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "15:30",
+    "code": "A",
+    "period": 8,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "13:30",
+    "code": "ZI",
+    "period": 6,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "14:30",
+    "code": "ZI",
+    "period": 7,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Duits"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "13:30",
+    "code": "ZI",
+    "period": 6,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "12:30",
+    "code": "SP",
+    "period": 5,
+    "subject": "Economie"
+   }
+  ],
+  "46": [
+   {
+    "date": "2026-08-31",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "13:30",
+    "code": "ZI",
+    "period": 6,
+    "subject": "Engels"
+   }
+  ],
+  "47": [
+   {
+    "date": "2026-09-02",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-02",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-02",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-02",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-02",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-02",
+    "time": "13:30",
+    "code": "ZI",
+    "period": 6,
+    "subject": "Frans"
+   },
+   {
+    "date": "2026-09-02",
+    "time": "14:30",
+    "code": "ZI",
+    "period": 7,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Wiskunde B"
+   }
+  ],
+  "48": [
+   {
+    "date": "2026-08-31",
+    "time": "10:30",
+    "code": "AO",
+    "period": 3,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "15:30",
+    "code": "BV",
+    "period": 8,
+    "subject": "Aardrijkskunde"
+   }
+  ],
+  "49": [
+   {
+    "date": "2026-09-04",
+    "time": "09:30",
+    "code": "SP",
+    "period": 2,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-04",
+    "time": "10:30",
+    "code": "A",
+    "period": 3,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "12:30",
+    "code": "AO",
+    "period": 5,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "LO"
+   }
+  ],
+  "50": [
+   {
+    "date": "2026-09-04",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-09",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Engels"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Geschiedenis"
+   }
+  ],
+  "51": [
+   {
+    "date": "2026-09-01",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-07",
+    "time": "13:30",
+    "code": "SP",
+    "period": 6,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-07",
+    "time": "14:30",
+    "code": "A",
+    "period": 7,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-07",
+    "time": "15:30",
+    "code": "SP",
+    "period": 8,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-09",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Duits"
+   },
+   {
+    "date": "2026-09-09",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-09",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-09",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-09",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-15",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "08:30",
+    "code": "SP",
+    "period": 1,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "09:30",
+    "code": "A",
+    "period": 2,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "14:30",
+    "code": "SP",
+    "period": 7,
+    "subject": "Nederlands"
+   }
+  ],
+  "52": [
+   {
+    "date": "2026-08-31",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-02",
+    "time": "11:30",
+    "code": "AO",
+    "period": 4,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "12:30",
+    "code": "SP",
+    "period": 5,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "14:30",
+    "code": "A",
+    "period": 7,
+    "subject": "Engels"
+   }
+  ],
+  "53": [
+   {
+    "date": "2026-09-01",
+    "time": "10:30",
+    "code": "A",
+    "period": 3,
+    "subject": "Frans"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Duits"
+   }
+  ],
+  "54": [
+   {
+    "date": "2026-09-10",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Maatschappijleer"
+   }
+  ],
+  "55": [
+   {
+    "date": "2026-08-31",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-04",
+    "time": "08:30",
+    "code": "AO",
+    "period": 1,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Geschiedenis"
+   }
+  ],
+  "56": [
+   {
+    "date": "2026-09-08",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Mentoruur"
+   }
+  ],
+  "57": [
+   {
+    "date": "2026-09-01",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "Duits"
+   },
+   {
+    "date": "2026-09-01",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-01",
+    "time": "14:30",
+    "code": "A",
+    "period": 7,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-02",
+    "time": "12:30",
+    "code": "BV",
+    "period": 5,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-08",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-09",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "09:30",
+    "code": "SP",
+    "period": 2,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "LO"
+   }
+  ],
+  "58": [
+   {
+    "date": "2026-08-31",
+    "time": "11:30",
+    "code": "A",
+    "period": 4,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-08-31",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-08-31",
+    "time": "13:30",
+    "code": "SP",
+    "period": 6,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-01",
+    "time": "10:30",
+    "code": "A",
+    "period": 3,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-01",
+    "time": "11:30",
+    "code": "A",
+    "period": 4,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-01",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-02",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "12:30",
+    "code": "SP",
+    "period": 5,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-04",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-04",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-04",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Duits"
+   },
+   {
+    "date": "2026-09-04",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-04",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-04",
+    "time": "13:30",
+    "code": "ZI",
+    "period": 6,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-04",
+    "time": "14:30",
+    "code": "ZI",
+    "period": 7,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-08",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-08",
+    "time": "13:30",
+    "code": "SP",
+    "period": 6,
+    "subject": "Engels"
+   },
+   {
+    "date": "2026-09-09",
+    "time": "11:30",
+    "code": "A",
+    "period": 4,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-09",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-09",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "11:30",
+    "code": "A",
+    "period": 4,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "Frans"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "13:30",
+    "code": "SP",
+    "period": 6,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "12:30",
+    "code": "BV",
+    "period": 5,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "08:30",
+    "code": "SP",
+    "period": 1,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "08:30",
+    "code": "SP",
+    "period": 1,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "09:30",
+    "code": "A",
+    "period": 2,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "09:30",
+    "code": "SP",
+    "period": 2,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "10:30",
+    "code": "A",
+    "period": 3,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "11:30",
+    "code": "A",
+    "period": 4,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "15:30",
+    "code": "AO",
+    "period": 8,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "13:30",
+    "code": "SP",
+    "period": 6,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "14:30",
+    "code": "A",
+    "period": 7,
+    "subject": "Frans"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "15:30",
+    "code": "A",
+    "period": 8,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Duits"
+   }
+  ],
+  "59": [
+   {
+    "date": "2026-09-16",
+    "time": "08:30",
+    "code": "AO",
+    "period": 1,
+    "subject": "Wiskunde B"
+   }
+  ],
+  "60": [
+   {
+    "date": "2026-09-03",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Frans"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "13:30",
+    "code": "ZI",
+    "period": 6,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "13:30",
+    "code": "ZI",
+    "period": 6,
+    "subject": "Engels"
+   }
+  ],
+  "61": [
+   {
+    "date": "2026-09-03",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Duits"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "13:30",
+    "code": "ZI",
+    "period": 6,
+    "subject": "Duits"
+   }
+  ],
+  "62": [
+   {
+    "date": "2026-09-01",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Geschiedenis"
+   }
+  ],
+  "63": [
+   {
+    "date": "2026-09-04",
+    "time": "11:30",
+    "code": "SP",
+    "period": 4,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-04",
+    "time": "12:30",
+    "code": "SP",
+    "period": 5,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-04",
+    "time": "13:30",
+    "code": "SP",
+    "period": 6,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-15",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Duits"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "11:30",
+    "code": "AO",
+    "period": 4,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "11:30",
+    "code": "A",
+    "period": 4,
+    "subject": "Engels"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "13:30",
+    "code": "SP",
+    "period": 6,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "09:30",
+    "code": "A",
+    "period": 2,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "10:30",
+    "code": "SP",
+    "period": 3,
+    "subject": "Engels"
+   }
+  ],
+  "64": [
+   {
+    "date": "2026-08-31",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Geschiedenis"
+   }
+  ],
+  "65": [
+   {
+    "date": "2026-09-09",
+    "time": "11:30",
+    "code": "SP",
+    "period": 4,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-09",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-09",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-15",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Engels"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "10:30",
+    "code": "A",
+    "period": 3,
+    "subject": "Duits"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "11:30",
+    "code": "A",
+    "period": 4,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Engels"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "12:30",
+    "code": "SP",
+    "period": 5,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "08:30",
+    "code": "SP",
+    "period": 1,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Duits"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "10:30",
+    "code": "A",
+    "period": 3,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "11:30",
+    "code": "SP",
+    "period": 4,
+    "subject": "Engels"
+   }
+  ],
+  "66": [
+   {
+    "date": "2026-09-16",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "13:30",
+    "code": "ZI",
+    "period": 6,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Frans"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Engels"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Geschiedenis"
+   }
+  ],
+  "67": [
+   {
+    "date": "2026-09-03",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-09",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Engels"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "13:30",
+    "code": "ZI",
+    "period": 6,
+    "subject": "Natuurkunde"
+   }
+  ],
+  "68": [
+   {
+    "date": "2026-09-24",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Mentoruur"
+   }
+  ],
+  "69": [
+   {
+    "date": "2026-08-31",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-01",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-08",
+    "time": "09:30",
+    "code": "SP",
+    "period": 2,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-09",
+    "time": "13:30",
+    "code": "SP",
+    "period": 6,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-09",
+    "time": "14:30",
+    "code": "A",
+    "period": 7,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "13:30",
+    "code": "SP",
+    "period": 6,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Scheikunde"
+   }
+  ],
+  "70": [
+   {
+    "date": "2026-09-09",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-09",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Duits"
+   },
+   {
+    "date": "2026-09-09",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-09",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-09",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-09",
+    "time": "13:30",
+    "code": "ZI",
+    "period": 6,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-09",
+    "time": "14:30",
+    "code": "ZI",
+    "period": 7,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-15",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-15",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-15",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-15",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Maatschappijleer"
+   }
+  ],
+  "71": [
+   {
+    "date": "2026-09-03",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Frans"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Frans"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "13:30",
+    "code": "ZI",
+    "period": 6,
+    "subject": "Duits"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "10:30",
+    "code": "A",
+    "period": 3,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "11:30",
+    "code": "SP",
+    "period": 4,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "LO"
+   }
+  ],
+  "72": [
+   {
+    "date": "2026-08-31",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-02",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-02",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-02",
+    "time": "14:30",
+    "code": "A",
+    "period": 7,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-03",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-07",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-08",
+    "time": "11:30",
+    "code": "A",
+    "period": 4,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-08",
+    "time": "12:30",
+    "code": "SP",
+    "period": 5,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "10:30",
+    "code": "SP",
+    "period": 3,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "11:30",
+    "code": "A",
+    "period": 4,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Duits"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "09:30",
+    "code": "A",
+    "period": 2,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "10:30",
+    "code": "A",
+    "period": 3,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "10:30",
+    "code": "A",
+    "period": 3,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "11:30",
+    "code": "A",
+    "period": 4,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "13:30",
+    "code": "A",
+    "period": 6,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "14:30",
+    "code": "A",
+    "period": 7,
+    "subject": "Natuurkunde"
+   }
+  ],
+  "73": [
+   {
+    "date": "2026-09-10",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Engels"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Aardrijkskunde"
+   }
+  ],
+  "74": [],
+  "75": [
+   {
+    "date": "2026-09-09",
+    "time": "08:30",
+    "code": "SP",
+    "period": 1,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-09",
+    "time": "09:30",
+    "code": "A",
+    "period": 2,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Geschiedenis"
+   }
+  ],
+  "76": [
+   {
+    "date": "2026-09-01",
+    "time": "12:30",
+    "code": "SP",
+    "period": 5,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-01",
+    "time": "13:30",
+    "code": "SP",
+    "period": 6,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-10",
+    "time": "13:30",
+    "code": "ZI",
+    "period": 6,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Mentoruur"
+   }
+  ],
+  "77": [
+   {
+    "date": "2026-09-03",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Engels"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "09:30",
+    "code": "SP",
+    "period": 2,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "10:30",
+    "code": "SP",
+    "period": 3,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-11",
+    "time": "11:30",
+    "code": "A",
+    "period": 4,
+    "subject": "Maatschappijleer"
+   }
+  ],
+  "78": [
+   {
+    "date": "2026-09-02",
+    "time": "10:30",
+    "code": "A",
+    "period": 3,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-02",
+    "time": "08:30",
+    "code": "AO",
+    "period": 1,
+    "subject": "Natuurkunde"
+   }
+  ],
+  "79": [
+   {
+    "date": "2026-09-02",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-02",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-02",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-02",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-02",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Wiskunde B"
+   }
+  ],
+  "80": [
+   {
+    "date": "2026-09-14",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "13:30",
+    "code": "ZI",
+    "period": 6,
+    "subject": "Geschiedenis"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "14:30",
+    "code": "ZI",
+    "period": 7,
+    "subject": "Duits"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Duits"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-17",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Frans"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "13:30",
+    "code": "ZI",
+    "period": 6,
+    "subject": "Biologie"
+   }
+  ],
+  "81": [
+   {
+    "date": "2026-09-14",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-14",
+    "time": "13:30",
+    "code": "SP",
+    "period": 6,
+    "subject": "Maatschappijleer"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "10:30",
+    "code": "AO",
+    "period": 3,
+    "subject": "Natuurkunde"
+   }
+  ],
+  "82": [
+   {
+    "date": "2026-09-11",
+    "time": "08:30",
+    "code": "BV",
+    "period": 1,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Frans"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Frans"
+   }
+  ],
+  "83": [
+   {
+    "date": "2026-08-31",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-15",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Nederlands"
+   }
+  ],
+  "84": [
+   {
+    "date": "2026-09-18",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "Frans"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "13:30",
+    "code": "SP",
+    "period": 6,
+    "subject": "Biologie"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "14:30",
+    "code": "A",
+    "period": 7,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Frans"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Geschiedenis"
+   }
+  ],
+  "85": [
+   {
+    "date": "2026-09-01",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Mentoruur"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-24",
+    "time": "13:30",
+    "code": "ZI",
+    "period": 6,
+    "subject": "Scheikunde"
+   }
+  ],
+  "86": [
+   {
+    "date": "2026-09-22",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-23",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Bedrijfseconomie"
+   }
+  ],
+  "87": [
+   {
+    "date": "2026-09-03",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Economie"
+   },
+   {
+    "date": "2026-09-09",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-21",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Frans"
+   }
+  ],
+  "88": [
+   {
+    "date": "2026-09-07",
+    "time": "08:30",
+    "code": "TA",
+    "period": 1,
+    "subject": "LO"
+   },
+   {
+    "date": "2026-09-16",
+    "time": "10:30",
+    "code": "TA",
+    "period": 3,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Frans"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Nederlands"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-18",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Mentoruur"
+   }
+  ],
+  "89": [
+   {
+    "date": "2026-09-02",
+    "time": "09:30",
+    "code": "TA",
+    "period": 2,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "08:30",
+    "code": "ZI",
+    "period": 1,
+    "subject": "Bedrijfseconomie"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "09:30",
+    "code": "ZI",
+    "period": 2,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "10:30",
+    "code": "ZI",
+    "period": 3,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "11:30",
+    "code": "ZI",
+    "period": 4,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "12:30",
+    "code": "ZI",
+    "period": 5,
+    "subject": "Natuurkunde"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "13:30",
+    "code": "ZI",
+    "period": 6,
+    "subject": "Aardrijkskunde"
+   },
+   {
+    "date": "2026-09-22",
+    "time": "14:30",
+    "code": "ZI",
+    "period": 7,
+    "subject": "Filosofie"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "10:30",
+    "code": "SP",
+    "period": 3,
+    "subject": "Wiskunde B"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "11:30",
+    "code": "A",
+    "period": 4,
+    "subject": "Scheikunde"
+   },
+   {
+    "date": "2026-09-25",
+    "time": "12:30",
+    "code": "A",
+    "period": 5,
+    "subject": "Biologie"
+   }
+  ],
+  "90": []
+ }
+}

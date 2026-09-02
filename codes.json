@@ -1,0 +1,17 @@
+{
+  "_uitleg": "Verzuimcodes van Magister. soort: 'ong' = ongeoorloofd (telt in de urennorm), 'laat' = te laat (apart signaal), 'geo' = geoorloofd (alleen context). Zet 'controleren' op true zolang je niet zeker weet wat de code bij jullie betekent; de app waarschuwt daar dan over. Je kunt dit bestand ook vanuit de app aanpassen.",
+  "codes": {
+    "A":  { "naam": "Afwezig ongeoorloofd", "soort": "ong" },
+    "SP": { "naam": "Spijbelen",            "soort": "ong" },
+    "TA": { "naam": "Te laat",              "soort": "laat" },
+    "ZI": { "naam": "Ziek",                 "soort": "geo" },
+    "AO": { "naam": "Arts / orthodontist",  "soort": "geo" },
+    "BV": { "naam": "Bijzonder verlof",     "soort": "geo" },
+    "SC": { "naam": "Geschorst",            "soort": "geo" },
+    "L":  { "naam": "L (nog indelen)",      "soort": "geo", "controleren": true },
+    "SI": { "naam": "SI (nog indelen)",     "soort": "geo", "controleren": true },
+    "BO": { "naam": "BO (nog indelen)",     "soort": "geo", "controleren": true },
+    "BR": { "naam": "BR (nog indelen)",     "soort": "geo", "controleren": true },
+    "SA": { "naam": "SA (nog indelen)",     "soort": "geo", "controleren": true }
+  }
+}
