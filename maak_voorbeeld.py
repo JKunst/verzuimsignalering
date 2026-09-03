@@ -48,10 +48,20 @@ def lesdagen():
     return dagen
 
 
+LOGBOEK_TEKST = (
+    '<p><strong>Hoe ging het afgelopen jaar?</strong></p>'
+    '<p>Wisselend beeld, met&nbsp;steun van mentor en ouders vooruitgang geboekt.</p>'
+    '<p><strong>Zijn er bijzonderheden?</strong></p>'
+    '<p>Verzuim rond de toetsweken, verder geen bijzonderheden.</p>'
+    '<p><strong>Aandachtspunten voor volgend jaar?</strong></p>'
+    '<p>Planning en op tijd komen.</p>'
+)
+
+
 def maak():
     r = random.Random(20260902)
     dagen = lesdagen()
-    students, entries, sid = [], {}, 1
+    students, entries, logboek, sid = [], {}, {}, 1
 
     for klas, mentorgroep in KLASSEN.items():
         for _ in range(r.randint(7, 11)):
@@ -84,6 +94,15 @@ def maak():
                 'klassen': [klas],
             })
             entries[str(sid)] = rijen
+            if r.random() < 0.2:                    # niet elke leerling heeft een formulier
+                logboek[str(sid)] = [{
+                    'id': 100000 + sid,
+                    'eigenaar': {'roepnaam': 'M.', 'tussenvoegsel': 'de',
+                                 'achternaam': 'Jong'},
+                    'omschrijving': 'Prognose en warme overdracht',
+                    'aangemaaktOp': '2026-07-15',
+                    'inhoud': LOGBOEK_TEKST,
+                }]
             sid += 1
 
     return {
@@ -93,6 +112,8 @@ def maak():
         'students': students,
         'own_ids': [s['id'] for s in students],
         'entries': entries,
+        'logboek': logboek,
+        'logboek_bron': '/api/leerlingen/{id}/lvs/logboekformulieren (voorbeeld)',
     }
 
 
@@ -110,4 +131,6 @@ if __name__ == '__main__':
     payload = maak()
     UIT.write_text(json.dumps(payload, ensure_ascii=False, indent=1), encoding='utf-8')
     n = sum(len(v) for v in payload['entries'].values())
-    print(f'{UIT.name}: {len(payload["students"])} leerlingen, {n} registraties')
+    lb = sum(len(v) for v in payload['logboek'].values())
+    print(f'{UIT.name}: {len(payload["students"])} leerlingen, {n} registraties, '
+          f'{lb} logboekformulieren')

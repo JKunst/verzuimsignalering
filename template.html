@@ -31,6 +31,7 @@
 
   /* Dataseries (gevalideerd) */
   --s-ongeoorloofd: #eb6834;
+  --s-telaat:       #f0a500;
   --s-geoorloofd:   #2a78d6;
   --bar-neutral:    #7c7c88;
 
@@ -55,6 +56,7 @@
     --st-good-bg: #16301a;
 
     --s-ongeoorloofd: #d95926;
+    --s-telaat:       #d99a10;
     --s-geoorloofd:   #3987e5;
     --bar-neutral:    #8b8b98;
 
@@ -78,6 +80,7 @@
   --st-good-bg: #16301a;
 
   --s-ongeoorloofd: #d95926;
+  --s-telaat:       #d99a10;
   --s-geoorloofd:   #3987e5;
   --bar-neutral:    #8b8b98;
 
@@ -356,6 +359,94 @@ footer b { color: var(--ink-2); font-weight: 600; }
   .meter { grid-column: 2 / -1; padding: 0 0 11px 13px; }
   .tiles { grid-template-columns: 1fr 1fr; }
 }
+
+/* ── Codeknoppen ─────────────────────────────────────────────────────────── */
+.codebalk {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  margin-bottom: 14px; padding: 10px 12px;
+  background: var(--card); border: 1px solid var(--lijn); border-radius: var(--radius);
+}
+.cbalk-kop { font-size: .74rem; font-weight: 600; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .04em; margin-right: 2px; }
+.cbtn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 9px; border-radius: 999px; cursor: pointer;
+  font-family: inherit; font-size: .76rem; color: var(--ink-2);
+  background: var(--card-sunk); border: 1px solid var(--lijn);
+  border-left: 3px solid var(--bar-neutral);
+  opacity: .55; transition: opacity .12s, background .12s;
+}
+.cbtn:hover { opacity: .85; }
+.cbtn.aan { opacity: 1; background: var(--card); color: var(--ink); border-color: var(--ink-2); }
+.cbtn.ong { border-left-color: var(--s-ongeoorloofd); }
+.cbtn.laat { border-left-color: var(--s-telaat); }
+.cbtn.geo { border-left-color: var(--s-geoorloofd); }
+.cbtn b { font-weight: 700; }
+.cbtn-n { font-size: .7rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.cbalk-presets { margin-left: auto; display: flex; gap: 4px; }
+.cpreset {
+  background: none; border: none; cursor: pointer; font-family: inherit;
+  font-size: .74rem; color: var(--muted); text-decoration: underline;
+  text-underline-offset: 3px; padding: 3px 4px;
+}
+.cpreset:hover { color: var(--ink); }
+
+/* ── Contactmomenten ─────────────────────────────────────────────────────── */
+.contact { background: var(--card-sunk); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; }
+.ct-kop { font-size: .74rem; font-weight: 600; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+.ct-rij { display: grid; grid-template-columns: 62px 130px 1fr 22px; gap: 8px;
+  align-items: baseline; font-size: .78rem; padding: 3px 0; border-bottom: 1px solid var(--lijn); }
+.ct-rij:last-of-type { border-bottom: none; }
+.ct-datum { font-weight: 600; }
+.ct-soort { color: var(--ink-2); }
+.ct-notitie { color: var(--ink-2); overflow-wrap: anywhere; }
+.ct-weg { background: none; border: none; color: var(--muted); cursor: pointer;
+  font-size: 1rem; line-height: 1; padding: 0; }
+.ct-weg:hover { color: var(--st-crit); }
+.ct-leeg { font-size: .76rem; color: var(--muted); }
+.ct-form { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.ct-form input, .ct-form select {
+  font-family: inherit; font-size: .78rem; padding: 4px 7px;
+  border: 1px solid var(--lijn); border-radius: 6px;
+  background: var(--card); color: var(--ink);
+}
+.ct-in-notitie { flex: 1; min-width: 150px; }
+.ct-opslaan, .ct-knoppen button {
+  font-family: inherit; font-size: .78rem; padding: 4px 12px; cursor: pointer;
+  border: 1px solid var(--ink-2); border-radius: 6px;
+  background: var(--ink); color: var(--paper); font-weight: 600;
+}
+.ct-opslaan:hover, .ct-knoppen button:hover { opacity: .88; }
+.ct-export {
+  background: none; border: none; cursor: pointer; font-family: inherit;
+  font-size: .76rem; color: var(--ink-2); text-decoration: underline;
+  text-underline-offset: 3px; padding: 0;
+}
+.ct-export:hover { color: var(--ink); }
+.ct-badge { display: inline-flex; align-items: center; gap: 3px; margin-left: 7px;
+  font-size: .7rem; font-weight: 600; color: var(--s-geoorloofd); }
+.ct-badge .ico { width: 11px; height: 11px; }
+.signal.ct { border-left-color: var(--s-geoorloofd); }
+#contact-export { margin: 0 0 10px; font-size: .78rem; }
+#ct-export-vak { margin-bottom: 12px; }
+.ct-json { width: 100%; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: .72rem; border: 1px solid var(--lijn); border-radius: 6px; padding: 8px;
+  background: var(--card-sunk); color: var(--ink); }
+.ct-uitleg { font-size: .76rem; color: var(--ink-2); margin-bottom: 6px; }
+.ct-knoppen { display: flex; gap: 6px; margin-top: 6px; }
+
+/* ── Logboek ─────────────────────────────────────────────────────────────── */
+.logboek { margin-bottom: 10px; }
+.lb-kop { cursor: pointer; font-size: .78rem; font-weight: 600; color: var(--ink-2); }
+.lb-item { margin: 5px 0 5px 10px; }
+.lb-item summary { cursor: pointer; font-size: .76rem; color: var(--ink-2); }
+.lb-tekst { white-space: pre-wrap; font-family: inherit; font-size: .78rem;
+  color: var(--ink-2); background: var(--card-sunk); border-radius: 6px;
+  padding: 8px 10px; margin: 5px 0 0; overflow-wrap: anywhere; }
+.detail-telling { font-size: .72rem; color: var(--muted); margin-bottom: 5px; }
+.code-row.uit { opacity: .45; }
+
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
@@ -380,6 +471,8 @@ footer b { color: var(--ink-2); font-weight: 600; }
 
   <div class="actiebalk" id="actiebalk"></div>
 
+  <div class="codebalk" id="codebalk"></div>
+
   <div class="tiles" id="tiles"></div>
 
   <div class="controls">
@@ -388,6 +481,7 @@ footer b { color: var(--ink-2); font-weight: 600; }
       <select id="sort">
         <option value="ong">Ongeoorloofde uren</option>
         <option value="laat">Keer te laat</option>
+        <option value="getoond">Getoonde registraties</option>
         <option value="ziek">Ziekte-uren</option>
         <option value="naam">Naam</option>
       </select>
@@ -402,6 +496,8 @@ footer b { color: var(--ink-2); font-weight: 600; }
         <span class="key"><span class="swatch" style="background:var(--st-warn)"></span> Nadert de grens — {{NORM_WARN}} t/m {{NORM_CRIT_MIN1}} uur</span>
         <span class="key"><span class="swatch" style="background:var(--bar-neutral)"></span> In beeld — 1 t/m {{NORM_WARN_MIN1}} uur</span>
       </div>
+      <div id="contact-export"></div>
+      <div id="ct-export-vak" hidden></div>
       <div id="lijst"></div>
     </div>
 
@@ -411,6 +507,7 @@ footer b { color: var(--ink-2); font-weight: 600; }
         <div class="panel-body">
           <div class="chart-legend">
             <span class="key"><span class="swatch" style="background:var(--s-ongeoorloofd)"></span> Ongeoorloofd</span>
+            <span class="key"><span class="swatch" style="background:var(--s-telaat)"></span> Te laat</span>
             <span class="key"><span class="swatch" style="background:var(--s-geoorloofd)"></span> Geoorloofd</span>
           </div>
           <div id="weken"></div>
@@ -418,12 +515,12 @@ footer b { color: var(--ink-2); font-weight: 600; }
       </div>
 
       <div class="panel" style="margin-bottom:18px">
-        <h2>Ongeoorloofd per mentorgroep <span>lesuren</span></h2>
+        <h2>Getoonde uren per mentorgroep <span>lesuren</span></h2>
         <div class="panel-body"><div id="klassen"></div></div>
       </div>
 
       <div class="panel">
-        <h2>Registraties per code <span>hele selectie</span></h2>
+        <h2>Registraties per code <span>alle codes</span></h2>
         <div class="panel-body"><div class="codes" id="codes"></div></div>
       </div>
     </div>

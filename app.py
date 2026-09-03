@@ -204,6 +204,12 @@ def sidebar():
         help="De mentorgroep is een lesgroep, niet de klas: h4mtu1 t/m h4mtu8. "
              "Dit stukje tekst moet in de lesgroepnaam zitten.")
 
+    st.sidebar.subheader('Logboek')
+    st.sidebar.checkbox(
+        'Logboektekst in de download', value=False, key='logboek_in_download',
+        help='In de app zie je het logboek altijd. Het losse HTML-bestand komt '
+             'buiten de app terecht; daar laten we die teksten standaard uit.')
+
     huidig = laad_mentoren()
     # Groepen uit de geladen data erbij, zodat je alleen de namen hoeft te typen.
     gevonden = (dashboard.mentorgroepen_van(st.session_state.payload, config['patroon'])
@@ -382,6 +388,15 @@ def rapport(payload, config):
         payload, codes=codes, config=config, mentoren=mentoren, patroon=patroon,
         banner=dashboard.demo_banner() if demo else '')
 
+    # Het downloadbestand kan zonder de logboekteksten; die zijn gevoelig en
+    # verlaten met dat bestand de app.
+    if st.session_state.get('logboek_in_download') or not info['logboek_aantal']:
+        download_html = html
+    else:
+        download_html, _ = dashboard.bouw_html(
+            payload, codes=codes, config=config, mentoren=mentoren, patroon=patroon,
+            banner=dashboard.demo_banner() if demo else '', met_logboek=False)
+
     kop, knop1, knop2 = st.columns([4, 1, 1])
     with kop:
         st.success(f"{info['aantal_leerlingen']} leerlingen · "
@@ -389,7 +404,7 @@ def rapport(payload, config):
                    f"{info['weken']} weken"
                    + (f" · selectie {info['scope']}" if info['scope'] else ''))
     with knop1:
-        st.download_button('Download HTML', data=html,
+        st.download_button('Download HTML', data=download_html,
                            file_name=f"verzuimsignalering_{payload.get('period', {}).get('einde', '')}.html",
                            mime='text/html', width='stretch')
     with knop2:
@@ -398,6 +413,15 @@ def rapport(payload, config):
                 st.session_state.pop(sleutel, None)
             st.session_state.upload_nonce = st.session_state.get('upload_nonce', 0) + 1
             st.rerun()
+
+    if info['logboek_aantal']:
+        extra = ('' if st.session_state.get('logboek_in_download')
+                 else ' De teksten blijven uit het downloadbestand.')
+        st.caption(f"📓 {info['logboek_aantal']} logboekformulieren opgehaald "
+                   f"(bron: {info['logboek_bron'] or 'onbekend'}).{extra}")
+    elif info['logboek_bron'] == 'niet gevonden':
+        st.warning('De bookmarklet kon geen lijst-URL voor logboekformulieren vinden. '
+                   'Geef door welke URL Magister daarvoor gebruikt, dan zetten we die erin.')
 
     if not info['mentorgroepen']:
         st.warning(f"Geen mentorgroepen gevonden met '{patroon}' in de lesgroepnaam — "

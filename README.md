@@ -9,6 +9,29 @@ De mentorvariant (één mentorgroep) zit in de mentoruur-app; deze app is de
 teamleiderskant en draait los. Het dashboard is de uitgewerkte versie van
 `mentoruur/demo_teamleider_dashboard.html`, nu met echte data.
 
+## Inloggen
+
+De app hangt achter het portaal, net als de mentoruur-app: je komt binnen via
+de tegel op [bovenbouwsucces.nl](https://bovenbouwsucces.nl), die een SSO-token
+(JWT) in de URL meegeeft. De app controleert dat token met `JWT_SECRET` — hetzelfde
+geheim als het portaal — en laat alleen `docent` en `beheerder` door. Het token
+wordt daarna meteen uit de adresbalk gehaald.
+
+Wat je in Magister mag ophalen bepaalt Magister zelf: de bookmarklet draait met
+jouw eigen sessie en rechten.
+
+Ververs je de pagina (F5), dan ben je uitgelogd en ga je opnieuw via het
+portaal — dat werkt in de andere apps net zo.
+
+Voor lokaal ontwikkelen kun je de inlogpoort overslaan:
+
+```bash
+VERZUIM_TL_ZONDER_LOGIN=1 streamlit run app.py
+```
+
+Doe dat nooit op een server: dan kan iedereen die de URL kent binnenlopen én
+een binnengekomen verzuimbestand oppikken.
+
 ## Hoe het werkt
 
 1. Je sleept eenmalig een **bookmarklet** naar je bladwijzerbalk.
@@ -26,7 +49,7 @@ op de server**; alleen het opgehaalde resultaat, en dat wordt niet opgeslagen.
 
 ```bash
 pip install -r requirements.txt
-streamlit run app.py
+VERZUIM_TL_ZONDER_LOGIN=1 streamlit run app.py     # lokaal, zonder portaal
 ```
 
 De app draait op <http://localhost:8501>, de ontvanger van de bookmarklet op
@@ -61,9 +84,11 @@ en sleep de blauwe knop **📋 Verzuim teamleider** uit de app erheen.
 > Firefox en Safari knippen een geplakte `javascript:`-URL soms weg. Plak dan
 > eerst in Kladblok, kopieer opnieuw, en plak dat in het URL-veld.
 
-De bladwijzer bevat je persoonlijke token en blijft geldig zolang `.secret`
-blijft staan. Verwijder je dat bestand, dan moet de knop opnieuw geïnstalleerd
-worden.
+De bladwijzer bevat een token dat aan **jouw** account hangt (afgeleid van je
+eckid). Daardoor komt jouw opgehaalde verzuim alleen in jouw eigen sessie
+terecht, ook als een collega tegelijk bezig is. Het token blijft geldig zolang
+`VERZUIM_TL_SECRET` (of anders `.secret`) niet verandert; daarna moet iedereen
+de knop opnieuw slepen.
 
 ### Gebruiken
 
@@ -74,10 +99,18 @@ worden.
 4. Vul in welke **klassen of leerjaren** je wilt: `H4,H5` pakt alle klassen die
    daarmee beginnen, `H4A` alleen die klas. Leeg laten = alles wat je in
    Magister mag zien — dat kan bij een grote school lang duren.
-5. De titel van het tabblad toont de voortgang (`Verzuim TL 120/240...`). Bij meer
+5. Hij vraagt of hij ook de **logboekformulieren** moet ophalen. Dat kost
+   ongeveer evenveel tijd als het verzuim zelf; zeg nee als je ze niet nodig hebt.
+6. De titel van het tabblad toont de voortgang (`Verzuim TL 120/240...`). Bij meer
    dan 150 leerlingen vraagt de bookmarklet eerst om bevestiging.
-6. Als het klaar is: terug naar het tabblad van de app. Daar staat het
+7. Als het klaar is: terug naar het tabblad van de app. Daar staat het
    dashboard (of, bij de downloadvariant, upload je het bestand).
+
+Welke lijst-URL Magister voor logboekformulieren gebruikt, verschilt per
+omgeving. De bookmarklet probeert er een paar op de eerste leerlingen en gebruikt
+de eerste die werkt; welke dat was, meldt de app boven het dashboard. Staat daar
+dat er niets gevonden is, dan moet die URL in `bookmarklet.py` bij `kandidaten`
+worden bijgezet.
 
 Het ophalen kost één verzoek per leerling, twintig tegelijk; reken op ongeveer
 een halve seconde per twintig leerlingen. Daarom wordt er eerst gefilterd en pas
@@ -94,8 +127,51 @@ Die grenzen stel je links in de zijbalk in; ze gelden meteen voor het dashboard
 en voor de gedownloade HTML.
 
 De tabs zijn afdeling + leerjaar (`Havo 4`, `Vwo 5`), afgeleid van de
-mentorgroep (`h4mtu1` → Havo 4) en anders van de klas. Klik op een signaal om de lijst daarop te filteren; klik nog eens
-om het filter uit te zetten.
+mentorgroep (`h4mtu1` → Havo 4) en anders van de klas. Klik op een signaal om de
+lijst daarop te filteren; klik nog eens om het filter uit te zetten.
+
+### Codeknoppen: wat je in beeld hebt
+
+Boven de kerncijfers staat per verzuimcode een knop met het aantal registraties.
+Die bepalen wat je ziet: de tegels, de weekgrafiek, het overzicht per
+mentorgroep, de leerlingenlijst en de dagregels daarin.
+
+Standaard staan **ongeoorloofd en te laat** aan en **geoorloofd** uit — dat is
+het signaleringsbeeld. Zet `ZI` aan en het ziekteverzuim komt erbij, inclusief de
+leerlingen die alléén ziek gemeld waren; met de snelknop *geoorloofd* zie je
+uitsluitend dat. De knoppen *alles*, *ongeoorloofd* en *geoorloofd* rechts zetten
+alles in één klik.
+
+De drie signalen bovenaan (meldplicht, nadert de grens, vaak te laat) rekenen
+altijd over **alle** registraties, ongeacht welke codes je toont. Dat is een norm
+en geen weergave: anders zou het wegklikken van een code iemand ten onrechte
+groen maken.
+
+### Contact vastleggen
+
+Klap een leerling open en leg onder **Contact** vast wat je hebt gedaan: datum,
+soort (telefoon ouders, gesprek leerling, mail, mentor ingelicht, leerplicht
+gemeld, anders) en een korte notitie. Achter de naam verschijnt dan de datum van
+het laatste contact, en met het vierde signaal *Contact gelegd* filter je op
+leerlingen waar je al iets mee gedaan hebt.
+
+**Dit staat alleen in jouw browser** (`localStorage` van de app), niet op de
+server. Dus: niet zichtbaar voor collega's, weg bij een andere computer, een
+ander browserprofiel of het legen van je browsergegevens, en niet aanwezig in het
+gedownloade HTML-bestand. Bewaar wat je wilt houden via *contactmomenten
+vastgelegd — bekijken* boven de lijst; daar zit **Download als JSON**. Zodra
+vastleggen op de server mag, kan die JSON zo ingelezen worden.
+
+### Logboek uit Magister
+
+Haalt de bookmarklet ook logboekformulieren op, dan staat per leerling een
+inklapbaar **Logboek (n)** met datum, titel, wie het schreef en de tekst. De
+opmaak uit Magister wordt omgezet naar platte tekst; er komt bewust geen HTML van
+derden in de pagina.
+
+Logboektekst is gevoelig (thuissituatie, diagnoses). Daarom zit die **niet** in
+het bestand dat je downloadt, tenzij je in de zijbalk *Logboektekst in de
+download* aanzet. In de app zie je hem altijd.
 
 ## Eerst controleren: de verzuimcodes
 
@@ -136,7 +212,7 @@ de app meldt hoeveel dat er zijn.
 
 | Bestand | Wat het doet |
 |---|---|
-| `app.py` | de Streamlit-app: instellingen, bookmarklet-installatie, dashboard |
+| `app.py` | de Streamlit-app: portaal-login, instellingen, bookmarklet-installatie, dashboard |
 | `bookmarklet.py` | genereert de bookmarklet (downloadvariant en directe variant) |
 | `ingest.py` | ontvanger (localhost, poort uit `VERZUIM_TL_INGEST_PORT`) waar de bookmarklet naartoe post |
 | `dashboard.py` | rekent de payload om en bouwt het HTML-dashboard |
@@ -156,10 +232,17 @@ ontvanger op **8767** (8765 is van de mentoruur-app, 8766 van de inhaaltool).
 ### 1. Omgevingsvariabelen
 
 ```bash
+JWT_SECRET=<zelfde-geheim-als-het-portaal>                      # voor het inloggen
 VERZUIM_TL_INGEST_URL=https://<jouw-domein>/verzuim-tl-ingest   # publiek pad, niet de poort
 VERZUIM_TL_INGEST_PORT=8767                                     # interne poort achter nginx
-VERZUIM_TL_SECRET=<lang-geheim>                                  # anders wordt .secret gebruikt
+VERZUIM_TL_SECRET=<een-ander-lang-geheim>                       # anders wordt .secret gebruikt
+PORTAAL_URL=https://bovenbouwsucces.nl                          # waar de inlogmelding heen wijst
 ```
+
+`JWT_SECRET` moet exact gelijk zijn aan dat van het portaal, anders wordt geen
+enkel token geaccepteerd. `VERZUIM_TL_SECRET` is iets anders: dat bepaalt alleen
+de ontvangsttokens van de bookmarklet en hoeft niets met het portaal te maken te
+hebben — neem daar dus een eigen waarde voor.
 
 `VERZUIM_TL_INGEST_URL` is het adres dat **in de bookmarklet** terechtkomt, dus
 het publieke pad. Wijzigt dat pad later, dan moet iedereen de knop opnieuw
@@ -175,9 +258,10 @@ After=network.target
 [Service]
 User=www-data
 WorkingDirectory=/opt/verzuimsignalering
+Environment=JWT_SECRET=<zelfde-geheim-als-het-portaal>
 Environment=VERZUIM_TL_INGEST_URL=https://<jouw-domein>/verzuim-tl-ingest
 Environment=VERZUIM_TL_INGEST_PORT=8767
-Environment=VERZUIM_TL_SECRET=<lang-geheim>
+Environment=VERZUIM_TL_SECRET=<een-ander-lang-geheim>
 ExecStart=/opt/verzuimsignalering/env/bin/streamlit run app.py           --server.port 8507 --server.headless true --browser.gatherUsageStats false
 Restart=always
 
@@ -229,6 +313,14 @@ sudo ss -lntp | grep -E '8507|8767'     # 8767 hoort op 127.0.0.1 te staan, niet
 curl -si -X POST 'https://<jouw-domein>/verzuim-tl-ingest' --data 'x'   # 400 = nginx komt aan
 ```
 
+Let ook op de jwt-module: het pakket **`jwt`** (1.x) heet net zo als **PyJWT**
+en verdringt het, waarna inloggen stukloopt. De app weigert dan te starten met
+een uitleg. Herstellen:
+
+```bash
+venv/bin/pip uninstall -y jwt && venv/bin/pip install --force-reinstall PyJWT
+```
+
 Een `{"ok": false, "error": "bad request"}` is hier het goede antwoord: de
 ontvanger is bereikbaar en wijst het verzoek af omdat het token ontbreekt.
 Krijg je 502, dan draait de app niet; 404 betekent dat de `location` niet
@@ -267,6 +359,13 @@ de poort hoeft niet van buiten bereikbaar te zijn.
   weggeschreven. Het gedownloade HTML-bestand bevat wél leerlinggegevens —
   behandel dat als een verzuimlijst en zet het niet op een gedeelde schijf.
 - `mentoren.json` en `.secret` blijven lokaal (staan in `.gitignore`).
+- Inloggen gaat via het portaal; alleen `docent` en `beheerder` komen binnen. Het
+  ontvangsttoken van de bookmarklet is per gebruiker, dus een binnengekomen
+  bestand kan niet in de sessie van een ander belanden.
+- Contactmomenten staan in `localStorage` van de browser van de teamleider — niet
+  op de server, niet in het downloadbestand, niet zichtbaar voor anderen.
+- Logboekteksten blijven standaard uit het downloadbestand; in de app zijn ze
+  zichtbaar voor wie is ingelogd.
 
 ## Bekende beperkingen
 

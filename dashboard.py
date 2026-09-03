@@ -163,6 +163,49 @@ def _entries_voor(entries_map, sid):
     return entries_map.get(str(sid)) or entries_map.get(sid) or []
 
 
+_BLOK_EIND = re.compile(r'</(p|div|li|tr|h[1-6])>|<br\s*/?>', re.I)
+_TAGS      = re.compile(r'<[^>]+>')
+
+
+def html_naar_tekst(rauw):
+    """Magister-logboek is opgemaakte HTML. Die halen we eruit.
+
+    Bewust geen HTML doorlaten naar het dashboard: het is tekst van derden en
+    hij komt in een pagina die de teamleider ook kan downloaden.
+    """
+    if not rauw:
+        return ''
+    tekst = _BLOK_EIND.sub('\n', rauw)
+    tekst = _TAGS.sub('', tekst)
+    for entiteit, teken in (('&nbsp;', ' '), ('&amp;', '&'), ('&lt;', '<'),
+                            ('&gt;', '>'), ('&quot;', '"'), ('&#39;', "'"),
+                            ('&rsquo;', '\u2019'), ('&lsquo;', '\u2018'),
+                            ('&hellip;', '\u2026')):
+        tekst = tekst.replace(entiteit, teken)
+    regels = [r.strip(' \t\u00b7\u2022\xa0') for r in tekst.split('\n')]
+    return '\n'.join(r for r in regels if r)
+
+
+def _logboek_voor(payload, sid, met_tekst=True):
+    """Logboekformulieren van één leerling, opgeschoond."""
+    bron = payload.get('logboek') or {}
+    items = bron.get(str(sid)) or bron.get(sid) or []
+    uit = []
+    for item in items:
+        eigenaar = item.get('eigenaar') or {}
+        door = ' '.join(filter(None, [eigenaar.get('roepnaam'),
+                                      eigenaar.get('tussenvoegsel'),
+                                      eigenaar.get('achternaam')]))
+        uit.append({
+            'datum':  (item.get('aangemaaktOp') or '')[:10],
+            'titel':  item.get('omschrijving') or 'Logboekformulier',
+            'door':   door,
+            'tekst':  html_naar_tekst(item.get('inhoud')) if met_tekst else '',
+        })
+    uit.sort(key=lambda x: x['datum'], reverse=True)
+    return uit
+
+
 def _uur_label(e):
     uur = e.get('period')
     if uur:
@@ -172,7 +215,7 @@ def _uur_label(e):
 
 # ── Payload → dashboarddata ───────────────────────────────────────────────────
 def verwerk(payload, codes, config=None, mentoren=None,
-            patroon=MENTORGROEP_PATROON):
+            patroon=MENTORGROEP_PATROON, met_logboek=True):
     """Zet een bookmarklet-payload om in de datastructuur die render.js leest.
 
     `mentoren` is een mapping mentorgroep → mentornaam ('h4mtu1' → 'T. Vermeer');
@@ -236,6 +279,7 @@ def verwerk(payload, codes, config=None, mentoren=None,
         klas        = klas_van(s)
         mentorgroep = mentorgroep_van(s, patroon)
         leerlingen.append({
+            'id':          str(s.get('id', '')),      # sleutel voor contactnotities
             'naam':        naam_van(s),
             'klas':        klas,
             'mentorgroep': mentorgroep,
@@ -243,6 +287,7 @@ def verwerk(payload, codes, config=None, mentoren=None,
             'mentor':      mentoren.get(mentorgroep) or mentoren.get(klas, ''),
             'ong': ong, 'laat': laat, 'ziek': ziek, 'geo': geo,
             'entries': rij_entries,
+            'logboek': _logboek_voor(payload, s['id'], met_logboek),
         })
 
     groepen = sorted({l['groep'] for l in leerlingen})
@@ -271,16 +316,22 @@ def verwerk(payload, codes, config=None, mentoren=None,
         'scope': payload.get('scope', ''),
         'mentorgroepen': sorted({l['mentorgroep'] for l in leerlingen} - {''}),
         'zonder_mentorgroep': sum(1 for l in leerlingen if not l['mentorgroep']),
+        'logboek_aantal': sum(len(l['logboek']) for l in leerlingen),
+        'logboek_bron': payload.get('logboek_bron', ''),
     }
     return data, info
 
 
 # ── HTML ──────────────────────────────────────────────────────────────────────
 def bouw_html(payload, codes=None, config=None, mentoren=None,
-              patroon=MENTORGROEP_PATROON, banner='', bron=''):
-    """Compleet, zelfstandig HTML-bestand (geen externe scripts)."""
+              patroon=MENTORGROEP_PATROON, banner='', bron='', met_logboek=True):
+    """Compleet, zelfstandig HTML-bestand (geen externe scripts).
+
+    met_logboek=False laat de logboekteksten weg — voor het bestand dat de
+    teamleider downloadt en dus buiten de app terechtkomt.
+    """
     codes = codes if codes is not None else laad_codes()
-    data, info = verwerk(payload, codes, config, mentoren, patroon)
+    data, info = verwerk(payload, codes, config, mentoren, patroon, met_logboek)
     cfg = data['config']
 
     ong_codes = [f'<b>{c}</b> ({v.get("naam", c).lower()})'
