@@ -11,6 +11,11 @@ bij zijn leerlingen, dus hier wordt alles opgehaald wat het account mag zien en
 daarna gefilterd op klas of leerjaar ('H4,H5'). Filteren gebeurt vóór het
 verzuim opgehaald wordt, want dat kost één request per leerling.
 
+Let op de snelheid: Magister geeft HTTP 429 als er te veel verzoeken tegelijk
+binnenkomen. Daarom blokjes van acht met een pauze ertussen, opnieuw proberen bij
+429, en een tweede ronde voor wie dan nog mislukt. Zonder dat verdween er stil
+een hele klas uit het overzicht.
+
 Optioneel haalt hij ook de logboekformulieren op (LVS):
 
     /api/leerlingen/<id>/lvs/logboekformulieren?begin=1980-01-01&einde=2030-01-01
@@ -45,6 +50,20 @@ try{
  scope=scope.trim();
  var filters=scope?scope.split(',').map(function(s){return s.trim().toUpperCase()}).filter(Boolean):[];
  var base=location.origin;
+ // Snelheid: begint vlot en wordt vanzelf rustiger zodra Magister knijpt.
+ var SZ=8,pauze=150,traag=false;
+ var vertraag=function(){
+   if(!traag){traag=true;SZ=4;pauze=900;}
+   else{pauze=Math.min(pauze+400,2500);}};
+ var wacht=function(ms){return new Promise(function(k){setTimeout(k,ms)})};
+ var haal=async function(url,pogingen){
+   for(var poging=0;poging<(pogingen||3);poging++){
+     var r=await fetch(base+url,{signal:AbortSignal.timeout(20000)}).catch(function(){return null});
+     if(r&&r.ok)return r;
+     if(r&&(r.status===429||r.status>=500)){vertraag();await wacht(1500*(poging+1));continue;}
+     return r;                       // andere fout: opnieuw proberen helpt niet
+   }
+   return null;};
  var jget=async function(u){try{var r=await fetch(u,{signal:AbortSignal.timeout(20000)});
    if(r.status===204)return{};var t=await r.text();return t&&t.trim()?JSON.parse(t):{};}catch(_){return{};}};
 
@@ -98,15 +117,35 @@ try{
      date:dt?dt.slice(0,10):(v.moment||'').slice(0,10),
      time:dt?dt.slice(11,16):(v.moment||'').slice(11,16),
      code:(v.reden||{}).code||'?',period:lu.begin||null,subject:a.omschrijving||''});});});return out;};
- var entries={},ids=slim.map(function(s){return s.id}),SZ=20;
- for(var i=0;i<ids.length;i+=SZ){
-   document.title='Verzuim TL '+Math.min(i+SZ,ids.length)+'/'+ids.length+'...';
-   var chunk=ids.slice(i,i+SZ);
-   var res2=await Promise.all(chunk.map(function(id){
-     return fetch(base+'/api/m6/leerlingen/'+id+'/verantwoordingen?begin='+b+'&einde='+e,
-       {signal:AbortSignal.timeout(20000)}).then(function(r){return r.json()})
-       .then(function(d){return{id:id,items:d.items||[]}}).catch(function(){return{id:id,items:[]}});}));
-   res2.forEach(function(r){entries[r.id]=parse(r.items);});}
+ // Magister beperkt het aantal verzoeken: bij een lange periode of veel
+ // leerlingen volgt HTTP 429. Daarom kleine blokjes met een pauze ertussen, en
+ // wie toch mislukt komt in een rustiger tweede ronde. Stil verlies van een
+ // hele klas is hier het gevaar, niet traagheid.
+ var entries={},ids=slim.map(function(s){return s.id});
+ var haalVerzuim=async function(lijst,pogingen,label){
+   var mis=[];
+   for(var i=0;i<lijst.length;i+=SZ){
+     document.title=label+' '+Math.min(i+SZ,lijst.length)+'/'+lijst.length+'...';
+     var chunk=lijst.slice(i,i+SZ);
+     var res2=await Promise.all(chunk.map(function(id){
+       return haal('/api/m6/leerlingen/'+id+'/verantwoordingen?begin='+b+'&einde='+e,pogingen)
+         .then(function(r){
+           if(!r||!r.ok){mis.push(id);return{id:id,items:null};}
+           return r.json().then(function(d){return{id:id,items:d.items||[]}});})
+         .catch(function(){mis.push(id);return{id:id,items:null};});}));
+     res2.forEach(function(r){if(r.items!==null)entries[r.id]=parse(r.items);});
+     if(i+SZ<lijst.length)await wacht(pauze);
+   }
+   return mis;};
+ var mislukt=await haalVerzuim(ids,3,'Verzuim TL');
+ if(mislukt.length){
+   SZ=4;pauze=Math.max(pauze,1200);                   // rustiger tweede ronde
+   mislukt=await haalVerzuim(mislukt,4,'Verzuim herkansing');
+ }
+ if(mislukt.length&&!confirm('Van '+mislukt.length+' van de '+ids.length+' leerlingen'
+   +' lukte het verzuim niet op te halen (Magister beperkt het aantal verzoeken).'
+   +'\n\nDoorgaan met de rest? Kies anders een kortere periode of een kleinere selectie.')){
+   document.title='Magister';return;}
 
 
  // 4. Logboekformulieren (optioneel). Welke lijst-URL Magister hiervoor heeft,
@@ -124,15 +163,6 @@ try{
    function(id){return '/api/leerlingen/'+id+'/logboekformulieren?begin='+lb+'&einde='+le},
    function(id){return '/api/lvs/leerlingen/'+id+'/logboekformulieren?begin='+lb+'&einde='+le}
  ];
- var wacht=function(ms){return new Promise(function(k){setTimeout(k,ms)})};
- var haal=async function(url,pogingen){
-   for(var poging=0;poging<(pogingen||3);poging++){
-     var r=await fetch(base+url,{signal:AbortSignal.timeout(20000)}).catch(function(){return null});
-     if(r&&r.ok)return r;
-     if(r&&(r.status===429||r.status>=500)){await wacht(1200*(poging+1));continue;}
-     return r;                       // andere fout: opnieuw proberen helpt niet
-   }
-   return null;};
  var lijstUit=function(d){
    if(!d)return null;
    if(Array.isArray(d))return d;
@@ -184,7 +214,7 @@ try{
  }
 
  var payload={period:{begin:b,einde:e},scope:scope,students:slim,
-   own_ids:ids,entries:entries,logboek:logboek,logboek_bron:bron,logboek_diag:(typeof diag!=='undefined'?diag:[]),logboek_periode:(bron?{begin:lb,einde:le}:null)};
+   own_ids:ids,entries:entries,verzuim_fouten:mislukt.length,logboek:logboek,logboek_bron:bron,logboek_diag:(typeof diag!=='undefined'?diag:[]),logboek_periode:(bron?{begin:lb,einde:le}:null)};
  __TAIL__
 }catch(err){document.title='Magister';alert('Fout bij ophalen: '+err);}
 })();"""

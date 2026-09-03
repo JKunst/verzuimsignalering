@@ -415,6 +415,12 @@ def rapport(payload, config):
             st.session_state.upload_nonce = st.session_state.get('upload_nonce', 0) + 1
             st.rerun()
 
+    if info['verzuim_fouten']:
+        st.error(f"Van {info['verzuim_fouten']} leerlingen is het verzuim niet "
+                 'opgehaald: Magister beperkte het aantal verzoeken. Die staan hier '
+                 'dus ten onrechte op nul. Haal opnieuw op met een kortere periode '
+                 'of een kleinere selectie.')
+
     if info['logboek_aantal']:
         extra = ('' if st.session_state.get('logboek_in_download')
                  else ' De teksten blijven uit het downloadbestand.')

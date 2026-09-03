@@ -117,9 +117,20 @@ probeert hij nog vier varianten op de eerste leerlingen; welke werkte meldt de
 app boven het dashboard. Staat daar dat er niets gevonden is, dan moet die URL in
 `bookmarklet.py` bij `kandidaten` worden bijgezet.
 
-Het ophalen kost één verzoek per leerling, twintig tegelijk; reken op ongeveer
-een halve seconde per twintig leerlingen. Daarom wordt er eerst gefilterd en pas
-daarna verzuim opgehaald.
+Het ophalen kost één verzoek per leerling. Daarom wordt er eerst gefilterd en
+pas daarna verzuim opgehaald.
+
+**Magister knijpt bij veel verzoeken** (HTTP 429). Bij een selectie van drie
+klassen over een heel schooljaar gebeurde dat 40 keer. De bookmarklet begint
+daarom met blokjes van acht en een korte pauze, en wordt vanzelf rustiger zodra
+een 429 langskomt: blokjes van vier en een pauze die oploopt tot 2,5 seconde.
+Wie dan nog mislukt, krijgt een tweede, tragere ronde. In de meting kwamen zo
+alle 83 leerlingen binnen (80 seconden voor een heel schooljaar); een periode
+van vier weken is veel sneller.
+
+Lukt het daarna nog steeds niet voor iedereen, dan vraagt de bookmarklet of je
+wilt doorgaan en meldt de app hoeveel leerlingen ontbreken. Ga daar niet
+overheen: die leerlingen staan dan ten onrechte op nul uur.
 
 De leerlingenlijst zelf komt in pagina's binnen (Magister geeft er ongeveer 50
 per keer). De bookmarklet pagineert door tot hij er evenveel heeft als
