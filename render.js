@@ -208,8 +208,10 @@
     var knoppen = AANWEZIGE_CODES.map(function (c) {
       var soort = codeSoort(c);
       return '<button class="cbtn ' + soort + (aan(c) ? ' aan' : '') + '" data-code="' + esc(c) + '" ' +
-        'aria-pressed="' + aan(c) + '" data-tip="' + esc(codeNaam(c)) + '" ' +
+        'aria-pressed="' + aan(c) + '" data-tip="' + esc(codeNaam(c)) +
+        (aan(c) ? ' — klik om te verbergen' : ' — klik om te tonen') + '" ' +
         'title="' + esc(codeNaam(c)) + '">' +
+        '<span class="cvink" aria-hidden="true"></span>' +
         '<b>' + esc(c) + '</b>' +
         '<span class="cbtn-n">' + codeTelling[c] + '</span></button>';
     }).join('');

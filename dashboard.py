@@ -330,6 +330,7 @@ def verwerk(payload, codes, config=None, mentoren=None,
         'zonder_mentorgroep': sum(1 for l in leerlingen if not l['mentorgroep']),
         'logboek_aantal': sum(len(l['logboek']) for l in leerlingen),
         'logboek_bron': payload.get('logboek_bron', ''),
+        'logboek_diag': payload.get('logboek_diag') or [],
     }
     return data, info
 

@@ -421,8 +421,11 @@ def rapport(payload, config):
         st.caption(f"📓 {info['logboek_aantal']} logboekformulieren opgehaald "
                    f"(bron: {info['logboek_bron'] or 'onbekend'}).{extra}")
     elif info['logboek_bron'] == 'niet gevonden':
-        st.warning('De bookmarklet kon geen lijst-URL voor logboekformulieren vinden. '
-                   'Geef door welke URL Magister daarvoor gebruikt, dan zetten we die erin.')
+        st.warning('De bookmarklet kon geen lijst-URL voor logboekformulieren vinden.')
+        if info['logboek_diag']:
+            with st.expander('Wat de geprobeerde URLs teruggaven'):
+                st.code('\n'.join(info['logboek_diag']), language=None)
+                st.caption('Stuur dit door, dan weten we welke URL het wel moet zijn.')
 
     if not info['mentorgroepen']:
         st.warning(f"Geen mentorgroepen gevonden met '{patroon}' in de lesgroepnaam — "

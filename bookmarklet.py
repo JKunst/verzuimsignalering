@@ -111,7 +111,7 @@ try{
 
  // 4. Logboekformulieren (optioneel). Welke lijst-URL Magister hiervoor heeft,
  //    verschilt per omgeving; we proberen er een paar en onthouden de winnaar.
- var logboek={},bron='';
+ var logboek={},bron='',diag=[];
  // Logboek gaat over het hele schooljaar, niet over de verzuimperiode: een
  // notitie uit juli hoort er in september nog steeds bij.
  // Ruime periode: Magister filtert hierop, en een logboek van vorig schooljaar
@@ -124,6 +124,15 @@ try{
    function(id){return '/api/leerlingen/'+id+'/logboekformulieren?begin='+lb+'&einde='+le},
    function(id){return '/api/lvs/leerlingen/'+id+'/logboekformulieren?begin='+lb+'&einde='+le}
  ];
+ var wacht=function(ms){return new Promise(function(k){setTimeout(k,ms)})};
+ var haal=async function(url,pogingen){
+   for(var poging=0;poging<(pogingen||3);poging++){
+     var r=await fetch(base+url,{signal:AbortSignal.timeout(20000)}).catch(function(){return null});
+     if(r&&r.ok)return r;
+     if(r&&(r.status===429||r.status>=500)){await wacht(1200*(poging+1));continue;}
+     return r;                       // andere fout: opnieuw proberen helpt niet
+   }
+   return null;};
  var lijstUit=function(d){
    if(!d)return null;
    if(Array.isArray(d))return d;
@@ -136,26 +145,33 @@ try{
    document.title='Logboek zoeken...';
    var werkend=null,leegMaarGeldig=null;
    for(var k=0;k<kandidaten.length&&!werkend;k++){
-     for(var t=0;t<Math.min(6,lbIds.length);t++){
-       var r0=await fetch(base+kandidaten[k](lbIds[t]),{signal:AbortSignal.timeout(20000)}).catch(function(){return null});
-       if(!r0||!r0.ok)break;
-       var d0=await r0.json().catch(function(){return null});
+     var statussen=[];
+     for(var t=0;t<Math.min(8,lbIds.length);t++){
+       var r0=await haal(kandidaten[k](lbIds[t]),2);
+       if(!r0){statussen.push('netwerkfout');continue;}
+       if(!r0.ok){statussen.push('HTTP '+r0.status);continue;}   // andere leerling kan wel mogen
+       var tekst0=await r0.text().catch(function(){return ''});
+       var d0=null; try{d0=JSON.parse(tekst0);}catch(_){}
        var l0=lijstUit(d0);
-       if(l0===null)break;
+       if(l0===null){statussen.push('200 maar geen lijst: '+(d0?Object.keys(d0).slice(0,4).join('/'):'geen json'));continue;}
+       statussen.push('200 ('+l0.length+')');
        if(!leegMaarGeldig)leegMaarGeldig=kandidaten[k];
        if(l0.length){werkend=kandidaten[k];break;}
      }
+     diag.push(kandidaten[k]('{id}').split('?')[0]+' → '+statussen.join(', '));
    }
    var maker=werkend||leegMaarGeldig;
-   if(!maker){bron='niet gevonden';}
+   if(!maker){bron='niet gevonden';
+     alert('Geen lijst-URL voor logboekformulieren gevonden. Wat de varianten teruggaven:\n\n'
+       +diag.join('\n')+'\n\nDeze tekst staat ook in de app, onder het dashboard.');}
    else{
      bron=maker('{id}');
      for(var i2=0;i2<lbIds.length;i2+=SZ){
        document.title='Logboek '+Math.min(i2+SZ,lbIds.length)+'/'+lbIds.length+'...';
        var chunk2=lbIds.slice(i2,i2+SZ);
        var res3=await Promise.all(chunk2.map(function(id){
-         return fetch(base+maker(id),{signal:AbortSignal.timeout(20000)})
-           .then(function(r){return r.ok?r.json():null})
+         return haal(maker(id),2)
+           .then(function(r){return (r&&r.ok)?r.json():null})
            .then(function(d){return{id:id,items:lijstUit(d)||[]}})
            .catch(function(){return{id:id,items:[]}});}));
        res3.forEach(function(r){
@@ -168,7 +184,7 @@ try{
  }
 
  var payload={period:{begin:b,einde:e},scope:scope,students:slim,
-   own_ids:ids,entries:entries,logboek:logboek,logboek_bron:bron,logboek_periode:(bron?{begin:lb,einde:le}:null)};
+   own_ids:ids,entries:entries,logboek:logboek,logboek_bron:bron,logboek_diag:(typeof diag!=='undefined'?diag:[]),logboek_periode:(bron?{begin:lb,einde:le}:null)};
  __TAIL__
 }catch(err){document.title='Magister';alert('Fout bij ophalen: '+err);}
 })();"""
