@@ -113,7 +113,7 @@ def maak():
         'own_ids': [s['id'] for s in students],
         'entries': entries,
         'logboek': logboek,
-        'logboek_bron': '/api/leerlingen/{id}/lvs/logboekformulieren (voorbeeld)',
+        'logboek_bron': '/api/leerlingen/{id}/lvs/logboekformulieren?begin=2026-08-01&einde=2027-07-31 (voorbeeld)',
     }
 
 

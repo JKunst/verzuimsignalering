@@ -106,11 +106,16 @@ de knop opnieuw slepen.
 7. Als het klaar is: terug naar het tabblad van de app. Daar staat het
    dashboard (of, bij de downloadvariant, upload je het bestand).
 
-Welke lijst-URL Magister voor logboekformulieren gebruikt, verschilt per
-omgeving. De bookmarklet probeert er een paar op de eerste leerlingen en gebruikt
-de eerste die werkt; welke dat was, meldt de app boven het dashboard. Staat daar
-dat er niets gevonden is, dan moet die URL in `bookmarklet.py` bij `kandidaten`
-worden bijgezet.
+Het logboek komt van:
+
+    /api/leerlingen/<id>/lvs/logboekformulieren?begin=2026-08-01&einde=2027-07-31
+
+Die URL vraagt om een periode; de bookmarklet vult daar het **hele schooljaar**
+in (afgeleid van je einddatum), want een notitie uit juli hoort in september nog
+steeds bij de leerling. Doet een andere Magister-omgeving het anders, dan
+probeert hij nog vier varianten op de eerste leerlingen; welke werkte meldt de
+app boven het dashboard. Staat daar dat er niets gevonden is, dan moet die URL in
+`bookmarklet.py` bij `kandidaten` worden bijgezet.
 
 Het ophalen kost één verzoek per leerling, twintig tegelijk; reken op ongeveer
 een halve seconde per twintig leerlingen. Daarom wordt er eerst gefilterd en pas
