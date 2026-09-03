@@ -186,8 +186,11 @@ def html_naar_tekst(rauw):
     return '\n'.join(r for r in regels if r)
 
 
+LOGBOEK_MAX = 3          # meer dan drie is in dit overzicht niet nuttig
+
+
 def _logboek_voor(payload, sid, met_tekst=True):
-    """Logboekformulieren van één leerling, opgeschoond."""
+    """De laatste paar logboekformulieren van één leerling, opgeschoond."""
     bron = payload.get('logboek') or {}
     items = bron.get(str(sid)) or bron.get(sid) or []
     uit = []
@@ -203,7 +206,7 @@ def _logboek_voor(payload, sid, met_tekst=True):
             'tekst':  html_naar_tekst(item.get('inhoud')) if met_tekst else '',
         })
     uit.sort(key=lambda x: x['datum'], reverse=True)
-    return uit
+    return uit[:LOGBOEK_MAX]
 
 
 def _uur_label(e):
@@ -241,6 +244,12 @@ def verwerk(payload, codes, config=None, mentoren=None,
     weken       = maak_weken(weken_start, weken_eind)
     week_index  = {m: i for i, m in enumerate(weken)}
 
+    # Grens van het huidige schooljaar, om te kunnen zeggen of er dit jaar al
+    # iets in het logboek staat.
+    einde_dt = _d(einde)
+    schooljaar_start = date(einde_dt.year if einde_dt.month >= 8
+                            else einde_dt.year - 1, 8, 1).isoformat()
+
     leerlingen  = []
     code_telling = defaultdict(int)
 
@@ -276,8 +285,9 @@ def verwerk(payload, codes, config=None, mentoren=None,
                 'soort':    soort,
             })
 
-        klas        = klas_van(s)
-        mentorgroep = mentorgroep_van(s, patroon)
+        klas          = klas_van(s)
+        mentorgroep   = mentorgroep_van(s, patroon)
+        logboek_items = _logboek_voor(payload, s['id'], met_logboek)
         leerlingen.append({
             'id':          str(s.get('id', '')),      # sleutel voor contactnotities
             'naam':        naam_van(s),
@@ -287,7 +297,8 @@ def verwerk(payload, codes, config=None, mentoren=None,
             'mentor':      mentoren.get(mentorgroep) or mentoren.get(klas, ''),
             'ong': ong, 'laat': laat, 'ziek': ziek, 'geo': geo,
             'entries': rij_entries,
-            'logboek': _logboek_voor(payload, s['id'], met_logboek),
+            'logboek': logboek_items,
+            'logboekDitJaar': any(x['datum'] >= schooljaar_start for x in logboek_items),
         })
 
     groepen = sorted({l['groep'] for l in leerlingen})
@@ -300,6 +311,7 @@ def verwerk(payload, codes, config=None, mentoren=None,
         'codes':   codes,
         'weken':   [week_label(m) for m in weken],
         'groepen': ['Alle'] + groepen,
+        'logboekOpgehaald': bool(payload.get('logboek_bron')),
         'leerlingen': leerlingen,
     }
 

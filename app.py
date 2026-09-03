@@ -54,7 +54,8 @@ KNOP_NAAM      = 'Verzuim teamleider'
 KNOP           = f'📋 {KNOP_NAAM}'
 KNOP_DOWNLOAD  = f'📋 {KNOP_NAAM} (bestand)'
 
-st.set_page_config(page_title='Verzuimsignalering', page_icon='📋', layout='wide')
+st.set_page_config(page_title='Verzuimsignalering', page_icon='📋', layout='wide',
+                   initial_sidebar_state='collapsed')   # rust in de pagina
 
 
 # ── Instellingen ──────────────────────────────────────────────────────────────

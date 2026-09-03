@@ -183,7 +183,9 @@
   /* ── Logboek uit Magister ───────────────────────────────────────────────── */
   function logboekBlok(l) {
     var items = l.logboek || [];
-    if (!items.length) return '';
+    var geen = '<div class="lb-leeg">Nog geen logboek dit schooljaar</div>';
+    if (!D.logboekOpgehaald) return '';
+    if (!items.length) return geen;
     var rijen = items.map(function (item) {
       var kop = esc(datumKort(item.datum) || item.datum) + ' · ' + esc(item.titel) +
                 (item.door ? ' · ' + esc(item.door) : '');
@@ -192,8 +194,9 @@
                     : '<p class="ct-leeg">Tekst niet meegenomen in dit bestand.</p>') +
         '</details>';
     }).join('');
-    return '<details class="logboek"><summary class="lb-kop">Logboek (' + items.length + ')</summary>' +
-      rijen + '</details>';
+    return '<details class="logboek"><summary class="lb-kop">Logboek (' + items.length + ')' +
+      (l.logboekDitJaar ? '' : ' — niets van dit schooljaar') + '</summary>' +
+      (l.logboekDitJaar ? '' : geen) + rijen + '</details>';
   }
 
   /* ── Codeknoppen ────────────────────────────────────────────────────────── */
@@ -205,8 +208,9 @@
     var knoppen = AANWEZIGE_CODES.map(function (c) {
       var soort = codeSoort(c);
       return '<button class="cbtn ' + soort + (aan(c) ? ' aan' : '') + '" data-code="' + esc(c) + '" ' +
-        'aria-pressed="' + aan(c) + '" title="' + esc(codeNaam(c)) + '">' +
-        '<b>' + esc(c) + '</b> ' + esc(codeNaam(c)) +
+        'aria-pressed="' + aan(c) + '" data-tip="' + esc(codeNaam(c)) + '" ' +
+        'title="' + esc(codeNaam(c)) + '">' +
+        '<b>' + esc(c) + '</b>' +
         '<span class="cbtn-n">' + codeTelling[c] + '</span></button>';
     }).join('');
 

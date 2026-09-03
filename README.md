@@ -121,6 +121,13 @@ Het ophalen kost één verzoek per leerling, twintig tegelijk; reken op ongeveer
 een halve seconde per twintig leerlingen. Daarom wordt er eerst gefilterd en pas
 daarna verzuim opgehaald.
 
+De leerlingenlijst zelf komt in pagina's binnen (Magister geeft er ongeveer 50
+per keer). De bookmarklet pagineert door tot hij er evenveel heeft als
+`totalCount` aangeeft. Lukt dat niet — bijvoorbeeld omdat de omgeving `skip`
+negeert — dan meldt hij dat expliciet (*"Magister gaf 50 van de 1800 leerlingen
+terug"*) en kun je kiezen of je met die onvolledige lijst doorgaat. Zie je maar
+één klas terwijl je een heel leerjaar verwacht, dan is dit de plek om te kijken.
+
 ## Het dashboard lezen
 
 - **Meldplicht bereikt** — vanaf 16 uur ongeoorloofd binnen de gekozen periode.
@@ -128,8 +135,9 @@ daarna verzuim opgehaald.
 - **Vaak te laat** — 6 keer of vaker; telt niet mee in de urennorm.
 - Ziek, arts en bijzonder verlof zijn geoorloofd en staan er als context bij.
 
-Die grenzen stel je links in de zijbalk in; ze gelden meteen voor het dashboard
-en voor de gedownloade HTML.
+Die grenzen stel je in de zijbalk in — die staat standaard dicht, open hem met
+de **»** linksboven. Ze gelden meteen voor het dashboard en voor de gedownloade
+HTML.
 
 De tabs zijn afdeling + leerjaar (`Havo 4`, `Vwo 5`), afgeleid van de
 mentorgroep (`h4mtu1` → Havo 4) en anders van de klas. Klik op een signaal om de
@@ -137,9 +145,11 @@ lijst daarop te filteren; klik nog eens om het filter uit te zetten.
 
 ### Codeknoppen: wat je in beeld hebt
 
-Boven de kerncijfers staat per verzuimcode een knop met het aantal registraties.
-Die bepalen wat je ziet: de tegels, de weekgrafiek, het overzicht per
-mentorgroep, de leerlingenlijst en de dagregels daarin.
+Boven de kerncijfers staat per verzuimcode een knop met alleen de afkorting en
+het aantal registraties (`A 25`, `ZI 24`); wat de code betekent zie je door er
+met de muis op te gaan staan. Die knoppen bepalen wat je ziet: de tegels, de
+weekgrafiek, het overzicht per mentorgroep, de leerlingenlijst en de dagregels
+daarin.
 
 Standaard staan **ongeoorloofd en te laat** aan en **geoorloofd** uit — dat is
 het signaleringsbeeld. Zet `ZI` aan en het ziekteverzuim komt erbij, inclusief de
@@ -170,9 +180,13 @@ vastleggen op de server mag, kan die JSON zo ingelezen worden.
 ### Logboek uit Magister
 
 Haalt de bookmarklet ook logboekformulieren op, dan staat per leerling een
-inklapbaar **Logboek (n)** met datum, titel, wie het schreef en de tekst. De
-opmaak uit Magister wordt omgezet naar platte tekst; er komt bewust geen HTML van
-derden in de pagina.
+inklapbaar **Logboek (n)** met de **laatste drie** formulieren: datum, titel, wie
+het schreef en de tekst. De opmaak uit Magister wordt omgezet naar platte tekst;
+er komt bewust geen HTML van derden in de pagina.
+
+Het ophalen gaat over alle jaren, want de warme overdracht van vorig jaar (juli)
+is juist bruikbaar. Staat er niets van dit schooljaar, dan zegt het blok dat:
+*niets van dit schooljaar*. Alleen leerlingen mét verzuim worden bevraagd.
 
 Logboektekst is gevoelig (thuissituatie, diagnoses). Daarom zit die **niet** in
 het bestand dat je downloadt, tenzij je in de zijbalk *Logboektekst in de

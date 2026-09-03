@@ -13,12 +13,14 @@ verzuim opgehaald wordt, want dat kost één request per leerling.
 
 Optioneel haalt hij ook de logboekformulieren op (LVS):
 
-    /api/leerlingen/<id>/lvs/logboekformulieren?begin=2026-08-01&einde=2027-07-31
+    /api/leerlingen/<id>/lvs/logboekformulieren?begin=1980-01-01&einde=2030-01-01
 
-Die vraagt om een periode, en dat is bewust het hele schooljaar: een notitie uit
-juli hoort in september nog steeds bij de leerling. Mocht die URL in een andere
-omgeving anders heten, dan probeert de bookmarklet nog een paar varianten op de
-eerste leerlingen; welke werkte komt in `logboek_bron` terug en toont de app.
+Die vraagt om een periode; we nemen hem ruim en houden per leerling de laatste
+drie over. Een notitie van vorig schooljaar (de warme overdracht in juli) is
+namelijk juist bruikbaar. Alleen leerlingen mét verzuim worden bevraagd — dat
+scheelt de helft van de requests. Mocht de URL in een andere omgeving anders
+heten, dan probeert de bookmarklet nog vier varianten op de eerste leerlingen;
+welke werkte komt in `logboek_bron` terug en toont de app.
 
 Twee varianten:
 - download: schrijft een JSON-bestand dat je in de app uploadt (werkt altijd);
@@ -46,19 +48,32 @@ try{
  var jget=async function(u){try{var r=await fetch(u,{signal:AbortSignal.timeout(20000)});
    if(r.status===204)return{};var t=await r.text();return t&&t.trim()?JSON.parse(t):{};}catch(_){return{};}};
 
- // 1. Leerlingen ophalen (gepagineerd; stopt zodra er niets nieuws meer bijkomt).
+ // 1. Leerlingen ophalen. Magister levert dit in pagina's; hoeveel er in totaal
+ //    zijn staat in totalCount. Daar pagineren we op door, want alleen stoppen
+ //    bij een korte pagina levert soms maar één klas op.
  document.title='Leerlingen ophalen...';
- var alle=[],gezien={},skip=0,TOP=200;
- for(var p=0;p<40;p++){
+ var alle=[],gezien={},skip=0,TOP=100,totaal=null,paginas=0;
+ for(var p=0;p<120;p++){
    var res=await jget(base+'/api/leerlingen/zoeken?q=**&top='+TOP+'&skip='+skip);
-   var items=res.items||[]; if(!items.length)break;
+   var items=res.items||[];
+   if(totaal===null){
+     var t=[res.totalCount,res.totaalAantal,res.count,res.total];
+     for(var ti=0;ti<t.length;ti++){if(typeof t[ti]==='number'){totaal=t[ti];break;}}
+   }
+   if(!items.length)break;
+   paginas++;
    var nieuw=0;
    items.forEach(function(s){if(!gezien[s.id]){gezien[s.id]=1;alle.push(s);nieuw++;}});
-   if(!nieuw||items.length<TOP)break;
    skip+=items.length;
+   document.title='Leerlingen '+alle.length+(totaal?'/'+totaal:'')+'...';
+   if(!nieuw)break;                                   // zelfde pagina opnieuw
+   if(totaal!==null){if(alle.length>=totaal)break;}
+   else if(items.length<TOP)break;
  }
  if(!alle.length){document.title='Magister';
    alert('Geen leerlingen gevonden.\n\nBen je hier ingelogd als docent/teamleider? Open eerst Magister en probeer het opnieuw.');return;}
+ if(totaal!==null&&alle.length<totaal&&!confirm('Magister gaf '+alle.length+' van de '+totaal+' leerlingen terug'
+   +' ('+paginas+' pagina\'s).\n\nDoorgaan met deze onvolledige lijst?')){document.title='Magister';return;}
 
  // 2. Filteren op klas of leerjaar (voordat we per leerling verzuim opvragen).
  var past=function(s){
@@ -99,9 +114,9 @@ try{
  var logboek={},bron='';
  // Logboek gaat over het hele schooljaar, niet over de verzuimperiode: een
  // notitie uit juli hoort er in september nog steeds bij.
- var eJaar=parseInt(e.slice(0,4),10),eMaand=parseInt(e.slice(5,7),10);
- var jaar1=(eMaand>=8)?eJaar:eJaar-1;
- var lb=jaar1+'-08-01',le=(jaar1+1)+'-07-31';
+ // Ruime periode: Magister filtert hierop, en een logboek van vorig schooljaar
+ // (warme overdracht in juli) is juist waar je iets aan hebt.
+ var lb='1980-01-01',le='2030-01-01';
  var kandidaten=[
    function(id){return '/api/leerlingen/'+id+'/lvs/logboekformulieren?begin='+lb+'&einde='+le},
    function(id){return '/api/leerlingen/'+id+'/lvs/logboekformulieren'},
@@ -116,12 +131,13 @@ try{
    return null;};
  var slank=function(f){return{id:f.id,omschrijving:f.omschrijving,
    aangemaaktOp:f.aangemaaktOp,eigenaar:f.eigenaar,inhoud:f.inhoud};};
- if(confirm('Ook de logboekformulieren ophalen (schooljaar '+jaar1+'-'+(jaar1+1)+')?\n\nDat kost ongeveer '+seconden+' seconden extra.')){
+ var lbIds=ids.filter(function(id){return (entries[id]||[]).length>0;});
+ if(lbIds.length&&confirm('Ook de logboeken ophalen van de '+lbIds.length+' leerlingen met verzuim?\n\nDat kost ongeveer '+Math.ceil(lbIds.length/20*0.6)+' seconden extra.')){
    document.title='Logboek zoeken...';
    var werkend=null,leegMaarGeldig=null;
    for(var k=0;k<kandidaten.length&&!werkend;k++){
-     for(var t=0;t<Math.min(6,ids.length);t++){
-       var r0=await fetch(base+kandidaten[k](ids[t]),{signal:AbortSignal.timeout(20000)}).catch(function(){return null});
+     for(var t=0;t<Math.min(6,lbIds.length);t++){
+       var r0=await fetch(base+kandidaten[k](lbIds[t]),{signal:AbortSignal.timeout(20000)}).catch(function(){return null});
        if(!r0||!r0.ok)break;
        var d0=await r0.json().catch(function(){return null});
        var l0=lijstUit(d0);
@@ -134,15 +150,19 @@ try{
    if(!maker){bron='niet gevonden';}
    else{
      bron=maker('{id}');
-     for(var i2=0;i2<ids.length;i2+=SZ){
-       document.title='Logboek '+Math.min(i2+SZ,ids.length)+'/'+ids.length+'...';
-       var chunk2=ids.slice(i2,i2+SZ);
+     for(var i2=0;i2<lbIds.length;i2+=SZ){
+       document.title='Logboek '+Math.min(i2+SZ,lbIds.length)+'/'+lbIds.length+'...';
+       var chunk2=lbIds.slice(i2,i2+SZ);
        var res3=await Promise.all(chunk2.map(function(id){
          return fetch(base+maker(id),{signal:AbortSignal.timeout(20000)})
            .then(function(r){return r.ok?r.json():null})
            .then(function(d){return{id:id,items:lijstUit(d)||[]}})
            .catch(function(){return{id:id,items:[]}});}));
-       res3.forEach(function(r){if(r.items.length)logboek[r.id]=r.items.map(slank);});
+       res3.forEach(function(r){
+         if(!r.items.length)return;
+         var op=function(f){return (f.aangemaaktOp||f.gewijzigdOp||'')};
+         logboek[r.id]=r.items.slice().sort(function(a,b){return op(b).localeCompare(op(a))})
+                        .slice(0,3).map(slank);});
      }
    }
  }
