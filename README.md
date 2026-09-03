@@ -141,26 +141,49 @@ terug"*) en kun je kiezen of je met die onvolledige lijst doorgaat. Zie je maar
 
 ## Het dashboard lezen
 
-- **Meldplicht bereikt** — vanaf 16 uur ongeoorloofd binnen de gekozen periode.
-- **Nadert de grens** — 10 t/m 15 uur.
-- **Vaak te laat** — 6 keer of vaker; telt niet mee in de urennorm.
-- Ziek, arts en bijzonder verlof zijn geoorloofd en staan er als context bij.
+De pagina is een **werklijst**, geen verantwoording: wie moet ik spreken,
+waarover, en wat is er al gedaan. De urennorm staat er wel, maar niet centraal.
 
-Die grenzen stel je in de zijbalk in — die staat standaard dicht, open hem met
-de **»** linksboven. Ze gelden meteen voor het dashboard en voor de gedownloade
-HTML.
+Bovenaan staan zes **redenen voor een gesprek**; klik erop om de lijst te
+filteren:
 
-De tabs zijn afdeling + leerjaar (`Havo 4`, `Vwo 5`), afgeleid van de
-mentorgroep (`h4mtu1` → Havo 4) en anders van de klas. Klik op een signaal om de
-lijst daarop te filteren; klik nog eens om het filter uit te zetten.
+| Signaal | Wanneer |
+|---|---|
+| **Loopt op** | de laatste weken duidelijk meer dan de weken ervoor (minstens 4 registraties) |
+| **Nog geen contact** | er is verzuim, maar jij hebt niets vastgelegd — je werkvoorraad |
+| **Vaak te laat** | 6 keer of vaker (in te stellen) |
+| **Eerste uur** | de helft of meer valt in lesuur 1 en 2 — ander gesprek dan spijbelen overdag |
+| **Eén vak** | meer dan de helft bij dezelfde docent — dan moet je daar zijn |
+| **Opgeknapt** | duidelijk minder dan de periode ervoor; ook dat is een gesprek waard |
+
+Die redenen rekenen over **ongeoorloofd verzuim en te laat komen**, ongeacht
+welke codes je toont. Ziek en verlof zijn context, geen gespreksreden.
+
+Per leerling zie je een **patroonstrook**: vier weken lesdagen als blokjes,
+gekleurd naar het zwaarste wat er die dag speelde. Zo onderscheid je in één
+oogopslag één ziekweek van elke-maandag-afwezig. Daaronder staan de uren als
+klein cijfer, en rechts wat je al deed (*3 sep · telefoon ouders*) of dat er nog
+niets ligt.
+
+De lijst staat standaard op **wie het eerst spreken**: wat oploopt en nog geen
+contact heeft, staat bovenaan. Leg je contact vast, dan zakt die leerling
+vanzelf. Sorteren op uren of naam kan nog steeds.
+
+Vanaf 16 uur ongeoorloofd verschijnt het label **melden** — een wettelijk
+feit, geen stuurmiddel. Die grens en de andere stel je in de zijbalk in (die
+staat standaard dicht, open hem met de **»** linksboven).
+
+Rechts staan drie panelen: verzuim per week, **uitval per lesuur** (wanneer op de
+dag gaat het mis — dat stuurt je interventie) en getoonde uren per mentorgroep
+(met wie bespreek je het).
 
 ### Codeknoppen: wat je in beeld hebt
 
 Boven de kerncijfers staat per verzuimcode een knop met alleen de afkorting en
 het aantal registraties (`A 25`, `ZI 24`); wat de code betekent zie je door er
 met de muis op te gaan staan. Die knoppen bepalen wat je ziet: de tegels, de
-weekgrafiek, het overzicht per mentorgroep, de leerlingenlijst en de dagregels
-daarin.
+weekgrafiek, de uitval per lesuur, het overzicht per mentorgroep, de
+leerlingenlijst en de dagregels daarin.
 
 Standaard staan **ongeoorloofd en te laat** aan en **geoorloofd** uit — dat is
 het signaleringsbeeld. Zet `ZI` aan en het ziekteverzuim komt erbij, inclusief de

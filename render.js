@@ -2,12 +2,17 @@
    De cijfers komen uit dashboard.py; hier wordt alleen opgeteld per selectie:
    de tab (afdeling/leerjaar), de codeknoppen en de signaalfilters.
 
-   Drie dingen om te weten:
-   - De codeknoppen bepalen wat je ziet. Standaard staan alleen ongeoorloofd en
-     te laat aan; zet ZI aan en het ziekteverzuim komt erbij.
-   - De signalen (meldplicht, nadert de grens, vaak te laat) rekenen altijd over
-     álle registraties, ongeacht welke codes je toont. Dat is een norm, geen
-     weergave — anders zou wegklikken van een code iemand groen maken.
+   De pagina is een werklijst, geen verantwoording: wie moet ik spreken, waarover,
+   en wat is er al gedaan.
+
+   - De signalen zijn gespreksredenen (loopt op, nog geen contact, eerste uur,
+     één vak, opgeknapt). Ze rekenen over ongeoorloofd verzuim en te laat komen,
+     ongeacht welke codes je toont — anders zou wegklikken van een code iemand
+     uit beeld halen.
+   - De codeknoppen bepalen wél wat je aan registraties ziet: tegels, grafieken
+     en de dagregels. Geoorloofd staat standaard uit.
+   - De meldgrens blijft bestaan, maar als klein label; het is een wettelijk
+     feit, geen stuurmiddel.
    - Contactmomenten staan in localStorage van deze browser, niet op de server. */
 (function () {
   'use strict';
@@ -51,7 +56,7 @@
   var state = {
     groep: 'Alle',
     filter: null,
-    sort: 'ong',
+    sort: 'urgentie',
     codes: standaardSelectie()
   };
 
@@ -63,30 +68,81 @@
     return entries.filter(function (e) { return e.soort === soort; }).length;
   }
 
-  /* Status volgt de norm, dus altijd op álle ongeoorloofde uren. */
-  function status(l) {
-    if (l.ong >= NORM_CRIT) return 'crit';
-    if (l.ong >= NORM_WARN) return 'warn';
-    return 'neut';
+  /* ── Gespreksredenen ────────────────────────────────────────────────────
+     Berekend over ongeoorloofd verzuim en te laat komen; die maken het gesprek.
+     Ziek en verlof blijven context. */
+  var REDENEN = [
+    { key: 'oploop',  label: 'Loopt op',        uitleg: 'meer dan in de weken ervoor' },
+    { key: 'geencontact', label: 'Nog geen contact', uitleg: 'verzuim, niets vastgelegd' },
+    { key: 'telaat',  label: 'Vaak te laat',    uitleg: NORM_LAAT + '× of vaker' },
+    { key: 'eersteuur', label: 'Eerste uur',    uitleg: 'valt vooral vroeg uit' },
+    { key: 'eenvak',  label: 'Eén vak',         uitleg: 'zit bij één docent' },
+    { key: 'opgeknapt', label: 'Opgeknapt',     uitleg: 'minder dan ervoor' }
+  ];
+
+  var _cache = {};
+  function feiten(l) {
+    if (_cache[l.id]) return _cache[l.id];
+    var acties = (l.entries || []).filter(function (e) {
+      return e.soort === 'ong' || e.soort === 'laat';
+    });
+    var n = Math.max(1, WEKEN.length);
+    var perWeek = [];
+    for (var w = 0; w < n; w++) perWeek.push(0);
+    acties.forEach(function (e) { if (perWeek[e.week] !== undefined) perWeek[e.week]++; });
+
+    var helft  = Math.max(1, Math.round(n / 2));
+    var recent = perWeek.slice(n - helft).reduce(function (a, b) { return a + b; }, 0);
+    var eerder = perWeek.slice(0, n - helft).reduce(function (a, b) { return a + b; }, 0);
+    var recentGem = recent / helft;
+    var eerderGem = eerder / Math.max(1, n - helft);
+
+    var vroeg = acties.filter(function (e) { return e.uur === 1 || e.uur === 2; }).length;
+    var perVak = {}, topVak = '', topVakN = 0;
+    acties.forEach(function (e) {
+      if (!e.vak) return;
+      perVak[e.vak] = (perVak[e.vak] || 0) + 1;
+      if (perVak[e.vak] > topVakN) { topVakN = perVak[e.vak]; topVak = e.vak; }
+    });
+
+    var f = {
+      acties: acties.length,
+      recent: recent,
+      topVak: topVak,
+      oploop:      recent >= 4 && recentGem >= eerderGem * 1.75,
+      opgeknapt:   eerder >= 4 && recentGem < eerderGem * 0.5,
+      telaat:      l.laat >= NORM_LAAT,
+      eersteuur:   acties.length >= 3 && vroeg >= acties.length * 0.5,
+      eenvak:      topVakN >= 3 && topVakN >= acties.length * 0.5,
+      geencontact: acties.length > 0 && contacten(l.id).length === 0,
+      melden:      l.ong >= NORM_CRIT
+    };
+    f.lijst = REDENEN.filter(function (r) { return f[r.key]; });
+    /* Volgorde van de werklijst: wat vraagt het eerst om een gesprek. */
+    f.urgentie = (f.oploop ? 40 : 0) + (f.geencontact ? 25 : 0) + (f.telaat ? 15 : 0)
+               + (f.eersteuur ? 8 : 0) + (f.eenvak ? 8 : 0) + (f.melden ? 20 : 0)
+               + Math.min(recent, 20);
+    _cache[l.id] = f;
+    return f;
   }
+
+  function wisCache() { _cache = {}; }
 
   function inGroep(l) { return state.groep === 'Alle' || l.groep === state.groep; }
   function basis() { return LEERLINGEN.filter(inGroep); }
 
   function lijstLeerlingen() {
     var lijst = basis().filter(function (l) { return zichtbaar(l).length > 0; });
-    if (state.filter === 'crit') lijst = lijst.filter(function (l) { return status(l) === 'crit'; });
-    if (state.filter === 'warn') lijst = lijst.filter(function (l) { return status(l) === 'warn'; });
-    if (state.filter === 'laat') lijst = lijst.filter(function (l) { return l.laat >= NORM_LAAT; });
-    if (state.filter === 'ct') lijst = lijst.filter(function (l) { return contacten(l.id).length > 0; });
-
+    if (state.filter) {
+      lijst = lijst.filter(function (l) { return feiten(l)[state.filter]; });
+    }
     var s = state.sort;
     return lijst.slice().sort(function (a, b) {
       if (s === 'naam')    return a.naam.localeCompare(b.naam, 'nl');
       if (s === 'laat')    return b.laat - a.laat || b.ong - a.ong;
-      if (s === 'ziek')    return b.ziek - a.ziek || b.ong - a.ong;
+      if (s === 'ong')     return b.ong - a.ong || b.laat - a.laat;
       if (s === 'getoond') return zichtbaar(b).length - zichtbaar(a).length;
-      return b.ong - a.ong || b.laat - a.laat;
+      return feiten(b).urgentie - feiten(a).urgentie || b.ong - a.ong;
     });
   }
 
@@ -147,6 +203,17 @@
     var mnd = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
     return d.getDate() + ' ' + mnd[d.getMonth()];
   }
+  /* Datum van dag d (0=maandag) in week wi, afgeleid van de weeklabels. */
+  var _weekStart = (D.weekStarts || []);
+  function datumVan(wi, d) {
+    var start = _weekStart[wi];
+    if (!start) return '';
+    var dt = new Date(start + 'T00:00:00');
+    dt.setDate(dt.getDate() + d);
+    var p = function (n) { return String(n).padStart(2, '0'); };
+    return dt.getFullYear() + '-' + p(dt.getMonth() + 1) + '-' + p(dt.getDate());
+  }
+
   function vandaag() {
     var d = new Date(), p = function (n) { return String(n).padStart(2, '0'); };
     return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
@@ -228,30 +295,15 @@
                    '<span class="cbalk-presets">' + presets + '</span>';
   }
 
-  /* ── Actiebalk (normen — niet beïnvloed door de codeknoppen) ─────────────── */
+  /* ── Actiebalk: redenen voor een gesprek ────────────────────────────────── */
   function tekenActiebalk() {
-    var b = basis();
-    var nCrit = b.filter(function (l) { return status(l) === 'crit'; }).length;
-    var nWarn = b.filter(function (l) { return status(l) === 'warn'; }).length;
-    var nLaat = b.filter(function (l) { return l.laat >= NORM_LAAT; }).length;
-    var nContact = b.filter(function (l) { return contacten(l.id).length > 0; }).length;
-
-    var defs = [
-      { key: 'crit', cls: 'crit', ico: ICO.crit, n: nCrit, t: 'Meldplicht bereikt',
-        s: NORM_CRIT + ' uur of meer ongeoorloofd' },
-      { key: 'warn', cls: 'warn', ico: ICO.warn, n: nWarn, t: 'Nadert de grens',
-        s: NORM_WARN + ' t/m ' + (NORM_CRIT - 1) + ' uur ongeoorloofd' },
-      { key: 'laat', cls: 'late', ico: ICO.late, n: nLaat, t: 'Vaak te laat',
-        s: NORM_LAAT + ' keer of vaker deze periode' },
-      { key: 'ct', cls: 'ct', ico: ICO.bel, n: nContact, t: 'Contact gelegd',
-        s: 'door jou vastgelegd in deze browser' }
-    ];
-
-    document.getElementById('actiebalk').innerHTML = defs.map(function (d) {
-      return '<button class="signal ' + d.cls + '" data-signal="' + d.key + '" ' +
-        'aria-pressed="' + (state.filter === d.key) + '">' + d.ico +
-        '<span class="n">' + d.n + '</span>' +
-        '<span class="lbl"><b>' + d.t + '</b>' + d.s + '</span></button>';
+    var b = basis().filter(function (l) { return zichtbaar(l).length > 0; });
+    document.getElementById('actiebalk').innerHTML = REDENEN.map(function (r) {
+      var n = b.filter(function (l) { return feiten(l)[r.key]; }).length;
+      return '<button class="signal ' + r.key + '" data-signal="' + r.key + '" ' +
+        'aria-pressed="' + (state.filter === r.key) + '">' +
+        '<span class="n">' + n + '</span>' +
+        '<span class="lbl"><b>' + r.label + '</b>' + r.uitleg + '</span></button>';
     }).join('');
   }
 
@@ -310,22 +362,45 @@
     }
 
     el.innerHTML = lijst.map(function (l, i) {
-      var st = status(l);
-      var pct = Math.min(100, l.ong / NORM_CRIT * 100);
-      var label = st === 'crit' ? 'Meldplicht'
-                : st === 'warn' ? 'Nadert grens'
-                : l.ong === 0 ? 'Alleen geoorloofd of te laat' : 'In beeld';
-      var ico = st === 'crit' ? ICO.crit : st === 'warn' ? ICO.warn
-              : l.ong === 0 ? ICO.late : '';
-
+      var f = feiten(l);
       var zicht = zichtbaar(l);
-      var perDag = {}, volgorde = [];
-      zicht.forEach(function (e) {
-        if (!perDag[e.datum]) { perDag[e.datum] = []; volgorde.push(e.datum); }
-        perDag[e.datum].push(e);
-      });
-      var dagen = volgorde.sort().reverse().map(function (dt) {
-        var es = perDag[dt].slice().sort(function (a, b) { return (a.uur || 0) - (b.uur || 0); });
+
+      /* Patroonstrook: per week vijf lesdagen, gekleurd naar het zwaarste
+         wat er die dag speelde. Zo zie je 'elke maandag' of 'één ziekweek'. */
+      var perDatum = {};
+      zicht.forEach(function (e) { (perDatum[e.datum] = perDatum[e.datum] || []).push(e); });
+      var weken = WEKEN.map(function (w, wi) {
+        var dagen = '';
+        for (var d = 0; d < 5; d++) {
+          var iso = datumVan(wi, d);
+          var es = perDatum[iso] || [];
+          var soort = es.some(function (e) { return e.soort === 'ong'; }) ? 'ong'
+                    : es.some(function (e) { return e.soort === 'laat'; }) ? 'laat'
+                    : es.length ? 'geo' : 'niks';
+          var tip = es.length
+            ? (es[0].daglabel + ' · ' + es.map(function (e) { return e.code; }).join(' '))
+            : '';
+          dagen += '<i class="pdag ' + soort + (es.length > 2 ? ' veel' : '') + '"' +
+                   (tip ? ' data-tip="' + esc(tip) + '"' : '') + '></i>';
+        }
+        return '<span class="pweek" data-tip="' + esc(w.label + ' · ' + w.sub) + '">' + dagen + '</span>';
+      }).join('');
+
+      var ct = contacten(l.id);
+      var ctTekst = ct.length
+        ? '<span class="ct-status heeft">' + ICO.bel + esc(datumKort(ct[0].datum)) +
+          ' · ' + esc(ct[0].soort || '') + '</span>'
+        : '<span class="ct-status geen">nog geen contact</span>';
+
+      var tags = f.lijst.filter(function (r) { return r.key !== 'geencontact'; })
+                        .slice(0, 2).map(function (r) {
+        return '<span class="rtag ' + r.key + '">' + r.label + '</span>';
+      }).join('');
+      if (f.melden) tags += '<span class="rtag melden" data-tip="' + NORM_CRIT +
+                            ' uur of meer ongeoorloofd">melden</span>';
+
+      var dagen = Object.keys(perDatum).sort().reverse().map(function (dt) {
+        var es = perDatum[dt].slice().sort(function (a, b) { return (a.uur || 0) - (b.uur || 0); });
         return '<div class="dag"><span class="dl">' + esc(es[0].daglabel || dt) + '</span>' +
           '<span class="dc">' + es.map(function (e) {
             var cls = e.soort === 'ong' ? ' ong' : e.soort === 'laat' ? ' laat' : '';
@@ -335,40 +410,31 @@
           }).join('') + '</span></div>';
       }).join('');
 
-      var ct = contacten(l.id);
-      var ctBadge = ct.length
-        ? '<span class="ct-badge" data-tip="Laatste contact: ' + esc(ct[0].soort || '') + '">' +
-          ICO.bel + esc(datumKort(ct[0].datum)) + '</span>'
-        : '';
-
       var sub = l.klas
         + (l.mentorgroep ? ' · ' + l.mentorgroep : '')
         + (l.mentor ? ' · mentor ' + l.mentor : '');
 
-      var telUit = zicht.length + ' van ' + (l.entries || []).length + ' registraties getoond';
-
       return '<details class="rij"' + (i === 0 ? ' open' : '') + '>' +
         '<summary class="rij-hd">' +
-          '<span class="stripe ' + st + '"></span>' +
-          '<span class="wie"><span class="naam">' + esc(l.naam) + ctBadge + '</span>' +
+          '<span class="stripe' + (f.oploop ? ' oploop' : f.geencontact ? ' geencontact' : '') + '"></span>' +
+          '<span class="wie"><span class="naam">' + esc(l.naam) + '</span>' +
             '<span class="sub">' + esc(sub) + '</span></span>' +
-          '<span class="meter">' +
-            '<span class="meter-track">' +
-              '<span class="meter-fill ' + st + '" style="width:' + pct.toFixed(1) + '%"></span>' +
-              '<span class="meter-mark" data-tip="Meldgrens: ' + NORM_CRIT + ' uur"></span>' +
-            '</span>' +
-            '<span class="meter-cap"><span><b>' + l.ong + ' u</b> ongeoorloofd</span>' +
-              '<span>' + l.laat + '× te laat</span></span>' +
+          '<span class="patroon">' + weken +
+            '<span class="pcijfer"><b>' + l.ong + ' u</b> ongeoorloofd · ' +
+              l.laat + '× te laat</span>' +
           '</span>' +
           '<span class="rij-eind">' +
-            '<span class="pill ' + st + '">' + ico + label + '</span>' +
+            '<span class="rij-stapel"><span class="redenen">' + tags + '</span>' +
+              ctTekst + '</span>' +
             '<svg class="chev" width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>' +
           '</span>' +
         '</summary>' +
         '<div class="detail">' +
           contactBlok(l) +
           logboekBlok(l) +
-          '<div class="detail-telling">' + telUit + '</div>' +
+          '<div class="detail-telling">' + zicht.length + ' van ' +
+            (l.entries || []).length + ' registraties getoond' +
+            (f.topVak && f.eenvak ? ' · vooral bij ' + esc(f.topVak) : '') + '</div>' +
           (dagen || '<p class="leeg">Geen registraties in deze selectie.</p>') +
         '</div>' +
       '</details>';
@@ -434,22 +500,45 @@
     }).join('') || '<div class="leeg">Geen registraties in deze selectie.</div>';
   }
 
-  /* ── Codeverdeling (altijd alle codes, als overzicht) ───────────────────── */
-  function tekenCodes() {
-    var telling = {};
+  /* ── Uitval per lesuur ──────────────────────────────────────────────────
+     Wanneer op de dag gaat het mis? Dat stuurt de interventie meer dan een
+     verdeling over codes. */
+  function tekenUren() {
+    var perUur = {}, maxUur = 8;
     basis().forEach(function (l) {
-      (l.entries || []).forEach(function (e) { telling[e.code] = (telling[e.code] || 0) + 1; });
+      zichtbaar(l).forEach(function (e) {
+        var u = e.uur || 0;
+        if (u > maxUur) maxUur = u;
+        perUur[u] = perUur[u] || { ong: 0, laat: 0, geo: 0 };
+        perUur[u][e.soort]++;
+      });
     });
-    var rijen = Object.keys(telling).map(function (c) { return { code: c, n: telling[c] }; })
-      .sort(function (a, b) { return b.n - a.n; });
-    var max = rijen.length ? rijen[0].n : 1;
+    var uren = [];
+    for (var u = 1; u <= maxUur; u++) uren.push(u);
+    if (perUur[0]) uren.push(0);                       // lesuur onbekend
+    var max = 1;
+    uren.forEach(function (u) {
+      var w = perUur[u]; if (w) max = Math.max(max, w.ong + w.laat + w.geo);
+    });
 
-    document.getElementById('codes').innerHTML = rijen.map(function (r) {
-      return '<div class="code-row' + (aan(r.code) ? '' : ' uit') + '">' +
-        '<span class="cn"><b>' + esc(r.code) + '</b> ' + esc(codeNaam(r.code)) + '</span>' +
-        '<span class="ct"><i style="width:' + (r.n / max * 100).toFixed(1) + '%"></i></span>' +
-        '<span class="cv">' + r.n + '</span></div>';
-    }).join('') || '<div class="leeg">Geen registraties.</div>';
+    var segment = function (n, kleur, naam) {
+      return n ? '<span class="seg" style="flex:' + n + ';background:' + kleur + '" ' +
+                 'data-tip="' + naam + ': ' + n + '"></span>' : '';
+    };
+    document.getElementById('uren').innerHTML = uren.map(function (u) {
+      var w = perUur[u] || { ong: 0, laat: 0, geo: 0 };
+      var tot = w.ong + w.laat + w.geo;
+      return '<div class="bar-row">' +
+        '<span class="bar-lbl"><b>' + (u ? u + 'e uur' : 'onbekend') + '</b></span>' +
+        '<span class="bar-track">' +
+          '<span class="bar-stack" style="max-width:' + (tot / max * 100).toFixed(1) + '%">' +
+            segment(w.ong, 'var(--s-ongeoorloofd)', 'Ongeoorloofd') +
+            segment(w.laat, 'var(--s-telaat)', 'Te laat') +
+            segment(w.geo, 'var(--s-geoorloofd)', 'Geoorloofd') +
+          '</span>' +
+          '<span class="bar-val">' + tot + '</span>' +
+        '</span></div>';
+    }).join('') || '<div class="leeg">Geen registraties in deze selectie.</div>';
   }
 
   /* ── Contactenoverzicht boven de lijst ──────────────────────────────────── */
@@ -511,7 +600,7 @@
 
   function tekenAlles() {
     tekenCodebalk(); tekenActiebalk(); tekenTiles(); tekenTabs();
-    tekenLijst(); tekenWeken(); tekenGroepen(); tekenCodes(); tekenContactknop();
+    tekenLijst(); tekenWeken(); tekenGroepen(); tekenUren(); tekenContactknop();
   }
 
   /* ── Bediening ──────────────────────────────────────────────────────────── */
@@ -561,7 +650,7 @@
         alert('Opslaan lukte niet. Staat opslag van websitegegevens uit in deze browser?');
         return;
       }
-      tekenActiebalk(); tekenLijst(); tekenContactknop();
+      wisCache(); tekenActiebalk(); tekenLijst(); tekenContactknop();
       return;
     }
 
@@ -569,7 +658,7 @@
     if (weg) {
       var delen = weg.dataset.weg.split('|');
       verwijderContact(delen[0], delen[1]);
-      tekenActiebalk(); tekenLijst(); tekenContactknop();
+      wisCache(); tekenActiebalk(); tekenLijst(); tekenContactknop();
       return;
     }
 

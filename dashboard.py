@@ -310,6 +310,8 @@ def verwerk(payload, codes, config=None, mentoren=None,
         'config':  config,
         'codes':   codes,
         'weken':   [week_label(m) for m in weken],
+        # Maandag van elke week, zodat de patroonstrook per lesdag kan tekenen.
+        'weekStarts': [m.isoformat() for m in weken],
         'groepen': ['Alle'] + groepen,
         'logboekOpgehaald': bool(payload.get('logboek_bron')),
         'leerlingen': leerlingen,

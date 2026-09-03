@@ -131,11 +131,11 @@ h1 {
 .masthead .meta b { display: block; color: var(--ink); font-size: .92rem; font-weight: 600; }
 
 /* ── Actiebalk ────────────────────────────────────────────────────────────── */
-.actiebalk {
+.actiebalk { flex-wrap: wrap; 
   display: flex; gap: 10px; flex-wrap: wrap; align-items: stretch;
   margin-bottom: 22px;
 }
-.signal {
+.signal { min-width: 180px;
   flex: 1 1 220px;
   display: flex; align-items: center; gap: 11px;
   padding: 12px 14px;
@@ -147,9 +147,12 @@ h1 {
 }
 .signal:hover { background: var(--card-sunk); }
 .signal[aria-pressed="true"] { border-color: var(--ink); border-left-color: var(--ink); background: var(--card-sunk); }
-.signal.crit { border-left-color: var(--st-crit); }
-.signal.warn { border-left-color: var(--st-warn); }
-.signal.late { border-left-color: var(--bar-neutral); }
+.signal.oploop      { border-left-color: var(--st-crit); }
+.signal.geencontact { border-left-color: var(--st-warn); }
+.signal.telaat      { border-left-color: var(--s-telaat); }
+.signal.eersteuur   { border-left-color: var(--s-ongeoorloofd); }
+.signal.eenvak      { border-left-color: var(--bar-neutral); }
+.signal.opgeknapt   { border-left-color: var(--st-good); }
 .signal .n {
   font-weight: 700; font-size: 1.6rem; line-height: 1;
   letter-spacing: -.02em;
@@ -228,7 +231,7 @@ select {
 .rij { border-bottom: 1px solid var(--line-soft); }
 .rij:last-child { border-bottom: none; }
 .rij-hd {
-  display: grid; grid-template-columns: 3px minmax(0,1fr) 172px auto;
+  display: grid; grid-template-columns: 3px minmax(0,1fr) 250px 210px;
   gap: 0 14px; align-items: center;
   width: 100%; padding: 0; border: none; background: none;
   font: inherit; color: inherit; text-align: left; cursor: pointer;
@@ -237,32 +240,54 @@ select {
 .rij-hd { list-style: none; }
 .rij-hd::-webkit-details-marker { display: none; }
 .stripe { align-self: stretch; background: var(--bar-neutral); }
-.stripe.crit { background: var(--st-crit); }
-.stripe.warn { background: var(--st-warn); }
+.stripe.oploop { background: var(--st-crit); }
+.stripe.geencontact { background: var(--st-warn); }
 
 .wie { padding: 11px 0 11px 13px; min-width: 0; }
 .wie .naam { display: block; font-weight: 600; font-size: .9rem; }
 .wie .sub { display: block; font-size: .74rem; color: var(--muted); margin-top: 1px; }
 
-.meter { display: block; padding: 11px 0; }
-.meter-track {
-  display: block;
-  position: relative; height: 9px; border-radius: 5px;
-  background: var(--card-sunk); border: 1px solid var(--line-soft);
+/* ── Patroonstrook: vier weken × vijf lesdagen ───────────────────────────── */
+.patroon { display: block; padding: 10px 0; }
+.pweek { display: inline-flex; gap: 1px; margin-right: 5px; }
+.pweek:last-of-type { margin-right: 0; }
+.pdag {
+  width: 7px; height: 15px; border-radius: 2px; display: inline-block;
+  background: var(--card-sunk); box-shadow: inset 0 0 0 1px var(--line-soft);
 }
-.meter-fill { position: absolute; inset: 0 auto 0 0; border-radius: 5px 0 0 5px; background: var(--bar-neutral); }
-.meter-fill.crit { background: var(--st-crit); border-radius: 5px; }
-.meter-fill.warn { background: var(--st-warn); }
-.meter-mark {
-  position: absolute; z-index: 2; top: -4px; bottom: -4px; left: 80%;
-  width: 1px; background: var(--ink-2); opacity: .7;
-}
-.meter-cap {
-  display: flex; justify-content: space-between; gap: 8px;
-  margin-top: 6px; font-size: .71rem; color: var(--muted);
+.pdag.niks { background: var(--card-sunk); }
+.pdag.ong  { background: color-mix(in srgb, var(--s-ongeoorloofd) 55%, transparent); box-shadow: none; }
+.pdag.laat { background: color-mix(in srgb, var(--s-telaat) 55%, transparent); box-shadow: none; }
+.pdag.geo  { background: color-mix(in srgb, var(--s-geoorloofd) 40%, transparent); box-shadow: none; }
+.pdag.ong.veel  { background: var(--s-ongeoorloofd); }
+.pdag.laat.veel { background: var(--s-telaat); }
+.pdag.geo.veel  { background: var(--s-geoorloofd); }
+.pcijfer {
+  display: block; margin-top: 6px; font-size: .71rem; color: var(--muted);
   font-variant-numeric: tabular-nums; white-space: nowrap;
 }
-.meter-cap b { color: var(--ink); font-weight: 600; }
+.pcijfer b { color: var(--ink-2); font-weight: 600; }
+
+/* ── Redenen voor een gesprek ────────────────────────────────────────────── */
+.redenen { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+.rtag {
+  padding: 2px 8px; border-radius: 999px; white-space: nowrap;
+  font-size: .7rem; font-weight: 600;
+  background: var(--card-sunk); color: var(--ink-2);
+}
+.rtag.oploop      { background: var(--st-crit-bg); color: var(--st-crit); }
+.rtag.geencontact { background: var(--st-warn-bg); color: #7a5300; }
+.rtag.opgeknapt   { background: var(--st-good-bg); color: var(--st-good); }
+.rtag.melden      { background: transparent; color: var(--st-crit);
+                    box-shadow: inset 0 0 0 1px var(--st-crit); }
+:root[data-theme="dark"] .rtag.geencontact { color: var(--st-warn); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .rtag.geencontact { color: var(--st-warn); }
+}
+.ct-status { font-size: .71rem; white-space: nowrap; display: inline-flex; align-items: center; gap: 3px; }
+.ct-status .ico { width: 11px; height: 11px; }
+.ct-status.heeft { color: var(--s-geoorloofd); }
+.ct-status.geen { color: var(--muted); font-style: italic; }
 
 .pill {
   display: inline-flex; align-items: center; gap: 5px;
@@ -275,7 +300,9 @@ select {
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .pill.warn { color: var(--st-warn); } }
 .pill.neut { background: var(--card-sunk); color: var(--ink-2); }
 
-.rij-eind { display: flex; align-items: center; gap: 10px; padding: 11px 15px 11px 0; }
+.rij-eind { display: flex; align-items: center; justify-content: flex-end;
+  gap: 8px; padding: 11px 15px 11px 0; min-width: 0; }
+.rij-stapel { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; min-width: 0; }
 .chev { color: var(--muted); transition: transform .15s; flex: none; }
 .rij[open] .chev { transform: rotate(90deg); }
 
@@ -480,7 +507,7 @@ footer b { color: var(--ink-2); font-weight: 600; }
   <div class="masthead">
     <div>
       <h1>Verzuimsignalering</h1>
-      <p>Wie moet deze periode besproken worden, en met welke mentor?</p>
+      <p>Wie vraagt om een gesprek, waarover, en wat is er al gedaan?</p>
     </div>
     <div class="meta">
       <b>{{PERIODE}}</b>
@@ -498,10 +525,10 @@ footer b { color: var(--ink-2); font-weight: 600; }
     <div class="tabs" role="tablist" id="tabs"></div>
     <label class="sortbox">Sorteer op
       <select id="sort">
+        <option value="urgentie">Wie het eerst spreken</option>
         <option value="ong">Ongeoorloofde uren</option>
         <option value="laat">Keer te laat</option>
         <option value="getoond">Getoonde registraties</option>
-        <option value="ziek">Ziekte-uren</option>
         <option value="naam">Naam</option>
       </select>
     </label>
@@ -509,11 +536,13 @@ footer b { color: var(--ink-2); font-weight: 600; }
 
   <div class="grid">
     <div class="panel">
-      <h2>Leerlingen in beeld <span id="lijst-telling"></span></h2>
+      <h2>Wie spreek je deze week? <span id="lijst-telling"></span></h2>
       <div class="legend-row">
-        <span class="key"><span class="swatch" style="background:var(--st-crit)"></span> Meldplicht — {{NORM_CRIT}} uur of meer</span>
-        <span class="key"><span class="swatch" style="background:var(--st-warn)"></span> Nadert de grens — {{NORM_WARN}} t/m {{NORM_CRIT_MIN1}} uur</span>
-        <span class="key"><span class="swatch" style="background:var(--bar-neutral)"></span> In beeld — 1 t/m {{NORM_WARN_MIN1}} uur</span>
+        <span class="key">Patroon per lesdag:</span>
+        <span class="key"><span class="swatch" style="background:var(--s-ongeoorloofd)"></span> ongeoorloofd</span>
+        <span class="key"><span class="swatch" style="background:var(--s-telaat)"></span> te laat</span>
+        <span class="key"><span class="swatch" style="background:var(--s-geoorloofd)"></span> geoorloofd</span>
+        <span class="key"><span class="swatch" style="background:var(--card-sunk);box-shadow:inset 0 0 0 1px var(--lijn)"></span> niets</span>
       </div>
       <div id="contact-export"></div>
       <div id="ct-export-vak" hidden></div>
@@ -539,18 +568,21 @@ footer b { color: var(--ink-2); font-weight: 600; }
       </div>
 
       <div class="panel">
-        <h2>Registraties per code <span>alle codes</span></h2>
-        <div class="panel-body"><div class="codes" id="codes"></div></div>
+        <h2>Uitval per lesuur <span>getoonde registraties</span></h2>
+        <div class="panel-body"><div id="uren"></div></div>
       </div>
     </div>
   </div>
 
   <footer>
-    <b>Hoe je dit leest.</b> Ongeoorloofd verzuim telt in lesuren: alleen de codes
-    {{ONG_CODES}}. Vanaf {{NORM_CRIT}} uur binnen deze periode staat een leerling op
-    <b>meldplicht</b>, vanaf {{NORM_WARN}} uur op <b>nadert de grens</b>. Te laat komen telt
-    niet mee in die uren en heeft een eigen signaal vanaf {{NORM_LAAT}} keer. Ziek, arts en
-    bijzonder verlof zijn geoorloofd en staan er alleen als context bij.
+    <b>Hoe je dit leest.</b> De signalen zijn redenen voor een gesprek, geen
+    grenzen: <b>loopt op</b> vergelijkt de laatste weken met de weken ervoor,
+    <b>eerste uur</b> betekent dat het verzuim vooral in lesuur 1 en 2 zit, en
+    <b>één vak</b> dat meer dan de helft bij dezelfde docent valt. De strook per
+    leerling toont vier weken lesdagen, zodat je incidenteel van structureel kunt
+    onderscheiden. Ongeoorloofde uren staan er als cijfer bij; vanaf
+    {{NORM_CRIT}} uur verschijnt het label <b>melden</b> — dat blijft een
+    wettelijk feit, maar het is niet waar dit overzicht om draait.
     {{BRON}}
   </footer>
 </div>
