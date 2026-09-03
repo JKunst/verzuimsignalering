@@ -2,6 +2,7 @@
 app.py — Verzuimsignalering voor teamleiders.
 
 Flow:
+0. De gebruiker komt binnen via het portaal, met een SSO-token in de URL.
 1. De teamleider sleept hier eenmalig een bookmarklet naar de bladwijzerbalk.
 2. In het ingelogde Magister-tabblad klikt hij die aan: de leerlingen van zijn
    afdeling + hun verzuim worden daar opgehaald (met zijn eigen sessie).
@@ -22,7 +23,15 @@ import hashlib
 import secrets
 from pathlib import Path
 
+import jwt
 import streamlit as st
+
+# Het pakket `jwt` (1.x) heet net zo als PyJWT en verdringt het. Dan zou de app
+# pas bij het inloggen omvallen met een onbegrijpelijke AttributeError.
+if not hasattr(jwt, 'decode'):
+    raise SystemExit(
+        'Verkeerde jwt-module: dit is het pakket `jwt`, niet PyJWT.\n'
+        'Herstellen met:  pip uninstall -y jwt && pip install --force-reinstall PyJWT')
 
 import ingest
 import bookmarklet
@@ -32,6 +41,12 @@ HIER          = Path(__file__).parent
 MENTOREN_PAD  = HIER / 'mentoren.json'
 SECRET_PAD    = HIER / '.secret'
 VOORBEELD_PAD = HIER / 'voorbeeld_school.json'
+
+# Zelfde SSO-token als de andere apps van het portaal.
+JWT_SECRET    = os.environ.get('JWT_SECRET', 'verander-dit-naar-een-lang-geheim')
+JWT_ALGORITHM = 'HS256'
+PORTAAL_URL   = os.environ.get('PORTAAL_URL', 'https://bovenbouwsucces.nl')
+TOEGESTANE_ROLLEN = ('docent', 'beheerder')
 
 # Eigen naam, zodat de knop niet te verwarren is met de bookmarklet van de
 # mentoruur-app (die heet '📋 Verzuim ophalen' en pakt één mentorgroep).
@@ -54,8 +69,74 @@ def _secret():
 
 
 def _token():
-    return hmac.new(_secret().encode(), b'verzuimsignalering-teamleider',
+    """Ontvangsttoken van de bookmarklet — per gebruiker.
+
+    Het eckid zit erin, zodat de payload van de één niet in de sessie van de
+    ander kan belanden: de ontvanger geeft een binnengekomen bestand alleen aan
+    wie hetzelfde token gebruikt.
+    """
+    wie = st.session_state.get('eckid') or 'lokaal'
+    return hmac.new(_secret().encode(),
+                    f'verzuimsignalering-teamleider:{wie}'.encode(),
                     hashlib.sha256).hexdigest()[:16]
+
+
+# ── Inloggen via het portaal ──────────────────────────────────────────────────
+def _verwerk_sso_token():
+    """Leest ?token=<JWT> uit de URL, zoals het portaal die meegeeft."""
+    if st.session_state.get('eckid'):
+        return
+
+    token = st.query_params.get('token')
+    if not token:
+        return
+
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+    except jwt.ExpiredSignatureError:
+        st.query_params.clear()
+        st.warning('Je sessie is verlopen. Ga terug naar het portaal en klik de '
+                   'tegel opnieuw aan.')
+        return
+    except jwt.InvalidTokenError:
+        st.query_params.clear()
+        st.error('Ongeldig token.')
+        return
+
+    eckid = payload.get('eckid')
+    rol   = payload.get('rol', '')
+    if not eckid or rol not in TOEGESTANE_ROLLEN:
+        st.query_params.clear()
+        st.warning('Geen toegang: deze app is voor mentoren en teamleiders.')
+        return
+
+    st.session_state.eckid   = eckid
+    st.session_state.naam    = payload.get('naam', '')
+    st.session_state.rol     = rol
+    st.session_state.app_rol = (payload.get('app_rollen') or {}).get('verzuim', '')
+    st.query_params.clear()
+    st.rerun()
+
+
+def inloggen():
+    """Laat de app alleen door voor wie via het portaal binnenkomt.
+
+    Voor lokaal ontwikkelen: VERZUIM_TL_ZONDER_LOGIN=1 slaat dit over. Zet dat
+    nooit op een server — dan kan iedereen die de URL kent meekijken.
+    """
+    if os.environ.get('VERZUIM_TL_ZONDER_LOGIN') == '1':
+        st.session_state.setdefault('eckid', 'lokaal')
+        st.session_state.setdefault('naam', 'Lokale test')
+        return
+
+    _verwerk_sso_token()
+    if st.session_state.get('eckid'):
+        return
+
+    st.title('📋 Verzuimsignalering')
+    st.warning(f'Log in via [het portaal]({PORTAAL_URL}) en klik daar de tegel '
+               'van deze app aan.')
+    st.stop()
 
 
 def _ingest_config():
@@ -97,6 +178,9 @@ def _valideer(payload):
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 def sidebar():
     st.sidebar.header('Instellingen')
+    naam = st.session_state.get('naam')
+    if naam:
+        st.sidebar.caption(f'Ingelogd als {naam}')
 
     st.sidebar.subheader('Signaalgrenzen')
     config = {
@@ -340,6 +424,7 @@ def rapport(payload, config):
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 def main():
+    inloggen()                       # zonder portaal-token komt niemand verder
     config = sidebar()
     st.title('📋 Verzuimsignalering')
 
