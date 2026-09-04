@@ -117,27 +117,37 @@ probeert hij nog vier varianten op de eerste leerlingen; welke werkte meldt de
 app boven het dashboard. Staat daar dat er niets gevonden is, dan moet die URL in
 `bookmarklet.py` bij `kandidaten` worden bijgezet.
 
-Het ophalen kost één verzoek per leerling. Daarom wordt er eerst gefilterd en
-pas daarna verzuim opgehaald.
+### Hoe snel gaat het, en waarom niet sneller
 
-**Magister knijpt bij veel verzoeken** (HTTP 429). Bij een selectie van drie
-klassen over een heel schooljaar gebeurde dat 40 keer. De bookmarklet begint
-daarom met blokjes van acht en een korte pauze, en wordt vanzelf rustiger zodra
-een 429 langskomt: blokjes van vier en een pauze die oploopt tot 2,5 seconde.
-Wie dan nog mislukt, krijgt een tweede, tragere ronde. In de meting kwamen zo
-alle 83 leerlingen binnen (80 seconden voor een heel schooljaar); een periode
-van vier weken is veel sneller.
+Magister begrenst het aantal verzoeken. Gemeten op onze eigen omgeving:
 
-Lukt het daarna nog steeds niet voor iedereen, dan vraagt de bookmarklet of je
-wilt doorgaan en meldt de app hoeveel leerlingen ontbreken. Ga daar niet
-overheen: die leerlingen staan dan ten onrechte op nul uur.
+| Wat | Uitkomst |
+|---|---|
+| Verzoeken tot de eerste weigering | **29**, daarna HTTP 429 |
+| Hersteltijd van die teller | ongeveer **30 seconden** |
+| 4 tegelijk, zonder pauze | 29 gelukt, 31 geweigerd |
+| 8 tegelijk, zonder pauze | 60 van de 60 geweigerd |
+| **1 per 1,2 seconde** | **45 van de 45 gelukt, nul weigeringen** |
 
-De leerlingenlijst zelf komt in pagina's binnen (Magister geeft er ongeveer 50
-per keer). De bookmarklet pagineert door tot hij er evenveel heeft als
-`totalCount` aangeeft. Lukt dat niet — bijvoorbeeld omdat de omgeving `skip`
-negeert — dan meldt hij dat expliciet (*"Magister gaf 50 van de 1800 leerlingen
-terug"*) en kun je kiezen of je met die onvolledige lijst doorgaat. Zie je maar
-één klas terwijl je een heel leerjaar verwacht, dan is dit de plek om te kijken.
+Dat verklaart waarom een heel leerjaar eerder maar één klas opleverde: na
+ongeveer dertig leerlingen — precies een klas — ging alles op de weigering, en
+die kwam binnen als "geen verzuim".
+
+De bookmarklet houdt daarom een **vast tempo van één verzoek per 1,2 seconde**
+aan in plaats van blokken. Reken op ongeveer **twee minuten per honderd
+leerlingen**, en nog eens zoveel als je de logboeken meeneemt. Sneller kan niet;
+wel slimmer:
+
+- **De leerlingenlijst kost nog één verzoek.** Zoeken op je selectie (`H5`) geeft
+  in één keer alle leerlingen van dat leerjaar. Alleen zonder selectie moet de
+  hele school gepagineerd worden (achttien verzoeken); lukt dat niet volledig,
+  dan meldt hij dat en kies je of je doorgaat.
+- **Je ziet tussenstanden.** Elke twintig leerlingen stuurt de bookmarklet wat
+  hij tot dan toe heeft. De app toont dat meteen met een voortgangsbalk
+  (*"18 van de 90 leerlingen binnen"*) en vult vanzelf aan tot de ronde klaar is.
+- Komt er tóch een weigering, dan wacht hij dertig seconden — precies zolang als
+  de teller nodig heeft — en gaat door. Wie daarna nog mislukt, krijgt een
+  tweede ronde; wat dan nog ontbreekt wordt geteld en rood gemeld.
 
 ## Het dashboard lezen
 

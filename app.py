@@ -614,6 +614,16 @@ def main():
 
     st.title('📋 Verzuimsignalering')
     if 'payload' in st.session_state:
+        # Loopt de ophaalronde nog? Dan bij elke doorloop de nieuwste
+        # tussenstand pakken, anders blijft het scherm op de eerste hangen.
+        if not st.session_state.payload.get('klaar', True):
+            ingest_url, _ = _ingest_config()
+            if ingest_url:
+                nieuwer = ingest.peek(_token())
+                if nieuwer:
+                    st.session_state.payload = nieuwer
+                    if nieuwer.get('klaar'):
+                        ingest.vergeet(_token())
         rapport(st.session_state.payload, config)
     else:
         intake()
