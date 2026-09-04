@@ -50,49 +50,70 @@ try{
  scope=scope.trim();
  var filters=scope?scope.split(',').map(function(s){return s.trim().toUpperCase()}).filter(Boolean):[];
  var base=location.origin;
- // Snelheid: begint vlot en wordt vanzelf rustiger zodra Magister knijpt.
- var SZ=8,pauze=150,traag=false;
+ // Snelheid. Magister staat ongeveer dertig verzoeken per halve minuut toe en
+ // geeft daarna HTTP 429; de teller loopt binnen dertig seconden weer leeg.
+ // Gemeten: één verzoek per 1,2 seconde levert nul weigeringen op, terwijl
+ // blokjes van acht na één klas al vastlopen. Dus geen bursts maar een vast
+ // tempo, en na een 429 gewoon even wachten tot de teller weer vol is.
+ var TEMPO=1200,SZ=1,pauze=TEMPO,traag=false;
  var vertraag=function(){
-   if(!traag){traag=true;SZ=4;pauze=900;}
-   else{pauze=Math.min(pauze+400,2500);}};
+   traag=true;
+   pauze=Math.min(pauze+400,3000);};
  var wacht=function(ms){return new Promise(function(k){setTimeout(k,ms)})};
  var haal=async function(url,pogingen){
    for(var poging=0;poging<(pogingen||3);poging++){
      var r=await fetch(base+url,{signal:AbortSignal.timeout(20000)}).catch(function(){return null});
      if(r&&r.ok)return r;
-     if(r&&(r.status===429||r.status>=500)){vertraag();await wacht(1500*(poging+1));continue;}
+     if(r&&r.status===429){vertraag();await wacht(30000);continue;}
+     if(r&&r.status>=500){await wacht(1500*(poging+1));continue;}
      return r;                       // andere fout: opnieuw proberen helpt niet
    }
    return null;};
  var jget=async function(u){try{var r=await fetch(u,{signal:AbortSignal.timeout(20000)});
    if(r.status===204)return{};var t=await r.text();return t&&t.trim()?JSON.parse(t):{};}catch(_){return{};}};
 
- // 1. Leerlingen ophalen. Magister levert dit in pagina's; hoeveel er in totaal
- //    zijn staat in totalCount. Daar pagineren we op door, want alleen stoppen
- //    bij een korte pagina levert soms maar één klas op.
+ // 1. Leerlingen ophalen. Zoeken op de scope zelf ('H5') geeft in één verzoek
+ //    alle leerlingen van dat leerjaar; alleen zonder scope moeten we de hele
+ //    school pagineren. Dat scheelt niet alleen tijd: Magister staat maar zo'n
+ //    dertig verzoeken per halve minuut toe, en die wil je aan verzuim besteden.
  document.title='Leerlingen ophalen...';
- var alle=[],gezien={},skip=0,TOP=100,totaal=null,paginas=0;
- for(var p=0;p<120;p++){
-   var res=await jget(base+'/api/leerlingen/zoeken?q=**&top='+TOP+'&skip='+skip);
-   var items=res.items||[];
-   if(totaal===null){
-     var t=[res.totalCount,res.totaalAantal,res.count,res.total];
-     for(var ti=0;ti<t.length;ti++){if(typeof t[ti]==='number'){totaal=t[ti];break;}}
-   }
-   if(!items.length)break;
-   paginas++;
+ var alle=[],gezien={},totaal=null,paginas=0;
+ var voegToe=function(items){
    var nieuw=0;
-   items.forEach(function(s){if(!gezien[s.id]){gezien[s.id]=1;alle.push(s);nieuw++;}});
-   skip+=items.length;
-   document.title='Leerlingen '+alle.length+(totaal?'/'+totaal:'')+'...';
-   if(!nieuw)break;                                   // zelfde pagina opnieuw
-   if(totaal!==null){if(alle.length>=totaal)break;}
-   else if(items.length<TOP)break;
+   (items||[]).forEach(function(s){if(!gezien[s.id]){gezien[s.id]=1;alle.push(s);nieuw++;}});
+   return nieuw;};
+
+ if(filters.length){
+   for(var fi=0;fi<filters.length;fi++){
+     document.title='Leerlingen zoeken ('+filters[fi]+')...';
+     var rz=await jget(base+'/api/leerlingen/zoeken?q='+encodeURIComponent(filters[fi])+'&top=400');
+     voegToe(rz.items);
+     paginas++;
+   }
+ }
+ if(!alle.length){                                   // geen scope, of niets gevonden
+   var skip=0,TOP=100;
+   for(var p=0;p<120;p++){
+     var res=await jget(base+'/api/leerlingen/zoeken?q=**&top='+TOP+'&skip='+skip);
+     var items=res.items||[];
+     if(totaal===null){
+       var t=[res.totalCount,res.totaalAantal,res.count,res.total];
+       for(var ti=0;ti<t.length;ti++){if(typeof t[ti]==='number'){totaal=t[ti];break;}}
+     }
+     if(!items.length)break;
+     paginas++;
+     var nieuw=voegToe(items);
+     skip+=items.length;
+     document.title='Leerlingen '+alle.length+(totaal?'/'+totaal:'')+'...';
+     if(!nieuw)break;                                 // zelfde pagina opnieuw
+     if(totaal!==null){if(alle.length>=totaal)break;}
+     else if(items.length<TOP)break;
+   }
+   if(totaal!==null&&alle.length<totaal&&!confirm('Magister gaf '+alle.length+' van de '+totaal+' leerlingen terug'
+     +' ('+paginas+' pagina\'s).\n\nDoorgaan met deze onvolledige lijst?')){document.title='Magister';return;}
  }
  if(!alle.length){document.title='Magister';
    alert('Geen leerlingen gevonden.\n\nBen je hier ingelogd als docent/teamleider? Open eerst Magister en probeer het opnieuw.');return;}
- if(totaal!==null&&alle.length<totaal&&!confirm('Magister gaf '+alle.length+' van de '+totaal+' leerlingen terug'
-   +' ('+paginas+' pagina\'s).\n\nDoorgaan met deze onvolledige lijst?')){document.title='Magister';return;}
 
  // 2. Filteren op klas of leerjaar (voordat we per leerling verzuim opvragen).
  var past=function(s){
@@ -122,8 +143,8 @@ try{
  // wie toch mislukt komt in een rustiger tweede ronde. Stil verlies van een
  // hele klas is hier het gevaar, niet traagheid.
  var entries={},ids=slim.map(function(s){return s.id});
- var haalVerzuim=async function(lijst,pogingen,label){
-   var mis=[];
+ var haalVerzuim=async function(lijst,pogingen,label,tussenstand){
+   var mis=[],sinds=0;
    for(var i=0;i<lijst.length;i+=SZ){
      document.title=label+' '+Math.min(i+SZ,lijst.length)+'/'+lijst.length+'...';
      var chunk=lijst.slice(i,i+SZ);
@@ -134,13 +155,27 @@ try{
            return r.json().then(function(d){return{id:id,items:d.items||[]}});})
          .catch(function(){mis.push(id);return{id:id,items:null};});}));
      res2.forEach(function(r){if(r.items!==null)entries[r.id]=parse(r.items);});
+     sinds+=chunk.length;
+     if(tussenstand&&sinds>=20){sinds=0;await tussenstand(false);}
      if(i+SZ<lijst.length)await wacht(pauze);
    }
    return mis;};
- var mislukt=await haalVerzuim(ids,3,'Verzuim TL');
+ // Tussenstand versturen, zodat de app iets kan tonen terwijl dit loopt.
+ var deelStand=async function(klaar){
+   if(!__DEEL__)return;
+   var deel={period:{begin:b,einde:e},scope:scope,students:slim,own_ids:ids,
+     entries:entries,logboek:logboek,logboek_bron:bron,logboek_diag:diag,
+     verzuim_fouten:0,klaar:!!klaar,
+     voortgang:{leerlingen:ids.length,gedaan:Object.keys(entries).length,
+                fase:klaar?'klaar':'verzuim'}};
+   await fetch('__INGEST__?token=__TOKEN__&deel=1',{method:'POST',
+     headers:{'Content-Type':'text/plain;charset=UTF-8'},
+     body:JSON.stringify(deel)}).catch(function(){});};
+
+ var mislukt=await haalVerzuim(ids,3,'Verzuim TL',deelStand);
  if(mislukt.length){
-   SZ=4;pauze=Math.max(pauze,1200);                   // rustiger tweede ronde
-   mislukt=await haalVerzuim(mislukt,4,'Verzuim herkansing');
+   pauze=Math.max(pauze,2000);                        // rustiger tweede ronde
+   mislukt=await haalVerzuim(mislukt,4,'Verzuim herkansing',deelStand);
  }
  if(mislukt.length&&!confirm('Van '+mislukt.length+' van de '+ids.length+' leerlingen'
    +' lukte het verzuim niet op te halen (Magister beperkt het aantal verzoeken).'
@@ -233,6 +268,7 @@ _TAIL_DOWNLOAD = (
 # nietszeggende "TypeError: Failed to fetch". Het tabblad blijft toch open.
 _TAIL_POST = (
  "document.title='Versturen...';"
+ "payload.klaar=true;"
  "var body=JSON.stringify(payload);"
  "var r=await fetch('__INGEST__?token=__TOKEN__',{method:'POST',"
  "headers:{'Content-Type':'text/plain;charset=UTF-8'},body:body});"
@@ -243,8 +279,13 @@ _TAIL_POST = (
 )
 
 
-def _bouw(tail, standaard_scope=''):
-    js = _JS.replace('__TAIL__', tail).replace('__SCOPE__', standaard_scope)
+def _bouw(tail, standaard_scope='', deel='false', ingest_url='', token=''):
+    """De bookmarklet in elkaar zetten; alle plekhouders in één keer invullen."""
+    js = (_JS.replace('__TAIL__', tail)
+             .replace('__SCOPE__', standaard_scope)
+             .replace('__DEEL__', deel)
+             .replace('__INGEST__', ingest_url)
+             .replace('__TOKEN__', token))
     return 'javascript:' + quote(js, safe='')
 
 
@@ -254,9 +295,13 @@ def download_href(standaard_scope=''):
 
 
 def post_href(ingest_url, token, standaard_scope=''):
-    """Bookmarklet die het resultaat direct naar de app stuurt."""
-    tail = _TAIL_POST.replace('__INGEST__', ingest_url).replace('__TOKEN__', token)
-    return _bouw(tail, standaard_scope)
+    """Bookmarklet die het resultaat direct naar de app stuurt.
+
+    Onderweg gaan er tussenstanden mee, zodat de app al iets kan laten zien;
+    het ophalen van een heel leerjaar duurt door de aanvraaglimiet minuten.
+    """
+    return _bouw(_TAIL_POST, standaard_scope, deel='true',
+                 ingest_url=ingest_url, token=token)
 
 
 # ── Coördinator ───────────────────────────────────────────────────────────────
@@ -278,7 +323,8 @@ try{
    for(var poging=0;poging<(pogingen||3);poging++){
      var r=await fetch(base+url,{signal:AbortSignal.timeout(20000)}).catch(function(){return null});
      if(r&&r.ok)return r;
-     if(r&&(r.status===429||r.status>=500)){vertraag();await wacht(1500*(poging+1));continue;}
+     if(r&&r.status===429){vertraag();await wacht(30000);continue;}
+     if(r&&r.status>=500){await wacht(1500*(poging+1));continue;}
      return r;
    }
    return null;};

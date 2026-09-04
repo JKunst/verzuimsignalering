@@ -32,10 +32,58 @@ _START_LOCK  = threading.Lock()
 _started_port = None
 
 
-def put(token, payload):
+def put(token, payload, samenvoegen=False):
+    """Payload bewaren; met samenvoegen=True groeit een lopende ophaalronde aan.
+
+    De bookmarklet stuurt tussenstanden, zodat de app al iets kan tonen terwijl
+    Magister nog wordt afgelopen (dat duurt minuten door de aanvraaglimiet).
+    """
     with _STORE_LOCK:
+        if samenvoegen:
+            bestaand = _STORE.get(token)
+            if bestaand and time.time() - bestaand[1] <= _TTL:
+                payload = _voeg_samen(bestaand[0], payload)
         _STORE[token] = (payload, time.time())
         _prune_locked()
+
+
+def _voeg_samen(oud, nieuw):
+    """Twee (deel)payloads tot één geheel maken."""
+    uit = dict(oud)
+    uit.update({k: v for k, v in nieuw.items()
+                if k not in ('students', 'entries', 'logboek', 'own_ids')})
+
+    op_id = {s['id']: s for s in oud.get('students', [])}
+    for s in nieuw.get('students', []):
+        op_id[s['id']] = s
+    uit['students'] = list(op_id.values())
+
+    for veld in ('entries', 'logboek'):
+        samen = dict(oud.get(veld) or {})
+        samen.update(nieuw.get(veld) or {})
+        uit[veld] = samen
+
+    ids = list(oud.get('own_ids') or [])
+    for i in nieuw.get('own_ids') or []:
+        if i not in ids:
+            ids.append(i)
+    uit['own_ids'] = ids
+    return uit
+
+
+def peek(token):
+    """Kijken wat er staat zonder het weg te halen — voor tussenstanden."""
+    with _STORE_LOCK:
+        item = _STORE.get(token)
+    if not item:
+        return None
+    payload, ts = item
+    return payload if time.time() - ts <= _TTL else None
+
+
+def vergeet(token):
+    with _STORE_LOCK:
+        _STORE.pop(token, None)
 
 
 def lijst_zet(token, ids):
@@ -91,7 +139,9 @@ class _Handler(BaseHTTPRequestHandler):
         self._reply(200, {'ok': True, 'ids': lijst_lees(token)})
 
     def do_POST(self):
-        token = (parse_qs(urlparse(self.path).query).get('token') or [''])[0]
+        vraag = parse_qs(urlparse(self.path).query)
+        token = (vraag.get('token') or [''])[0]
+        deel = (vraag.get('deel') or [''])[0] == '1'
         length = int(self.headers.get('Content-Length', 0) or 0)
         if not token or length <= 0 or length > _MAX_BYTES:
             self._reply(400, {'ok': False, 'error': 'bad request'})
@@ -102,8 +152,8 @@ class _Handler(BaseHTTPRequestHandler):
         except Exception:
             self._reply(400, {'ok': False, 'error': 'invalid json'})
             return
-        put(token, payload)
-        n = len(payload.get('students', [])) if isinstance(payload, dict) else 0
+        put(token, payload, samenvoegen=deel)
+        n = len(peek(token).get('students', [])) if isinstance(payload, dict) else 0
         self._reply(200, {'ok': True, 'students': n})
 
     def _reply(self, code, obj):

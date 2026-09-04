@@ -348,7 +348,7 @@ def intake():
         token = _token()
 
         # Al iets binnengekomen?
-        payload = ingest.take(token)
+        payload = ingest.peek(token)
         if payload:
             try:
                 _valideer(payload)
@@ -420,6 +420,15 @@ def rapport(payload, config):
             payload, codes=codes, config=config, mentoren=mentoren, patroon=patroon,
             banner=dashboard.demo_banner() if demo else '', met_logboek=False)
 
+    nog_bezig = not payload.get('klaar', True)
+    if nog_bezig:
+        v = payload.get('voortgang') or {}
+        gedaan, totaal = v.get('gedaan', 0), v.get('leerlingen', 0)
+        st.info(f'⏳ Nog bezig met ophalen — {gedaan} van de {totaal} leerlingen binnen. '
+                'Wat je hieronder ziet groeit vanzelf aan.')
+        if totaal:
+            st.progress(min(gedaan / totaal, 1.0))
+
     kop, knop1, knop2 = st.columns([4, 1, 1])
     with kop:
         st.success(f"{info['aantal_leerlingen']} leerlingen · "
@@ -432,6 +441,9 @@ def rapport(payload, config):
                            mime='text/html', width='stretch')
     with knop2:
         if st.button('Nieuwe data', width='stretch'):
+            ingest_url, _ = _ingest_config()
+            if ingest_url:
+                ingest.vergeet(_token())
             for sleutel in ('payload', 'demo', 'wachten'):
                 st.session_state.pop(sleutel, None)
             st.session_state.upload_nonce = st.session_state.get('upload_nonce', 0) + 1
@@ -476,6 +488,10 @@ def rapport(payload, config):
                  openen=bool(info['onbekende_codes'] or info['te_controleren_codes']))
 
     st.iframe(html, height=1500)
+
+    if nog_bezig:                      # tussenstand: zelf even opnieuw kijken
+        time.sleep(3)
+        st.rerun()
 
 
 # ── Coördinator: eigen lijst leerlingen ───────────────────────────────────────
