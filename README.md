@@ -144,8 +144,9 @@ terug"*) en kun je kiezen of je met die onvolledige lijst doorgaat. Zie je maar
 De pagina is een **werklijst**, geen verantwoording: wie moet ik spreken,
 waarover, en wat is er al gedaan. De urennorm staat er wel, maar niet centraal.
 
-Bovenaan staan zes **redenen voor een gesprek**; klik erop om de lijst te
-filteren:
+Bovenaan staat één regel met zes **redenen voor een gesprek** en hoeveel
+leerlingen eraan voldoen; klik erop om de lijst te filteren, en op *toon alles*
+om het filter weer los te laten:
 
 | Signaal | Wanneer |
 |---|---|
@@ -169,9 +170,11 @@ De lijst staat standaard op **wie het eerst spreken**: wat oploopt en nog geen
 contact heeft, staat bovenaan. Leg je contact vast, dan zakt die leerling
 vanzelf. Sorteren op uren of naam kan nog steeds.
 
-Vanaf 16 uur ongeoorloofd verschijnt het label **melden** — een wettelijk
-feit, geen stuurmiddel. Die grens en de andere stel je in de zijbalk in (die
-staat standaard dicht, open hem met de **»** linksboven).
+Vanaf 16 uur ongeoorloofd verschijnt het label **melden** — een wettelijk feit,
+geen stuurmiddel. Die grens en die van *vaak te laat* stel je in de zijbalk in
+(standaard dicht, open hem met de **»** linksboven). Meer grenzen zijn er niet:
+sinds de pagina op gespreksredenen stuurt, deed *nadert de grens* niets meer en
+is die eruit.
 
 Rechts staan drie panelen: verzuim per week, **uitval per lesuur** (wanneer op de
 dag gaat het mis — dat stuurt je interventie) en getoonde uren per mentorgroep

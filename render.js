@@ -25,7 +25,6 @@
   var GROEPEN    = D.groepen || ['Alle'];
 
   var NORM_CRIT = CFG.normCrit || 16;
-  var NORM_WARN = CFG.normWarn || 10;
   var NORM_LAAT = CFG.normLaat || 6;
 
   var OPSLAG_SLEUTEL = 'vzs.contacten.v1';
@@ -298,13 +297,17 @@
   /* ── Actiebalk: redenen voor een gesprek ────────────────────────────────── */
   function tekenActiebalk() {
     var b = basis().filter(function (l) { return zichtbaar(l).length > 0; });
-    document.getElementById('actiebalk').innerHTML = REDENEN.map(function (r) {
+    var knoppen = REDENEN.map(function (r) {
       var n = b.filter(function (l) { return feiten(l)[r.key]; }).length;
       return '<button class="signal ' + r.key + '" data-signal="' + r.key + '" ' +
-        'aria-pressed="' + (state.filter === r.key) + '">' +
-        '<span class="n">' + n + '</span>' +
-        '<span class="lbl"><b>' + r.label + '</b>' + r.uitleg + '</span></button>';
+        'data-tip="' + esc(r.uitleg) + '" aria-pressed="' + (state.filter === r.key) + '">' +
+        '<span class="punt" aria-hidden="true"></span>' +
+        '<span class="n">' + n + '</span>' + esc(r.label) + '</button>';
     }).join('');
+    document.getElementById('actiebalk').innerHTML =
+      '<span class="sbalk-kop">Bespreken</span>' + knoppen +
+      (state.filter ? '<button class="sreset" data-signal="' + state.filter +
+                      '">toon alles</button>' : '');
   }
 
   /* ── Kerncijfers (volgen de codeknoppen) ────────────────────────────────── */

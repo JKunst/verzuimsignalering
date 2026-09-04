@@ -207,14 +207,12 @@ def sidebar():
     if naam:
         st.sidebar.caption(f'Ingelogd als {naam}')
 
-    st.sidebar.subheader('Signaalgrenzen')
+    st.sidebar.subheader('Grenzen')
     config = {
         'normCrit': st.sidebar.number_input(
-            'Meldplicht vanaf (uren ongeoorloofd)', 1, 100, 16, key='normCrit'),
-        'normWarn': st.sidebar.number_input(
-            'Nadert de grens vanaf (uren)', 1, 100, 10, key='normWarn'),
+            "Label 'melden' vanaf (uren ongeoorloofd)", 1, 100, 16, key='normCrit'),
         'normLaat': st.sidebar.number_input(
-            'Vaak te laat vanaf (keer)', 1, 100, 6, key='normLaat'),
+            "Signaal 'vaak te laat' vanaf (keer)", 1, 100, 6, key='normLaat'),
     }
 
     st.sidebar.subheader('Standaard selectie')

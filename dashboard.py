@@ -35,9 +35,8 @@ AFDELING_NAAM = {'H': 'Havo', 'M': 'Mavo', 'V': 'Vwo', 'A': 'Atheneum', 'G': 'Gy
 MENTORGROEP_PATROON = 'mtu'
 
 STANDAARD_CONFIG = {
-    'normCrit': 16,   # uren ongeoorloofd → meldplicht leerplicht
-    'normWarn': 10,   # uren ongeoorloofd → nadert de grens
-    'normLaat': 6,    # keer te laat → eigen signaal
+    'normCrit': 16,   # uren ongeoorloofd → het label 'melden' (leerplicht)
+    'normLaat': 6,    # keer te laat → het signaal 'vaak te laat'
 }
 
 
@@ -369,9 +368,6 @@ def bouw_html(payload, codes=None, config=None, mentoren=None,
         '{{PERIODE}}':        data['periode']['label'],
         '{{PERIODE_SUB}}':    weken_txt,
         '{{NORM_CRIT}}':      str(cfg['normCrit']),
-        '{{NORM_CRIT_MIN1}}': str(cfg['normCrit'] - 1),
-        '{{NORM_WARN}}':      str(cfg['normWarn']),
-        '{{NORM_WARN_MIN1}}': str(cfg['normWarn'] - 1),
         '{{NORM_LAAT}}':      str(cfg['normLaat']),
         '{{ONG_CODES}}':      ong_txt,
         '{{BRON}}':           bron or '',
