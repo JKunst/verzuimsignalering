@@ -7,3 +7,4 @@ verzuim_*.json
 verzuimsignalering_*.html
 env/
 .venv/
+lijsten.json

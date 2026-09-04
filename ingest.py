@@ -26,6 +26,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 _TTL         = 900                 # seconden dat een payload geldig blijft (ophalen duurt langer)
 _MAX_BYTES   = 25 * 1024 * 1024    # 25 MB veiligheidslimiet
 _STORE       = {}                  # token -> (payload, timestamp)
+_LIJSTEN     = {}                  # token -> [leerling-ids] voor de coördinator
 _STORE_LOCK  = threading.Lock()
 _START_LOCK  = threading.Lock()
 _started_port = None
@@ -35,6 +36,21 @@ def put(token, payload):
     with _STORE_LOCK:
         _STORE[token] = (payload, time.time())
         _prune_locked()
+
+
+def lijst_zet(token, ids):
+    """Leerlingnummers klaarzetten die de coördinator-bookmarklet ophaalt.
+
+    Zo hoeft de knop niet opnieuw geïnstalleerd te worden als de lijst wijzigt:
+    de bookmarklet vraagt hem bij elke klik op.
+    """
+    with _STORE_LOCK:
+        _LIJSTEN[token] = [int(i) for i in ids]
+
+
+def lijst_lees(token):
+    with _STORE_LOCK:
+        return list(_LIJSTEN.get(token, []))
 
 
 def take(token):
@@ -58,13 +74,21 @@ def _prune_locked():
 class _Handler(BaseHTTPRequestHandler):
     def _cors(self):
         self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
 
     def do_OPTIONS(self):
         self.send_response(204)
         self._cors()
         self.end_headers()
+
+    def do_GET(self):
+        """De bookmarklet haalt hier de ingestelde leerlingnummers op."""
+        token = (parse_qs(urlparse(self.path).query).get('token') or [''])[0]
+        if not token:
+            self._reply(400, {'ok': False, 'error': 'bad request'})
+            return
+        self._reply(200, {'ok': True, 'ids': lijst_lees(token)})
 
     def do_POST(self):
         token = (parse_qs(urlparse(self.path).query).get('token') or [''])[0]

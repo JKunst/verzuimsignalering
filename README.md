@@ -226,6 +226,38 @@ Logboektekst is gevoelig (thuissituatie, diagnoses). Daarom zit die **niet** in
 het bestand dat je downloadt, tenzij je in de zijbalk *Logboektekst in de
 download* aanzet. In de app zie je hem altijd.
 
+## Coördinator: een eigen lijst leerlingen
+
+Bovenin de app staat naast **Teamleider** ook **Coördinator**. Die pagina is voor
+wie een vaste groep van een stuk of twintig leerlingen volgt, dwars door de
+afdelingen heen.
+
+1. Zet onder **Leerlingnummers** de nummers neer — komma's, spaties of nieuwe
+   regels maken niet uit, en plakken uit Excel of een mail werkt. Het nummer
+   staat in de Magister-URL van de leerling: `…/leerling/17884/…`.
+2. Sleep de knop **📋 Mijn leerlingen ophalen** rechtsboven eenmalig naar je
+   bladwijzerbalk.
+3. Klik hem in je Magister-tabblad aan. Hij vraagt niets: de periode is deze week
+   plus de drie ervoor, en de leerlingnummers haalt hij op bij de app. Verandert
+   je lijst, dan hoeft de knop dus **niet** opnieuw geïnstalleerd te worden.
+
+Per leerling worden drie dingen opgehaald — `/api/leerlingen/<id>` voor de naam,
+`/aanmeldingen` voor de klas, en de `mentoren`-link daaruit voor de mentor. De
+**mentor komt dus rechtstreeks uit Magister**; op deze pagina hoef je niets in te
+vullen. Bestaat die route in een andere omgeving niet, dan valt de bookmarklet
+terug op de zoeklijst (trager, en zonder mentor).
+
+Het overzicht toont per leerling de **huidige week** als vijf lesdagen met de
+codes die er staan, daaronder de weken ervoor als streepjes (één blokje per
+lesdag) en de laatste drie logboekformulieren. Bovenaan staat wie deze week het
+meest had; wie niets had, staat onderaan en wat lichter.
+
+Nummers die Magister niet kent worden apart gemeld, zodat een typefout niet stil
+verdwijnt.
+
+De lijst wordt bewaard in `lijsten.json`, per gebruiker (op eckid). Dat zijn
+alleen nummers, geen namen.
+
 ## Eerst controleren: de verzuimcodes
 
 De urentelling staat of valt met de vraag welke code als ongeoorloofd telt.
@@ -269,6 +301,7 @@ de app meldt hoeveel dat er zijn.
 | `bookmarklet.py` | genereert de bookmarklet (downloadvariant en directe variant) |
 | `ingest.py` | ontvanger (localhost, poort uit `VERZUIM_TL_INGEST_PORT`) waar de bookmarklet naartoe post |
 | `dashboard.py` | rekent de payload om en bouwt het HTML-dashboard |
+| `coordinator.py` / `coordinator.js` | de weekpagina voor een eigen lijst leerlingen |
 | `template.html` | de opmaak van het dashboard (styling + lege panelen) |
 | `render.js` | tekent de panelen uit de data; draait in de pagina zelf |
 | `codes.json` | verzuimcodes → betekenis + soort (ongeoorloofd/te laat/geoorloofd) |
@@ -322,8 +355,8 @@ Restart=always
 WantedBy=multi-user.target
 ```
 
-De service-gebruiker moet in de projectmap mogen **schrijven**: `codes.json` en
-`mentoren.json` worden vanuit de app opgeslagen, en zonder
+De service-gebruiker moet in de projectmap mogen **schrijven**: `codes.json`,
+`mentoren.json` en `lijsten.json` worden vanuit de app opgeslagen, en zonder
 `VERZUIM_TL_SECRET` wordt `.secret` aangemaakt.
 
 ### 3. nginx

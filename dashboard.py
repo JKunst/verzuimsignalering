@@ -294,7 +294,9 @@ def verwerk(payload, codes, config=None, mentoren=None,
             'klas':        klas,
             'mentorgroep': mentorgroep,
             'groep':       groep_van(s, mentorgroep),
-            'mentor':      mentoren.get(mentorgroep) or mentoren.get(klas, ''),
+            # Volgorde: wat Magister zelf meegeeft, anders de ingevulde lijst.
+            'mentor':      (s.get('mentor') or mentoren.get(mentorgroep)
+                            or mentoren.get(klas, '')),
             'ong': ong, 'laat': laat, 'ziek': ziek, 'geo': geo,
             'entries': rij_entries,
             'logboek': logboek_items,

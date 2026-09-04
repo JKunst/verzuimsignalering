@@ -36,11 +36,13 @@ if not hasattr(jwt, 'decode'):
 import ingest
 import bookmarklet
 import dashboard
+import coordinator
 
 HIER          = Path(__file__).parent
 MENTOREN_PAD  = HIER / 'mentoren.json'
 SECRET_PAD    = HIER / '.secret'
 VOORBEELD_PAD = HIER / 'voorbeeld_school.json'
+LIJSTEN_PAD   = HIER / 'lijsten.json'
 
 # Zelfde SSO-token als de andere apps van het portaal.
 JWT_SECRET    = os.environ.get('JWT_SECRET', 'verander-dit-naar-een-lang-geheim')
@@ -53,6 +55,7 @@ TOEGESTANE_ROLLEN = ('docent', 'beheerder')
 KNOP_NAAM      = 'Verzuim teamleider'
 KNOP           = f'📋 {KNOP_NAAM}'
 KNOP_DOWNLOAD  = f'📋 {KNOP_NAAM} (bestand)'
+KNOP_COORD     = '📋 Mijn leerlingen ophalen'
 
 st.set_page_config(page_title='Verzuimsignalering', page_icon='📋', layout='wide',
                    initial_sidebar_state='collapsed')   # rust in de pagina
@@ -167,6 +170,27 @@ def laad_mentoren():
 def bewaar_mentoren(mapping):
     MENTOREN_PAD.write_text(
         json.dumps(mapping, ensure_ascii=False, indent=2), encoding='utf-8')
+
+
+def laad_lijst(eckid):
+    """De leerlingnummers van deze coördinator."""
+    if not LIJSTEN_PAD.exists():
+        return []
+    try:
+        return json.loads(LIJSTEN_PAD.read_text(encoding='utf-8')).get(eckid, [])
+    except Exception:
+        return []
+
+
+def bewaar_lijst(eckid, ids):
+    alles = {}
+    if LIJSTEN_PAD.exists():
+        try:
+            alles = json.loads(LIJSTEN_PAD.read_text(encoding='utf-8'))
+        except Exception:
+            alles = {}
+    alles[eckid] = ids
+    LIJSTEN_PAD.write_text(json.dumps(alles, ensure_ascii=False, indent=2), encoding='utf-8')
 
 
 def _valideer(payload):
@@ -456,12 +480,125 @@ def rapport(payload, config):
     st.iframe(html, height=1500)
 
 
+# ── Coördinator: eigen lijst leerlingen ───────────────────────────────────────
+def coordinator_pagina(config):
+    eckid = st.session_state.get('eckid', 'lokaal')
+    ingest_url, port = _ingest_config()
+    lijst_url = (ingest_url.rstrip('/') + '/lijst') if ingest_url else None
+    ids = laad_lijst(eckid)
+
+    if ingest_url:
+        ingest.ensure_server(port)
+        ingest.lijst_zet(_token(), ids)          # de bookmarklet haalt hem hier op
+
+    kop, knop = st.columns([3, 1])
+    with kop:
+        st.title('📋 Mijn leerlingen')
+        st.caption(f'{len(ids)} leerlingnummers ingesteld' if ids
+                   else 'Nog geen leerlingnummers ingesteld')
+    with knop:
+        if lijst_url:
+            st.iframe(
+                f'''<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;text-align:right">
+                <a href="{bookmarklet.coordinator_href(ingest_url, lijst_url, _token())}"
+                   style="display:inline-block;padding:9px 18px;background:#1d3f8f;color:#fff;
+                          border-radius:9px;text-decoration:none;font-weight:700;font-size:14px;
+                          cursor:grab">{KNOP_COORD}</a></div>''',
+                height=52)
+        else:
+            st.caption('Zet VERZUIM_TL_INGEST_URL om de knop te gebruiken.')
+
+    with st.expander('Leerlingnummers', expanded=not ids):
+        tekst = st.text_area(
+            'Plak of typ de nummers — komma, spatie of nieuwe regel maakt niet uit',
+            '\n'.join(str(i) for i in ids), height=140, key='coord_ids')
+        kol1, kol2 = st.columns([1, 4])
+        with kol1:
+            if st.button('Opslaan', type='primary'):
+                nieuw = coordinator.lees_ids(tekst)
+                bewaar_lijst(eckid, nieuw)
+                if ingest_url:
+                    ingest.lijst_zet(_token(), nieuw)
+                st.success(f'{len(nieuw)} leerlingnummers opgeslagen.')
+                st.rerun()
+        with kol2:
+            st.caption('Het leerlingnummer staat in de Magister-URL van de leerling: '
+                       '…/leerling/**17884**/…')
+
+    if 'coord_payload' in st.session_state:
+        _coord_rapport(st.session_state.coord_payload, config)
+        return
+
+    if not ids:
+        st.info('Vul eerst de leerlingnummers in; daarna haalt de knop rechtsboven '
+                'hun verzuim en logboek op.')
+        return
+
+    if st.session_state.get('coord_wachten'):
+        payload = ingest.take(_token())
+        if payload:
+            st.session_state.coord_payload = payload
+            st.session_state.pop('coord_wachten', None)
+            st.rerun()
+        st.info('⏳ Wachten op de gegevens uit Magister…')
+        if st.button('Stoppen met wachten'):
+            st.session_state.pop('coord_wachten', None)
+            st.rerun()
+        time.sleep(2)
+        st.rerun()
+    else:
+        payload = ingest.take(_token())
+        if payload:
+            st.session_state.coord_payload = payload
+            st.rerun()
+        if st.button('Ik heb geklikt — wacht op de gegevens', type='primary'):
+            st.session_state.coord_wachten = True
+            st.rerun()
+
+
+def _coord_rapport(payload, config):
+    codes    = dashboard.laad_codes()
+    mentoren = laad_mentoren()
+    config   = dict(config)
+    patroon  = config.pop('patroon', dashboard.MENTORGROEP_PATROON)
+
+    html, info = coordinator.bouw_html(payload, codes=codes, config=config,
+                                       mentoren=mentoren, patroon=patroon)
+
+    regel, knop = st.columns([4, 1])
+    with regel:
+        melding = (f"{info['aantal_leerlingen']} leerlingen · "
+                   f"{info['aantal_registraties']} registraties · {info['weken']} weken")
+        st.success(melding)
+    with knop:
+        if st.button('Opnieuw ophalen', width='stretch'):
+            st.session_state.pop('coord_payload', None)
+            st.rerun()
+
+    kwijt = payload.get('niet_gevonden') or []
+    if kwijt:
+        st.warning('Deze nummers zijn niet gevonden in Magister: ' +
+                   ', '.join(str(k) for k in kwijt))
+    if payload.get('verzuim_fouten'):
+        st.error(f"Van {payload['verzuim_fouten']} leerlingen is het verzuim niet "
+                 'opgehaald (Magister beperkte het aantal verzoeken). Haal opnieuw op.')
+
+    st.iframe(html, height=1500)
+
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 def main():
     inloggen()                       # zonder portaal-token komt niemand verder
     config = sidebar()
-    st.title('📋 Verzuimsignalering')
 
+    pagina = st.radio('Pagina', ['Teamleider', 'Coördinator'],
+                      horizontal=True, label_visibility='collapsed', key='pagina')
+
+    if pagina == 'Coördinator':
+        coordinator_pagina(config)
+        return
+
+    st.title('📋 Verzuimsignalering')
     if 'payload' in st.session_state:
         rapport(st.session_state.payload, config)
     else:
