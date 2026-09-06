@@ -117,37 +117,53 @@ probeert hij nog vier varianten op de eerste leerlingen; welke werkte meldt de
 app boven het dashboard. Staat daar dat er niets gevonden is, dan moet die URL in
 `bookmarklet.py` bij `kandidaten` worden bijgezet.
 
-### Hoe snel gaat het, en waarom niet sneller
+### Hoe snel gaat het
 
-Magister begrenst het aantal verzoeken. Gemeten op onze eigen omgeving:
+Een heel leerjaar (141 leerlingen, vier weken) duurt **ongeveer 25 seconden**.
+Dat is niet altijd zo geweest; het zat eerst op drie minuten, met halve
+resultaten. Wat we onderweg hebben gemeten, staat hieronder omdat het uitmaakt
+als je hier ooit aan sleutelt.
 
-| Wat | Uitkomst |
+Magister heeft **twee routes** voor verzuim:
+
+| Route | Limiet |
 |---|---|
-| Verzoeken tot de eerste weigering | **29**, daarna HTTP 429 |
-| Hersteltijd van die teller | ongeveer **30 seconden** |
-| 4 tegelijk, zonder pauze | 29 gelukt, 31 geweigerd |
-| 8 tegelijk, zonder pauze | 60 van de 60 geweigerd |
-| **1 per 1,2 seconde** | **45 van de 45 gelukt, nul weigeringen** |
+| `/api/m6/leerlingen/{id}/verantwoordingen` | na **29** verzoeken HTTP 429; teller loopt pas na ~30 s leeg |
+| `/api/m6/leerlingen/{id}/verantwoordingen/afwezigheidsredenen` | **geen** merkbare limiet (141 achter elkaar, allemaal 200) |
 
-Dat verklaart waarom een heel leerjaar eerder maar één klas opleverde: na
-ongeveer dertig leerlingen — precies een klas — ging alles op de weigering, en
-die kwam binnen als "geen verzuim".
+Die tweede is de route die Magisters eigen *Verantwoordingen*-scherm gebruikt —
+gevonden door dat scherm te openen en mee te kijken in het netwerkverkeer. Wij
+gebruiken hem nu ook. Dat verklaart meteen waarom een selectie van H5 eerder
+alleen H5A opleverde: na dertig leerlingen — precies een klas — ging alles op de
+weigering, en die kwam binnen als "geen verzuim".
 
-De bookmarklet houdt daarom een **vast tempo van één verzoek per 1,2 seconde**
-aan in plaats van blokken. Reken op ongeveer **twee minuten per honderd
-leerlingen**, en nog eens zoveel als je de logboeken meeneemt. Sneller kan niet;
-wel slimmer:
+Verder:
 
-- **De leerlingenlijst kost nog één verzoek.** Zoeken op je selectie (`H5`) geeft
-  in één keer alle leerlingen van dat leerjaar. Alleen zonder selectie moet de
-  hele school gepagineerd worden (achttien verzoeken); lukt dat niet volledig,
-  dan meldt hij dat en kies je of je doorgaat.
+- **De leerlingenlijst kost één verzoek.** Zoeken op je selectie (`H5`) geeft in
+  één keer alle leerlingen van dat leerjaar (0,6 s). Alleen zonder selectie moet
+  de hele school gepagineerd worden. Het antwoord wordt tegen `totalCount`
+  gelegd; klopt dat niet, dan vraagt de bookmarklet of je wilt doorgaan.
 - **Je ziet tussenstanden.** Elke twintig leerlingen stuurt de bookmarklet wat
-  hij tot dan toe heeft. De app toont dat meteen met een voortgangsbalk
-  (*"18 van de 90 leerlingen binnen"*) en vult vanzelf aan tot de ronde klaar is.
-- Komt er tóch een weigering, dan wacht hij dertig seconden — precies zolang als
-  de teller nodig heeft — en gaat door. Wie daarna nog mislukt, krijgt een
-  tweede ronde; wat dan nog ontbreekt wordt geteld en rood gemeld.
+  hij heeft; de app toont dat met een voortgangsbalk en vult aan. Komt er 90
+  seconden niets meer binnen, dan meldt de app dat het onvolledig is — een
+  gesloten tabblad ziet er anders uit als een ronde die nog loopt.
+- Er is **geen bulkroute**: ook Magisters eigen scherm haalt de leerlingen één
+  voor één op. Dat is geprobeerd met allerlei URL-vormen; allemaal 404.
+
+### De codes komen uit Magister zelf
+
+Bij elke registratie levert Magister de betekenis, het type en of de code
+geoorloofd is. Daar rekenen we mee. Dat scheelt niet alleen werk, het voorkomt
+fouten: onze eigen lijst had **`TA` als "te laat"** staan, terwijl het bij ons
+"Teamleider afgehandeld" betekent — een geoorloofde code die we dus ten onrechte
+als signaal telden. Te laat is `L`.
+
+Naast ongeoorloofd, te laat en geoorloofd is er een vierde soort: **vergeten**
+(`HV` huiswerk, `BV` boeken). Dat is geen verzuim, dus het telt niet in de uren,
+maar het staat wel als knop in de balk.
+
+`codes.json` blijft bestaan als terugval voor oudere bestanden en voor codes die
+Magister niet duidt; de tabel is bijgewerkt naar wat Magister zelf zegt.
 
 ## Het dashboard lezen
 
@@ -271,18 +287,12 @@ verdwijnt.
 De lijst wordt bewaard in `lijsten.json`, per gebruiker (op eckid). Dat zijn
 alleen nummers, geen namen.
 
-## Eerst controleren: de verzuimcodes
+## De verzuimcodes
 
-De urentelling staat of valt met de vraag welke code als ongeoorloofd telt.
-`codes.json` bevat een eerste indeling: **A** en **SP** tellen als
-ongeoorloofd, **TA** als te laat, de rest als geoorloofd. Codes waarvan de
-betekenis bij ons niet vaststaat (`L`, `SI`, `BO`, `BR`, `SA`) staan bewust op
-geoorloofd, zodat ze de cijfers niet opblazen — de app waarschuwt als zo'n code
-in je data voorkomt.
-
-Loop dat één keer na in **Verzuimcodes indelen**: vul de betekenis in, zet de
-juiste soort, en klik op **Codes opslaan**. Dat schrijft `codes.json` en geldt
-daarna voor iedereen die de app gebruikt.
+Hoeft niet meer nagelopen te worden: Magister levert per registratie zelf de
+betekenis en of de code geoorloofd is (zie hierboven). Onder **Verzuimcodes
+indelen** zie je wat er in je data zit en kun je de terugval-lijst bijstellen
+voor codes die Magister niet duidt.
 
 ## Mentorgroepen en mentoren
 

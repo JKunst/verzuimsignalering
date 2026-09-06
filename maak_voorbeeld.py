@@ -27,6 +27,17 @@ ACHTERNAMEN = ['de Vries', 'Jansen', 'van den Berg', 'Bakker', 'Visser', 'Smit',
 VAKKEN = ['Nederlands', 'Engels', 'Wiskunde B', 'Biologie', 'Scheikunde', 'Economie',
           'Geschiedenis', 'Aardrijkskunde', 'Duits', 'Frans', 'Natuurkunde',
           'Maatschappijleer', 'Bedrijfseconomie', 'Filosofie', 'LO', 'Mentoruur']
+
+# Codes zoals Magister ze meegeeft: naam, type en of hij geoorloofd is.
+CODES = {
+    'A':  ('Afwezig ongeoorloofd', 'absent', False),
+    'SP': ('Spijbelen', 'absent', False),
+    'L':  ('Te laat', 'teLaat', False),
+    'ZI': ('Ziek', 'ziek', True),
+    'AO': ('Arts/ortho', 'absent', True),
+    'BO': ('Bijzondere omstandigheden', 'absent', True),
+    'HV': ('Huiswerk vergeten', 'huiswerkVergeten', True),
+}
 # Klas → mentorgroep: de mentor hangt aan een lesgroep (h4mtu1 … h4mtu8),
 # niet aan de klas.
 KLASSEN = {'H4A': 'h4mtu1', 'H4B': 'h4mtu2', 'H4C': 'h4mtu3',
@@ -77,13 +88,15 @@ def maak():
                         rijen.append(_entry(r, dag, start + u,
                                             'A' if r.random() < 0.6 else 'SP'))
                 if r.random() < kans_laat:
-                    rijen.append(_entry(r, dag, r.randint(1, 3), 'TA'))
+                    rijen.append(_entry(r, dag, r.randint(1, 3), 'L'))
+                if r.random() < 0.05:
+                    rijen.append(_entry(r, dag, r.randint(1, 8), 'HV'))
                 if r.random() < 0.035:                      # ziekmelding, hele dag
                     for u in range(r.randint(4, 7)):
                         rijen.append(_entry(r, dag, u + 1, 'ZI'))
                 if r.random() < 0.02:
                     rijen.append(_entry(r, dag, r.randint(1, 8),
-                                        'AO' if r.random() < 0.7 else 'BV'))
+                                        'AO' if r.random() < 0.7 else 'BO'))
 
             students.append({
                 'id': sid,
@@ -118,12 +131,16 @@ def maak():
 
 
 def _entry(r, dag, uur, code):
+    naam, soort, geoorloofd = CODES[code]
     return {
         'date': dag.isoformat(),
         'time': f'{7 + uur:02d}:30',
         'code': code,
         'period': uur,
         'subject': r.choice(VAKKEN),
+        'naam': naam,
+        'type': soort,
+        'geoorloofd': geoorloofd,
     }
 
 

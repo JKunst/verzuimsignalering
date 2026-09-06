@@ -40,14 +40,15 @@
     });
   });
   var AANWEZIGE_CODES = Object.keys(codeTelling).sort(function (a, b) {
-    var v = { ong: 0, laat: 1, geo: 2 };
+    var v = { ong: 0, laat: 1, geo: 2, vergeten: 3 };
     return (v[codeSoort(a)] - v[codeSoort(b)]) || (codeTelling[b] - codeTelling[a]);
   });
 
   function standaardSelectie() {
     var uit = {};
     AANWEZIGE_CODES.forEach(function (c) {
-      if (codeSoort(c) !== 'geo') uit[c] = true;   // geoorloofd staat uit tot je het aanzet
+      var so = codeSoort(c);                        // geoorloofd en 'vergeten' uit
+      if (so === 'ong' || so === 'laat') uit[c] = true;
     });
     return uit;
   }
@@ -379,7 +380,8 @@
           var es = perDatum[iso] || [];
           var soort = es.some(function (e) { return e.soort === 'ong'; }) ? 'ong'
                     : es.some(function (e) { return e.soort === 'laat'; }) ? 'laat'
-                    : es.length ? 'geo' : 'niks';
+                    : es.some(function (e) { return e.soort === 'geo'; }) ? 'geo'
+                    : es.length ? 'vergeten' : 'niks';
           var tip = es.length
             ? (es[0].daglabel + ' · ' + es.map(function (e) { return e.code; }).join(' '))
             : '';
@@ -406,7 +408,7 @@
         var es = perDatum[dt].slice().sort(function (a, b) { return (a.uur || 0) - (b.uur || 0); });
         return '<div class="dag"><span class="dl">' + esc(es[0].daglabel || dt) + '</span>' +
           '<span class="dc">' + es.map(function (e) {
-            var cls = e.soort === 'ong' ? ' ong' : e.soort === 'laat' ? ' laat' : '';
+            var cls = ' ' + e.soort;
             var tip = codeNaam(e.code) + (e.vak ? ' · ' + e.vak : '');
             return '<span class="chip' + cls + '" data-tip="' + esc(tip) + '">' +
               '<b>' + esc(e.code) + '</b> ' + esc(e.uurlabel) + '</span>';
@@ -446,7 +448,7 @@
 
   /* ── Weektrend ──────────────────────────────────────────────────────────── */
   function tekenWeken() {
-    var perWeek = WEKEN.map(function () { return { ong: 0, laat: 0, geo: 0 }; });
+    var perWeek = WEKEN.map(function () { return { ong: 0, laat: 0, geo: 0, vergeten: 0 }; });
     basis().forEach(function (l) {
       zichtbaar(l).forEach(function (e) {
         var w = perWeek[e.week];
@@ -454,7 +456,7 @@
       });
     });
     var max = Math.max.apply(null, perWeek.map(function (w) {
-      return w.ong + w.laat + w.geo;
+      return w.ong + w.laat + w.geo + w.vergeten;
     })) || 1;
 
     var segment = function (n, kleur, naam) {
@@ -463,7 +465,7 @@
     };
 
     document.getElementById('weken').innerHTML = perWeek.map(function (w, i) {
-      var tot = w.ong + w.laat + w.geo;
+      var tot = w.ong + w.laat + w.geo + w.vergeten;
       return '<div class="bar-row">' +
         '<span class="bar-lbl"><b>' + esc(WEKEN[i].label) + '</b><br>' + esc(WEKEN[i].sub) + '</span>' +
         '<span class="bar-track">' +
@@ -471,6 +473,7 @@
             segment(w.ong, 'var(--s-ongeoorloofd)', 'Ongeoorloofd') +
             segment(w.laat, 'var(--s-telaat)', 'Te laat') +
             segment(w.geo, 'var(--s-geoorloofd)', 'Geoorloofd') +
+            segment(w.vergeten, 'var(--s-vergeten)', 'Vergeten') +
           '</span>' +
           '<span class="bar-val">' + tot + '</span>' +
         '</span></div>';
@@ -512,7 +515,7 @@
       zichtbaar(l).forEach(function (e) {
         var u = e.uur || 0;
         if (u > maxUur) maxUur = u;
-        perUur[u] = perUur[u] || { ong: 0, laat: 0, geo: 0 };
+        perUur[u] = perUur[u] || { ong: 0, laat: 0, geo: 0, vergeten: 0 };
         perUur[u][e.soort]++;
       });
     });
@@ -521,7 +524,7 @@
     if (perUur[0]) uren.push(0);                       // lesuur onbekend
     var max = 1;
     uren.forEach(function (u) {
-      var w = perUur[u]; if (w) max = Math.max(max, w.ong + w.laat + w.geo);
+      var w = perUur[u]; if (w) max = Math.max(max, w.ong + w.laat + w.geo + w.vergeten);
     });
 
     var segment = function (n, kleur, naam) {
@@ -529,8 +532,8 @@
                  'data-tip="' + naam + ': ' + n + '"></span>' : '';
     };
     document.getElementById('uren').innerHTML = uren.map(function (u) {
-      var w = perUur[u] || { ong: 0, laat: 0, geo: 0 };
-      var tot = w.ong + w.laat + w.geo;
+      var w = perUur[u] || { ong: 0, laat: 0, geo: 0, vergeten: 0 };
+      var tot = w.ong + w.laat + w.geo + w.vergeten;
       return '<div class="bar-row">' +
         '<span class="bar-lbl"><b>' + (u ? u + 'e uur' : 'onbekend') + '</b></span>' +
         '<span class="bar-track">' +
@@ -538,6 +541,7 @@
             segment(w.ong, 'var(--s-ongeoorloofd)', 'Ongeoorloofd') +
             segment(w.laat, 'var(--s-telaat)', 'Te laat') +
             segment(w.geo, 'var(--s-geoorloofd)', 'Geoorloofd') +
+            segment(w.vergeten, 'var(--s-vergeten)', 'Vergeten') +
           '</span>' +
           '<span class="bar-val">' + tot + '</span>' +
         '</span></div>';
@@ -626,7 +630,7 @@
       AANWEZIGE_CODES.forEach(function (c) {
         var s = codeSoort(c);
         if (welke === 'alles' ||
-            (welke === 'ong' && s !== 'geo') ||
+            (welke === 'ong' && (s === 'ong' || s === 'laat')) ||
             (welke === 'geo' && s === 'geo')) state.codes[c] = true;
       });
       tekenAlles();

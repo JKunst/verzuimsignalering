@@ -50,12 +50,11 @@ try{
  scope=scope.trim();
  var filters=scope?scope.split(',').map(function(s){return s.trim().toUpperCase()}).filter(Boolean):[];
  var base=location.origin;
- // Snelheid. Magister staat ongeveer dertig verzoeken per halve minuut toe en
- // geeft daarna HTTP 429; de teller loopt binnen dertig seconden weer leeg.
- // Gemeten: één verzoek per 1,2 seconde levert nul weigeringen op, terwijl
- // blokjes van acht na één klas al vastlopen. Dus geen bursts maar een vast
- // tempo, en na een 429 gewoon even wachten tot de teller weer vol is.
- var TEMPO=1200,SZ=1,pauze=TEMPO,traag=false;
+ // Snelheid. De oude verzuimroute liet maar dertig verzoeken per halve minuut
+ // toe; de route die Magister zelf gebruikt (verantwoordingen/afwezigheidsredenen)
+ // deed er 45 achter elkaar zonder één weigering. Daarom weer in blokjes, met
+ // een pauze die alleen oploopt als er tóch een 429 komt.
+ var SZ=6,pauze=250,traag=false;
  var vertraag=function(){
    traag=true;
    pauze=Math.min(pauze+400,3000);};
@@ -86,9 +85,23 @@ try{
  if(filters.length){
    for(var fi=0;fi<filters.length;fi++){
      document.title='Leerlingen zoeken ('+filters[fi]+')...';
-     var rz=await jget(base+'/api/leerlingen/zoeken?q='+encodeURIComponent(filters[fi])+'&top=400');
-     voegToe(rz.items);
-     paginas++;
+     var q=encodeURIComponent(filters[fi]),gehaald=0,verwacht=null;
+     // Het zoekfilter is niet gedocumenteerd; controleer tegen totalCount en
+     // pagineer door als er meer zijn dan er in één antwoord passen.
+     for(var pz=0;pz<40;pz++){
+       var rz=await jget(base+'/api/leerlingen/zoeken?q='+q+'&top=200&skip='+gehaald);
+       var items=rz.items||[];
+       if(verwacht===null&&typeof rz.totalCount==='number')verwacht=rz.totalCount;
+       paginas++;
+       if(!items.length)break;
+       voegToe(items);
+       gehaald+=items.length;
+       if(verwacht!==null&&gehaald>=verwacht)break;
+       if(verwacht===null&&items.length<200)break;
+     }
+     if(verwacht!==null&&gehaald<verwacht&&!confirm('Voor "'+filters[fi]+'" gaf Magister '
+       +gehaald+' van de '+verwacht+' leerlingen terug.\n\nDoorgaan met deze onvolledige lijst?')){
+       document.title='Magister';return;}
    }
  }
  if(!alle.length){                                   // geen scope, of niets gevonden
@@ -132,12 +145,19 @@ try{
    achternaam:s.achternaam,lesgroepen:s.lesgroepen||[],studies:s.studies||[],klassen:s.klassen||[]}});
 
  // 3. Verzuim per leerling, in blokjes van 20 tegelijk.
- var parse=function(items){var out=[];(items||[]).forEach(function(item){
-   var a=item.afspraak||{},lu=a.lesuur||{},dt=a.begin||'';
-   (item.verantwoordingen||[]).forEach(function(v){out.push({
-     date:dt?dt.slice(0,10):(v.moment||'').slice(0,10),
-     time:dt?dt.slice(11,16):(v.moment||'').slice(11,16),
-     code:(v.reden||{}).code||'?',period:lu.begin||null,subject:a.omschrijving||''});});});return out;};
+ // Magister geeft per leerling de afspraken met hun verantwoordingen terug, en
+ // vertelt er zelf bij wat een code betekent en of hij geoorloofd is. 'Present'
+ // slaan we over: aanwezigheid wordt ook geregistreerd en is verreweg het meeste.
+ var parse=function(d){var out=[];((d&&d.afspraken)||[]).forEach(function(a){
+   var dt=a.begin||'';
+   (a.verantwoordingen||[]).forEach(function(v){
+     var reden=v.reden||{};
+     if(!reden.code||reden.type==='present')return;
+     out.push({
+       date:dt?dt.slice(0,10):'',time:dt?dt.slice(11,16):'',
+       code:reden.code,period:a.lesuurBegin||null,subject:a.omschrijving||'',
+       naam:reden.omschrijving||'',type:reden.type||'',
+       geoorloofd:reden.isGeoorloofd!==false});});});return out;};
  // Magister beperkt het aantal verzoeken: bij een lange periode of veel
  // leerlingen volgt HTTP 429. Daarom kleine blokjes met een pauze ertussen, en
  // wie toch mislukt komt in een rustiger tweede ronde. Stil verlies van een
@@ -149,12 +169,12 @@ try{
      document.title=label+' '+Math.min(i+SZ,lijst.length)+'/'+lijst.length+'...';
      var chunk=lijst.slice(i,i+SZ);
      var res2=await Promise.all(chunk.map(function(id){
-       return haal('/api/m6/leerlingen/'+id+'/verantwoordingen?begin='+b+'&einde='+e,pogingen)
+       return haal('/api/m6/leerlingen/'+id+'/verantwoordingen/afwezigheidsredenen?begin='+b+'&einde='+e,pogingen)
          .then(function(r){
-           if(!r||!r.ok){mis.push(id);return{id:id,items:null};}
-           return r.json().then(function(d){return{id:id,items:d.items||[]}});})
-         .catch(function(){mis.push(id);return{id:id,items:null};});}));
-     res2.forEach(function(r){if(r.items!==null)entries[r.id]=parse(r.items);});
+           if(!r||!r.ok){mis.push(id);return{id:id,data:null};}
+           return r.json().then(function(d){return{id:id,data:d}});})
+         .catch(function(){mis.push(id);return{id:id,data:null};});}));
+     res2.forEach(function(r){if(r.data!==null)entries[r.id]=parse(r.data);});
      sinds+=chunk.length;
      if(tussenstand&&sinds>=20){sinds=0;await tussenstand(false);}
      if(i+SZ<lijst.length)await wacht(pauze);
@@ -422,24 +442,31 @@ try{
    alert('Geen van deze leerlingnummers kon opgehaald worden. Kloppen de nummers?');return;}
 
  // 4. Verzuim, met dezelfde voorzichtigheid als bij de teamleider.
- var parse=function(items){var out=[];(items||[]).forEach(function(item){
-   var a=item.afspraak||{},lu=a.lesuur||{},dt=a.begin||'';
-   (item.verantwoordingen||[]).forEach(function(v){out.push({
-     date:dt?dt.slice(0,10):(v.moment||'').slice(0,10),
-     time:dt?dt.slice(11,16):(v.moment||'').slice(11,16),
-     code:(v.reden||{}).code||'?',period:lu.begin||null,subject:a.omschrijving||''});});});return out;};
+ // Magister geeft per leerling de afspraken met hun verantwoordingen terug, en
+ // vertelt er zelf bij wat een code betekent en of hij geoorloofd is. 'Present'
+ // slaan we over: aanwezigheid wordt ook geregistreerd en is verreweg het meeste.
+ var parse=function(d){var out=[];((d&&d.afspraken)||[]).forEach(function(a){
+   var dt=a.begin||'';
+   (a.verantwoordingen||[]).forEach(function(v){
+     var reden=v.reden||{};
+     if(!reden.code||reden.type==='present')return;
+     out.push({
+       date:dt?dt.slice(0,10):'',time:dt?dt.slice(11,16):'',
+       code:reden.code,period:a.lesuurBegin||null,subject:a.omschrijving||'',
+       naam:reden.omschrijving||'',type:reden.type||'',
+       geoorloofd:reden.isGeoorloofd!==false});});});return out;};
  var entries={},lijstIds=slim.map(function(s){return s.id});
  var haalVerzuim=async function(lijst,pogingen,label){
    var mis=[];
    for(var i=0;i<lijst.length;i+=SZ){
      document.title=label+' '+Math.min(i+SZ,lijst.length)+'/'+lijst.length+'...';
      var res2=await Promise.all(lijst.slice(i,i+SZ).map(function(id){
-       return haal('/api/m6/leerlingen/'+id+'/verantwoordingen?begin='+b+'&einde='+e,pogingen)
+       return haal('/api/m6/leerlingen/'+id+'/verantwoordingen/afwezigheidsredenen?begin='+b+'&einde='+e,pogingen)
          .then(function(r){
-           if(!r||!r.ok){mis.push(id);return{id:id,items:null};}
-           return r.json().then(function(d){return{id:id,items:d.items||[]}});})
-         .catch(function(){mis.push(id);return{id:id,items:null};});}));
-     res2.forEach(function(r){if(r.items!==null)entries[r.id]=parse(r.items);});
+           if(!r||!r.ok){mis.push(id);return{id:id,data:null};}
+           return r.json().then(function(d){return{id:id,data:d}});})
+         .catch(function(){mis.push(id);return{id:id,data:null};});}));
+     res2.forEach(function(r){if(r.data!==null)entries[r.id]=parse(r.data);});
      if(i+SZ<lijst.length)await wacht(pauze);
    }
    return mis;};

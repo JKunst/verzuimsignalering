@@ -58,7 +58,28 @@ def bewaar_codes(codes, pad=None):
         json.dump(bestand, f, ensure_ascii=False, indent=2)
 
 
+# Magister levert per registratie mee wat de code betekent, van welk type hij is
+# en of hij geoorloofd is. Dat is betrouwbaarder dan een lijst die wij bijhouden:
+# 'TA' bleek bij ons "Teamleider afgehandeld" te betekenen en niet "te laat".
+TYPE_NAAR_SOORT = {
+    'telaat':           'laat',
+    'huiswerkvergeten': 'vergeten',
+    'materiaalvergeten': 'vergeten',
+}
+
+
+def soort_van_registratie(e, codes):
+    """ong | laat | vergeten | geo, bij voorkeur op wat Magister zelf zegt."""
+    soort = TYPE_NAAR_SOORT.get(str(e.get('type', '')).lower())
+    if soort:
+        return soort
+    if 'geoorloofd' in e:                      # komt uit Magister
+        return 'geo' if e.get('geoorloofd') else 'ong'
+    return (codes.get(e.get('code')) or {}).get('soort', 'geo')
+
+
 def soort_van(code, codes):
+    """Alleen nog voor oudere bestanden zonder die velden."""
     return (codes.get(code) or {}).get('soort', 'geo')
 
 
@@ -251,6 +272,7 @@ def verwerk(payload, codes, config=None, mentoren=None,
 
     leerlingen  = []
     code_telling = defaultdict(int)
+    code_namen   = {}                 # betekenis zoals Magister die meegeeft
 
     for s in students:
         rij_entries = []
@@ -261,16 +283,18 @@ def verwerk(payload, codes, config=None, mentoren=None,
             if not e.get('date'):
                 continue
             dt = _d(e['date'])
-            soort = soort_van(code, codes)
+            soort = soort_van_registratie(e, codes)
             code_telling[code] += 1
+            if e.get('naam'):
+                code_namen.setdefault(code, e['naam'])
 
             if soort == 'ong':
                 ong += 1
             elif soort == 'laat':
                 laat += 1
-            else:
+            elif soort == 'geo':
                 geo += 1
-                if code == 'ZI':
+                if str(e.get('type', '')).lower() == 'ziek' or code == 'ZI':
                     ziek += 1
 
             rij_entries.append({
@@ -306,10 +330,22 @@ def verwerk(payload, codes, config=None, mentoren=None,
     if 'Overig' in groepen:                      # 'Overig' altijd achteraan
         groepen = [g for g in groepen if g != 'Overig'] + ['Overig']
 
+    # Wat Magister meegaf wint van onze eigen lijst; die blijft de terugval.
+    codes_uit = dict(codes)
+    for code, naam in code_namen.items():
+        codes_uit[code] = {**codes_uit.get(code, {}), 'naam': naam}
+    for l in leerlingen:
+        for e in l['entries']:
+            if e['code'] in codes_uit:
+                codes_uit[e['code']] = {**codes_uit[e['code']], 'soort': e['soort']}
+            else:
+                codes_uit[e['code']] = {'naam': e.get('vak') and e['code'] or e['code'],
+                                        'soort': e['soort']}
+
     data = {
         'periode': {'begin': begin, 'einde': einde, 'label': periode_label(begin, einde)},
         'config':  config,
-        'codes':   codes,
+        'codes':   codes_uit,
         'weken':   [week_label(m) for m in weken],
         # Maandag van elke week, zodat de patroonstrook per lesdag kan tekenen.
         'weekStarts': [m.isoformat() for m in weken],
@@ -318,7 +354,8 @@ def verwerk(payload, codes, config=None, mentoren=None,
         'leerlingen': leerlingen,
     }
 
-    onbekend = sorted(c for c in code_telling if c not in codes)
+    onbekend = sorted(c for c in code_telling
+                      if c not in codes and c not in code_namen)
     controleren = sorted(c for c in code_telling
                          if (codes.get(c) or {}).get('controleren'))
     info = {

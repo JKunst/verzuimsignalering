@@ -261,8 +261,9 @@ def sidebar():
 def codes_editor(codes, gebruikt=None, openen=False):
     """Codes indelen als ongeoorloofd / te laat / geoorloofd."""
     with st.expander('Verzuimcodes indelen', expanded=openen):
-        st.caption('De indeling bepaalt de urentelling. Codes die je nog niet hebt '
-                   'nagelopen staan op geoorloofd, zodat ze de norm niet opblazen.')
+        st.caption('Magister geeft per registratie zelf door wat een code betekent en of '
+                   'hij geoorloofd is; die informatie wint. Deze lijst is de terugval, '
+                   'voor oudere bestanden en codes die Magister niet duidt.')
         rijen = [{'code': c, 'naam': v.get('naam', c), 'soort': v.get('soort', 'geo'),
                   'komt voor': (gebruikt or {}).get(c, 0)}
                  for c, v in codes.items()]
@@ -277,8 +278,9 @@ def codes_editor(codes, gebruikt=None, openen=False):
                 'code': st.column_config.TextColumn('Code', disabled=True, width='small'),
                 'naam': st.column_config.TextColumn('Betekenis'),
                 'soort': st.column_config.SelectboxColumn(
-                    'Telt als', options=['ong', 'laat', 'geo'], required=True,
+                    'Telt als', options=['ong', 'laat', 'vergeten', 'geo'], required=True,
                     help='ong = ongeoorloofd (telt in de norm), laat = te laat, '
+                         'vergeten = huiswerk of materiaal vergeten (geen verzuim), '
                          'geo = geoorloofd'),
                 'komt voor': st.column_config.NumberColumn(
                     'In deze data', disabled=True, width='small'),
@@ -424,8 +426,24 @@ def rapport(payload, config):
     if nog_bezig:
         v = payload.get('voortgang') or {}
         gedaan, totaal = v.get('gedaan', 0), v.get('leerlingen', 0)
-        st.info(f'⏳ Nog bezig met ophalen — {gedaan} van de {totaal} leerlingen binnen. '
-                'Wat je hieronder ziet groeit vanzelf aan.')
+
+        # Bijhouden wanneer er voor het laatst iets binnenkwam. Een gesloten
+        # tabblad of een verlopen Magister-sessie ziet er anders uit als een
+        # ophaalronde die nog loopt, en dan lijkt onvolledige data compleet.
+        nu = time.time()
+        if st.session_state.get('laatste_gedaan') != gedaan:
+            st.session_state.laatste_gedaan = gedaan
+            st.session_state.laatste_tijd = nu
+        stil = nu - st.session_state.get('laatste_tijd', nu)
+
+        if stil > 90:
+            st.warning(f'⚠️ Er komt al {int(stil)} seconden niets meer binnen. Staat het '
+                       'Magister-tabblad nog open en ben je daar nog ingelogd? '
+                       f'Wat je hieronder ziet is **onvolledig**: {gedaan} van de {totaal} '
+                       'leerlingen. Klik de knop daar opnieuw aan, of begin met *Nieuwe data*.')
+        else:
+            st.info(f'⏳ Nog bezig met ophalen — {gedaan} van de {totaal} leerlingen binnen. '
+                    'Wat je hieronder ziet groeit vanzelf aan.')
         if totaal:
             st.progress(min(gedaan / totaal, 1.0))
 
@@ -444,7 +462,7 @@ def rapport(payload, config):
             ingest_url, _ = _ingest_config()
             if ingest_url:
                 ingest.vergeet(_token())
-            for sleutel in ('payload', 'demo', 'wachten'):
+            for sleutel in ('payload', 'demo', 'wachten', 'laatste_gedaan', 'laatste_tijd'):
                 st.session_state.pop(sleutel, None)
             st.session_state.upload_nonce = st.session_state.get('upload_nonce', 0) + 1
             st.rerun()
@@ -476,7 +494,7 @@ def rapport(payload, config):
                 f"mentorgroep met '{patroon}'; die staan onder hun klas.")
 
     if info['onbekende_codes']:
-        st.warning('Onbekende verzuimcodes in deze data: **'
+        st.warning('Codes die Magister niet duidde en die wij niet kennen: **'
                    + ', '.join(info['onbekende_codes'])
                    + '** — die tellen nu als geoorloofd. Deel ze hieronder in.')
     elif info['te_controleren_codes']:

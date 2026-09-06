@@ -32,6 +32,7 @@
   /* Dataseries (gevalideerd) */
   --s-ongeoorloofd: #eb6834;
   --s-telaat:       #f0a500;
+  --s-vergeten:     #8d8d99;
   --s-geoorloofd:   #2a78d6;
   --bar-neutral:    #7c7c88;
 
@@ -57,6 +58,8 @@
 
     --s-ongeoorloofd: #d95926;
     --s-telaat:       #d99a10;
+    --s-vergeten:     #7e7e8a;
+  --s-vergeten:     #7e7e8a;
     --s-geoorloofd:   #3987e5;
     --bar-neutral:    #8b8b98;
 
@@ -81,6 +84,7 @@
 
   --s-ongeoorloofd: #d95926;
   --s-telaat:       #d99a10;
+  --s-vergeten:     #7e7e8a;
   --s-geoorloofd:   #3987e5;
   --bar-neutral:    #8b8b98;
 
@@ -263,6 +267,7 @@ select {
 .pdag.ong  { background: color-mix(in srgb, var(--s-ongeoorloofd) 55%, transparent); box-shadow: none; }
 .pdag.laat { background: color-mix(in srgb, var(--s-telaat) 55%, transparent); box-shadow: none; }
 .pdag.geo  { background: color-mix(in srgb, var(--s-geoorloofd) 40%, transparent); box-shadow: none; }
+.pdag.vergeten { background: color-mix(in srgb, var(--s-vergeten) 40%, transparent); box-shadow: none; }
 .pdag.ong.veel  { background: var(--s-ongeoorloofd); }
 .pdag.laat.veel { background: var(--s-telaat); }
 .pdag.geo.veel  { background: var(--s-geoorloofd); }
@@ -411,6 +416,7 @@ footer b { color: var(--ink-2); font-weight: 600; }
 .cbtn.ong  { --cbtn-kleur: var(--s-ongeoorloofd); }
 .cbtn.laat { --cbtn-kleur: var(--s-telaat); }
 .cbtn.geo  { --cbtn-kleur: var(--s-geoorloofd); }
+.cbtn.vergeten { --cbtn-kleur: var(--s-vergeten); }
 /* Aan: vol vakje in de kleur van de soort, doorlopende rand, donkere tekst. */
 .cbtn.aan {
   color: var(--ink); background: var(--card);
