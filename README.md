@@ -99,8 +99,8 @@ de knop opnieuw slepen.
 4. Vul in welke **klassen of leerjaren** je wilt: `H4,H5` pakt alle klassen die
    daarmee beginnen, `H4A` alleen die klas. Leeg laten = alles wat je in
    Magister mag zien — dat kan bij een grote school lang duren.
-5. Hij vraagt of hij ook de **logboekformulieren** moet ophalen. Dat kost
-   ongeveer evenveel tijd als het verzuim zelf; zeg nee als je ze niet nodig hebt.
+5. De **logboeken** haalt hij daarna vanzelf op, alleen voor leerlingen met
+   verzuim. Alleen bij meer dan 150 van die leerlingen vraagt hij het nog.
 6. De titel van het tabblad toont de voortgang (`Verzuim TL 120/240...`). Bij meer
    dan 150 leerlingen vraagt de bookmarklet eerst om bevestiging.
 7. Als het klaar is: terug naar het tabblad van de app. Daar staat het
@@ -144,9 +144,12 @@ Verder:
   de hele school gepagineerd worden. Het antwoord wordt tegen `totalCount`
   gelegd; klopt dat niet, dan vraagt de bookmarklet of je wilt doorgaan.
 - **Je ziet tussenstanden.** Elke twintig leerlingen stuurt de bookmarklet wat
-  hij heeft; de app toont dat met een voortgangsbalk en vult aan. Komt er 90
-  seconden niets meer binnen, dan meldt de app dat het onvolledig is — een
-  gesloten tabblad ziet er anders uit als een ronde die nog loopt.
+  hij heeft; de app toont dat met een voortgangsbalk en vult aan. Ook tijdens het
+  ophalen van de logboeken, want die komen ná het verzuim: de app meldt dan
+  *"Verzuim is binnen; nu de logboeken"*, zodat een tussenstand niet voor het
+  eindresultaat wordt aangezien. Komt er 90 seconden niets meer binnen, dan meldt
+  de app dat het onvolledig is — een gesloten tabblad ziet er anders uit als een
+  ronde die nog loopt.
 - Er is **geen bulkroute**: ook Magisters eigen scherm haalt de leerlingen één
   voor één op. Dat is geprobeerd met allerlei URL-vormen; allemaal 404.
 

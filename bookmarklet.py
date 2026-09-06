@@ -180,14 +180,16 @@ try{
      if(i+SZ<lijst.length)await wacht(pauze);
    }
    return mis;};
+ var logboek={},bron='',diag=[];
  // Tussenstand versturen, zodat de app iets kan tonen terwijl dit loopt.
- var deelStand=async function(klaar){
+ var deelStand=async function(klaar,fase){
    if(!__DEEL__)return;
    var deel={period:{begin:b,einde:e},scope:scope,students:slim,own_ids:ids,
      entries:entries,logboek:logboek,logboek_bron:bron,logboek_diag:diag,
      verzuim_fouten:0,klaar:!!klaar,
      voortgang:{leerlingen:ids.length,gedaan:Object.keys(entries).length,
-                fase:klaar?'klaar':'verzuim'}};
+                logboeken:Object.keys(logboek||{}).length,
+                fase:klaar?'klaar':(fase||'verzuim')}};
    await fetch('__INGEST__?token=__TOKEN__&deel=1',{method:'POST',
      headers:{'Content-Type':'text/plain;charset=UTF-8'},
      body:JSON.stringify(deel)}).catch(function(){});};
@@ -203,9 +205,8 @@ try{
    document.title='Magister';return;}
 
 
- // 4. Logboekformulieren (optioneel). Welke lijst-URL Magister hiervoor heeft,
- //    verschilt per omgeving; we proberen er een paar en onthouden de winnaar.
- var logboek={},bron='',diag=[];
+ // 4. Logboekformulieren. Welke lijst-URL Magister hiervoor heeft, verschilt per
+ //    omgeving; we proberen er een paar en onthouden de winnaar.
  // Logboek gaat over het hele schooljaar, niet over de verzuimperiode: een
  // notitie uit juli hoort er in september nog steeds bij.
  // Ruime periode: Magister filtert hierop, en een logboek van vorig schooljaar
@@ -226,7 +227,11 @@ try{
  var slank=function(f){return{id:f.id,omschrijving:f.omschrijving,
    aangemaaktOp:f.aangemaaktOp,eigenaar:f.eigenaar,inhoud:f.inhoud};};
  var lbIds=ids.filter(function(id){return (entries[id]||[]).length>0;});
- if(lbIds.length&&confirm('Ook de logboeken ophalen van de '+lbIds.length+' leerlingen met verzuim?\n\nDat kost ongeveer '+Math.ceil(lbIds.length/20*0.6)+' seconden extra.')){
+ // Bij een normale groep zonder vragen; alleen bij een hele grote even checken.
+ var lbDoen=lbIds.length>0&&(lbIds.length<=150||confirm('Ook de logboeken ophalen van '
+   +lbIds.length+' leerlingen met verzuim?\n\nDat kost ongeveer '
+   +Math.ceil(lbIds.length/6*0.5)+' seconden extra.'));
+ if(lbDoen){
    document.title='Logboek zoeken...';
    var werkend=null,leegMaarGeldig=null;
    for(var k=0;k<kandidaten.length&&!werkend;k++){
@@ -264,6 +269,7 @@ try{
          var op=function(f){return (f.aangemaaktOp||f.gewijzigdOp||'')};
          logboek[r.id]=r.items.slice().sort(function(a,b){return op(b).localeCompare(op(a))})
                         .slice(0,3).map(slank);});
+       await deelStand(false,'logboek');
      }
    }
  }

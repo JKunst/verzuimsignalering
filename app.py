@@ -426,6 +426,7 @@ def rapport(payload, config):
     if nog_bezig:
         v = payload.get('voortgang') or {}
         gedaan, totaal = v.get('gedaan', 0), v.get('leerlingen', 0)
+        fase = v.get('fase', 'verzuim')
 
         # Bijhouden wanneer er voor het laatst iets binnenkwam. Een gesloten
         # tabblad of een verlopen Magister-sessie ziet er anders uit als een
@@ -442,8 +443,12 @@ def rapport(payload, config):
                        f'Wat je hieronder ziet is **onvolledig**: {gedaan} van de {totaal} '
                        'leerlingen. Klik de knop daar opnieuw aan, of begin met *Nieuwe data*.')
         else:
-            st.info(f'⏳ Nog bezig met ophalen — {gedaan} van de {totaal} leerlingen binnen. '
-                    'Wat je hieronder ziet groeit vanzelf aan.')
+            if fase == 'logboek':
+                st.info(f'⏳ Verzuim is binnen ({gedaan} leerlingen); nu de logboeken — '
+                        f'{v.get("logboeken", 0)} opgehaald. Die verschijnen vanzelf.')
+            else:
+                st.info(f'⏳ Nog bezig met ophalen — {gedaan} van de {totaal} leerlingen '
+                        'binnen. Wat je hieronder ziet groeit vanzelf aan.')
         if totaal:
             st.progress(min(gedaan / totaal, 1.0))
 
@@ -539,6 +544,26 @@ def coordinator_pagina(config):
                 height=52)
         else:
             st.caption('Zet VERZUIM_TL_INGEST_URL om de knop te gebruiken.')
+
+    with st.expander('Hoe je de knop installeert', expanded=not ids):
+        st.markdown(
+            "1. Zet je bladwijzerbalk aan met **Ctrl+Shift+B**.\n"
+            f"2. Sleep de knop **{KNOP_COORD}** hierboven naar die balk.\n"
+            "3. Ga naar **Magister** en log in.\n"
+            "4. Klik in de balk op die knop. Hij vraagt niets: de periode is deze week "
+            "plus de drie ervoor, en je leerlingnummers haalt hij hier op.\n"
+            "5. De titel van het Magister-tabblad toont de voortgang. Als hij klaar is, "
+            "kom je terug naar dit tabblad.")
+        st.caption('Eenmalig. Verandert je lijst hieronder, dan blijft de knop werken — '
+                   'die haalt de nummers elke keer opnieuw op.')
+        if lijst_url:
+            with st.expander('Lukt slepen niet? Maak de bladwijzer handmatig'):
+                st.markdown(
+                    "1. Druk op **Ctrl+Shift+O** → **Nieuwe bladwijzer toevoegen**.\n"
+                    f"2. Naam: `{KNOP_COORD}`.\n"
+                    "3. Plak de regel hieronder bij **URL**.")
+                st.code(bookmarklet.coordinator_href(ingest_url, lijst_url, _token()),
+                        language=None)
 
     with st.expander('Leerlingnummers', expanded=not ids):
         tekst = st.text_area(
