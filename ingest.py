@@ -27,6 +27,7 @@ _TTL         = 900                 # seconden dat een payload geldig blijft (oph
 _MAX_BYTES   = 25 * 1024 * 1024    # 25 MB veiligheidslimiet
 _STORE       = {}                  # token -> (payload, timestamp)
 _LIJSTEN     = {}                  # token -> [leerling-ids] voor de coördinator
+_SCHRIJF     = {}                  # token -> [logboekopdrachten die nog weg moeten]
 _STORE_LOCK  = threading.Lock()
 _START_LOCK  = threading.Lock()
 _started_port = None
@@ -101,6 +102,30 @@ def lijst_lees(token):
         return list(_LIJSTEN.get(token, []))
 
 
+def schrijf_zet(token, opdrachten):
+    """Logboekopdrachten klaarzetten die de bookmarklet moet wegschrijven.
+
+    Elke opdracht heeft een sleutel; de bookmarklet meldt per sleutel terug of
+    het gelukt is, zodat een tweede klik niets dubbel schrijft.
+    """
+    with _STORE_LOCK:
+        _SCHRIJF[token] = list(opdrachten)
+
+
+def schrijf_lees(token):
+    with _STORE_LOCK:
+        return list(_SCHRIJF.get(token, []))
+
+
+def schrijf_verwijder(token, sleutels):
+    """Gelukte opdrachten uit de wachtrij halen."""
+    weg = set(sleutels)
+    with _STORE_LOCK:
+        _SCHRIJF[token] = [o for o in _SCHRIJF.get(token, [])
+                           if o.get('sleutel') not in weg]
+        return list(_SCHRIJF[token])
+
+
 def take(token):
     """Haal (en verwijder) de payload voor dit token, indien vers genoeg."""
     with _STORE_LOCK:
@@ -136,7 +161,8 @@ class _Handler(BaseHTTPRequestHandler):
         if not token:
             self._reply(400, {'ok': False, 'error': 'bad request'})
             return
-        self._reply(200, {'ok': True, 'ids': lijst_lees(token)})
+        self._reply(200, {'ok': True, 'ids': lijst_lees(token),
+                          'schrijf': schrijf_lees(token)})
 
     def do_POST(self):
         vraag = parse_qs(urlparse(self.path).query)

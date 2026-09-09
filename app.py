@@ -57,6 +57,16 @@ KNOP           = f'📋 {KNOP_NAAM}'
 KNOP_DOWNLOAD  = f'📋 {KNOP_NAAM} (bestand)'
 KNOP_COORD     = '📋 Mijn leerlingen ophalen'
 
+# Logboektypen zoals Magister ze kent. Welke je mag aanmaken hangt af van je rol
+# bij die leerling; de bookmarklet gebruikt gewoon wat jij hier kiest en meldt
+# het als Magister het weigert.
+LOGBOEK_TYPEN = {
+    'Mentoraat': 42,
+    'Notitie': 7,
+    'Afspraak': 4,
+    'Incident': 6,
+}
+
 st.set_page_config(page_title='Verzuimsignalering', page_icon='📋', layout='wide',
                    initial_sidebar_state='collapsed')   # rust in de pagina
 
@@ -613,6 +623,105 @@ def coordinator_pagina(config):
             st.rerun()
 
 
+def _schrijfblok(payload):
+    """Een notitie klaarzetten voor het logboek in Magister.
+
+    De app schrijft zelf niet: ze zet de opdracht klaar en de bookmarklet voert
+    hem uit in jouw eigen Magister-sessie, met een bevestiging vooraf.
+    """
+    eckid = st.session_state.get('eckid', 'lokaal')
+    leerlingen = payload.get('students') or []
+    if not leerlingen:
+        return
+
+    namen = {}
+    for s_ in leerlingen:
+        naam = ' '.join(filter(None, [s_.get('roepnaam'), s_.get('tussenvoegsel'),
+                                      s_.get('achternaam')])) or str(s_['id'])
+        klas = (s_.get('klassen') or ['?'])[0]
+        namen[f'{naam} ({klas})'] = s_['id']
+
+    wachtrij = st.session_state.setdefault('schrijf_wachtrij', [])
+
+    with st.expander(f'Logboeknotitie schrijven in Magister'
+                     + (f' — {len(wachtrij)} klaargezet' if wachtrij else '')):
+        st.caption('Wat je hier klaarzet, schrijft de bookmarklet bij je volgende klik '
+                   'in Magister — op jouw naam, in het logboek van die leerling. '
+                   'Je krijgt daar eerst nog een bevestiging.')
+
+        kol1, kol2 = st.columns([2, 1])
+        with kol1:
+            wie = st.selectbox('Leerling', list(namen), key='schrijf_wie')
+        with kol2:
+            soort = st.selectbox('Type', list(LOGBOEK_TYPEN), key='schrijf_type')
+
+        titel = st.text_input('Titel', value=soort, key='schrijf_titel',
+                              help='Bij sommige typen (zoals Mentoraat) bepaalt Magister '
+                                   'de titel zelf; dan wordt dit genegeerd.')
+        tekst = st.text_area('Tekst', key='schrijf_tekst', height=120,
+                             placeholder='Bijvoorbeeld: 9 sep telefonisch contact met '
+                                         'moeder over het verzuim in de eerste lesuren. '
+                                         'Afspraak: komende twee weken elke dag om 8.15 '
+                                         'melden bij de coördinator.')
+
+        if tekst.strip():
+            st.markdown('**Zo komt het in Magister te staan:**')
+            st.info(f'**{wie}** · {soort} · titel "{titel}"\n\n{tekst.strip()}')
+
+        if st.button('Klaarzetten voor Magister', type='primary',
+                     disabled=not tekst.strip()):
+            regels = ''.join(f'<p>{_veilig(r)}</p>' for r in tekst.strip().splitlines() if r.strip())
+            wachtrij.append({
+                'sleutel': secrets.token_hex(8),
+                'leerlingId': namen[wie],
+                'leerlingNaam': wie,
+                'typeId': LOGBOEK_TYPEN[soort],
+                'typeNaam': soort,
+                'titel': titel or soort,
+                'inhoud': regels,
+            })
+            _zet_wachtrij_klaar(wachtrij)
+            st.success('Klaargezet. Klik de knop rechtsboven aan in je Magister-tabblad.')
+            st.rerun()
+
+        for i, o in enumerate(list(wachtrij)):
+            rij, weg = st.columns([6, 1])
+            with rij:
+                st.write(f"• **{o['leerlingNaam']}** — {o['typeNaam']}: {o['titel']}")
+            with weg:
+                if st.button('Weg', key=f"weg_{o['sleutel']}"):
+                    wachtrij.pop(i)
+                    _zet_wachtrij_klaar(wachtrij)
+                    st.rerun()
+
+    gedaan = payload.get('geschreven') or []
+    if gedaan:
+        gelukt = [g for g in gedaan if g.get('ok')]
+        mis    = [g for g in gedaan if not g.get('ok')]
+        if gelukt:
+            st.success(f'{len(gelukt)} notitie(s) in Magister gezet.')
+            klaar = {g['sleutel'] for g in gelukt}
+            st.session_state.schrijf_wachtrij = [
+                o for o in st.session_state.get('schrijf_wachtrij', [])
+                if o['sleutel'] not in klaar]
+            _zet_wachtrij_klaar(st.session_state.schrijf_wachtrij)
+        for g in mis:
+            st.error(f"Niet gelukt: {g.get('fout', 'onbekende fout')}")
+
+
+def _veilig(tekst):
+    """Tekst geschikt maken voor het HTML-inhoudsveld van Magister."""
+    return (tekst.replace('&', '&amp;').replace('<', '&lt;')
+                 .replace('>', '&gt;').replace('"', '&quot;'))
+
+
+def _zet_wachtrij_klaar(wachtrij):
+    ingest_url, port = _ingest_config()
+    if ingest_url:
+        ingest.ensure_server(port)
+        ingest.schrijf_zet(_token(), wachtrij)
+
+
 def _coord_rapport(payload, config):
     codes    = dashboard.laad_codes()
     mentoren = laad_mentoren()
@@ -631,6 +740,8 @@ def _coord_rapport(payload, config):
         if st.button('Opnieuw ophalen', width='stretch'):
             st.session_state.pop('coord_payload', None)
             st.rerun()
+
+    _schrijfblok(payload)
 
     kwijt = payload.get('niet_gevonden') or []
     if kwijt:

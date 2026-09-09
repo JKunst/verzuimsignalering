@@ -365,9 +365,47 @@ try{
  var lr=await fetch('__LIJST__?token=__TOKEN__').catch(function(){return null});
  if(!lr||!lr.ok){document.title='Magister';
    alert('De app is niet bereikbaar. Staat hij open in een ander tabblad?');return;}
- var ids=((await lr.json())||{}).ids||[];
- if(!ids.length){document.title='Magister';
+ var lijstAntwoord=(await lr.json())||{};
+ var ids=lijstAntwoord.ids||[];
+ var opdrachten=lijstAntwoord.schrijf||[];
+ if(!ids.length&&!opdrachten.length){document.title='Magister';
    alert('Er staan nog geen leerlingnummers in de app. Vul ze daar eerst in.');return;}
+
+ // 0. Eerst eventuele logboeknotities wegschrijven. Dat verandert iets in het
+ //    dossier van een leerling, dus altijd met bevestiging en één voor één.
+ var geschreven=[];
+ if(opdrachten.length){
+   var regels=opdrachten.map(function(o){
+     return '· '+o.leerlingNaam+' — '+o.typeNaam+': '+String(o.titel||'').slice(0,40);}).join('\n');
+   if(confirm('In Magister schrijven ('+opdrachten.length+' stuk(s)):\n\n'+regels
+       +'\n\nDit komt in het logboek van deze leerlingen, op jouw naam. Doorgaan?')){
+     for(var oi=0;oi<opdrachten.length;oi++){
+       var o=opdrachten[oi];
+       document.title='Logboek schrijven '+(oi+1)+'/'+opdrachten.length+'...';
+       var lichaam={aangemaaktOp:new Date().toISOString(),bovenliggendeId:null,
+         formuliertypeId:o.typeId,heeftPrioriteit:false,inhoud:o.inhoud,
+         isAfgerond:false,omschrijving:o.titel,verlooptOp:null,
+         waarden:{bstVeld1:null,bstVeld2:null}};
+       var rs=await fetch(base+'/api/leerlingen/'+o.leerlingId+'/lvs/logboekformulieren',
+         {method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify(lichaam),signal:AbortSignal.timeout(20000)})
+         .catch(function(){return null});
+       var fout='';
+       if(!rs)fout='netwerkfout';
+       else if(!(rs.status>=200&&rs.status<300))fout='HTTP '+rs.status+' '+(await rs.text().catch(function(){return''})).slice(0,120);
+       geschreven.push({sleutel:o.sleutel,ok:!fout,fout:fout});
+       await wacht(400);
+     }
+     var mis=geschreven.filter(function(g){return !g.ok});
+     alert(geschreven.length-mis.length+' van de '+geschreven.length+' notities in Magister gezet.'
+       +(mis.length?'\n\nNiet gelukt:\n'+mis.map(function(g){return '· '+g.fout}).join('\n'):''));
+   }
+ }
+
+ if(!ids.length){                                  // alleen schrijfwerk, klaar
+   document.title='Magister';
+   alert('Klaar. Er staan geen leerlingnummers ingesteld, dus er is niets opgehaald.');
+   return;}
 
  // 2. Periode: deze week plus de drie ervoor.
  var vandaag=new Date();
@@ -505,7 +543,7 @@ try{
  var payload={period:{begin:b,einde:e},scope:'eigen lijst',students:slim,
    own_ids:lijstIds,entries:entries,verzuim_fouten:mislukt.length,
    niet_gevonden:kwijt,via:direct?'per leerling':'zoeklijst',
-   logboek:logboek,logboek_bron:bron,logboek_diag:[],
+   logboek:logboek,logboek_bron:bron,logboek_diag:[],geschreven:geschreven,
    logboek_periode:{begin:lb,einde:le}};
 
  document.title='Versturen...';

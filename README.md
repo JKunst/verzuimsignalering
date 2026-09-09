@@ -290,6 +290,43 @@ verdwijnt.
 De lijst wordt bewaard in `lijsten.json`, per gebruiker (op eckid). Dat zijn
 alleen nummers, geen namen.
 
+## Een logboeknotitie in Magister schrijven
+
+Op de coördinatorpagina staat onder het overzicht **Logboeknotitie schrijven in
+Magister**. Daarmee zet je een notitie klaar; hij komt in het logboek van die
+leerling te staan, op jouw naam.
+
+Zo werkt het, en waarom zo:
+
+1. Je kiest leerling, type en tekst, en ziet meteen hoe het eruit komt te zien.
+2. **Klaarzetten voor Magister** legt de opdracht in een wachtrij. De app schrijft
+   zelf niets — dat kan ook niet, want de server heeft geen Magister-sessie.
+3. Bij je volgende klik op de bookmarklet vraagt die eerst om bevestiging, met de
+   namen erbij, en schrijft daarna één voor één weg.
+4. Wat gelukt is verdwijnt uit de wachtrij; wat niet lukte blijft staan met de
+   foutmelding erbij. Elke opdracht heeft een eigen sleutel, dus een tweede klik
+   schrijft nooit iets dubbel.
+
+Achter de schermen is dat:
+
+```
+POST /api/leerlingen/<id>/lvs/logboekformulieren
+{"formuliertypeId": 42, "omschrijving": "Mentoraat", "inhoud": "<p>…</p>",
+ "aangemaaktOp": "…Z", "bovenliggendeId": null, "heeftPrioriteit": false,
+ "isAfgerond": false, "verlooptOp": null, "waarden": {"bstVeld1": null, "bstVeld2": null}}
+```
+
+De typen die je mag aanmaken **verschillen per rol en per leerling**: als docent
+bij een leerling zag ik Afspraak (4), Incident (6), Mentoraat (42) en Prognose
+en warme overdracht (39); Notitie (7) stond daar niet bij. De app biedt de
+gangbare typen aan; weigert Magister er een, dan zie je die melding terug. Bij
+Mentoraat bepaalt Magister zelf de titel — alleen typen met de optie
+`magOmschrijvingWijzigen` (zoals Notitie) laten die vrij.
+
+Let op: dit is de enige plek waar de tool iets **wijzigt** in Magister. Alles
+anders leest alleen. Een notitie die er eenmaal staat, haal je weg in Magister
+zelf.
+
 ## De verzuimcodes
 
 Hoeft niet meer nagelopen te worden: Magister levert per registratie zelf de
