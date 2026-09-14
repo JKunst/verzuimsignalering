@@ -19,6 +19,7 @@ gedownloade losse HTML-bestand gegarandeerd dezelfde cijfers.
 
 import re
 import json
+from html import escape as _esc
 from pathlib import Path
 from datetime import date, timedelta
 from collections import defaultdict
@@ -388,13 +389,13 @@ def bouw_html(payload, codes=None, config=None, mentoren=None,
     data, info = verwerk(payload, codes, config, mentoren, patroon, met_logboek)
     cfg = data['config']
 
-    ong_codes = [f'<b>{c}</b> ({v.get("naam", c).lower()})'
+    ong_codes = [f'<b>{_esc(str(c))}</b> ({_esc(str(v.get("naam", c)).lower())})'
                  for c, v in codes.items() if v.get('soort') == 'ong']
     ong_txt = ' en '.join(ong_codes) if ong_codes else '<b>—</b>'
 
     weken_txt = f"{info['weken']} lesweken"
     if info['scope']:
-        weken_txt += f" · selectie {info['scope']}"
+        weken_txt += f" · selectie {_esc(str(info['scope']))}"
     weken_txt += f" · {info['aantal_leerlingen']} leerlingen"
 
     sjabloon = (HIER / 'template.html').read_text(encoding='utf-8')

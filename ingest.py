@@ -28,6 +28,7 @@ _MAX_BYTES   = 25 * 1024 * 1024    # 25 MB veiligheidslimiet
 _STORE       = {}                  # token -> (payload, timestamp)
 _LIJSTEN     = {}                  # token -> [leerling-ids] voor de coördinator
 _SCHRIJF     = {}                  # token -> [logboekopdrachten die nog weg moeten]
+_UITSLAG     = {}                  # token -> [uitslag per opdracht van de laatste klik]
 _STORE_LOCK  = threading.Lock()
 _START_LOCK  = threading.Lock()
 _started_port = None
@@ -117,13 +118,32 @@ def schrijf_lees(token):
         return list(_SCHRIJF.get(token, []))
 
 
-def schrijf_verwijder(token, sleutels):
-    """Gelukte opdrachten uit de wachtrij halen."""
-    weg = set(sleutels)
+def schrijf_meld(token, geschreven):
+    """Uitslag van de bookmarklet verwerken, meteen bij binnenkomst.
+
+    Gelukte opdrachten gaan uit de wachtrij; mislukte blijven staan met de
+    foutmelding erbij. Dit gebeurt hier, in de ontvanger, en niet pas als de
+    Streamlit-pagina de payload verwerkt — anders schrijft een tweede klik
+    dezelfde notities nog een keer.
+    """
+    per_sleutel = {g.get('sleutel'): g for g in geschreven if isinstance(g, dict)}
     with _STORE_LOCK:
-        _SCHRIJF[token] = [o for o in _SCHRIJF.get(token, [])
-                           if o.get('sleutel') not in weg]
-        return list(_SCHRIJF[token])
+        rest = []
+        for o in _SCHRIJF.get(token, []):
+            g = per_sleutel.get(o.get('sleutel'))
+            if g and g.get('ok'):
+                continue
+            if g:
+                o = dict(o, fout=g.get('fout') or 'onbekende fout')
+            rest.append(o)
+        _SCHRIJF[token] = rest
+        _UITSLAG[token] = list(geschreven)
+
+
+def schrijf_uitslag(token):
+    """Haal (en verwijder) de laatste uitslag, om hem één keer te tonen."""
+    with _STORE_LOCK:
+        return _UITSLAG.pop(token, None)
 
 
 def take(token):
@@ -168,6 +188,7 @@ class _Handler(BaseHTTPRequestHandler):
         vraag = parse_qs(urlparse(self.path).query)
         token = (vraag.get('token') or [''])[0]
         deel = (vraag.get('deel') or [''])[0] == '1'
+        schrijf = (vraag.get('schrijf') or [''])[0] == '1'
         length = int(self.headers.get('Content-Length', 0) or 0)
         if not token or length <= 0 or length > _MAX_BYTES:
             self._reply(400, {'ok': False, 'error': 'bad request'})
@@ -177,6 +198,14 @@ class _Handler(BaseHTTPRequestHandler):
             payload = json.loads(raw.decode('utf-8'))
         except Exception:
             self._reply(400, {'ok': False, 'error': 'invalid json'})
+            return
+        if schrijf:                       # uitslag van het logboek schrijven
+            geschreven = payload.get('geschreven') if isinstance(payload, dict) else None
+            if not isinstance(geschreven, list):
+                self._reply(400, {'ok': False, 'error': 'bad request'})
+                return
+            schrijf_meld(token, geschreven)
+            self._reply(200, {'ok': True, 'rest': len(schrijf_lees(token))})
             return
         put(token, payload, samenvoegen=deel)
         n = len(peek(token).get('students', [])) if isinstance(payload, dict) else 0

@@ -45,7 +45,7 @@ VOORBEELD_PAD = HIER / 'voorbeeld_school.json'
 LIJSTEN_PAD   = HIER / 'lijsten.json'
 
 # Zelfde SSO-token als de andere apps van het portaal.
-JWT_SECRET    = os.environ.get('JWT_SECRET', 'verander-dit-naar-een-lang-geheim')
+JWT_SECRET    = os.environ.get('JWT_SECRET', '').strip()
 JWT_ALGORITHM = 'HS256'
 PORTAAL_URL   = os.environ.get('PORTAAL_URL', 'https://bovenbouwsucces.nl')
 TOEGESTANE_ROLLEN = ('docent', 'beheerder')
@@ -142,6 +142,11 @@ def inloggen():
         st.session_state.setdefault('eckid', 'lokaal')
         st.session_state.setdefault('naam', 'Lokale test')
         return
+
+    if not JWT_SECRET:
+        st.error('Configuratiefout: JWT_SECRET is niet gezet. Zonder gedeeld geheim '
+                 'met het portaal kan niemand inloggen.')
+        st.stop()
 
     _verwerk_sso_token()
     if st.session_state.get('eckid'):
@@ -355,8 +360,7 @@ def intake():
             'login. Er komt geen Magister-wachtwoord op de server; alleen het resultaat '
             'komt hier binnen en wordt niet opgeslagen.')
 
-    if ingest_url:
-        ingest.ensure_server(port)
+    if ingest_url and _ontvanger_aan(port):
         token = _token()
 
         # Al iets binnengekomen?
@@ -534,8 +538,7 @@ def coordinator_pagina(config):
     lijst_url = (ingest_url.rstrip('/') + '/lijst') if ingest_url else None
     ids = laad_lijst(eckid)
 
-    if ingest_url:
-        ingest.ensure_server(port)
+    if ingest_url and _ontvanger_aan(port):
         ingest.lijst_zet(_token(), ids)          # de bookmarklet haalt hem hier op
 
     kop, knop = st.columns([3, 1])
@@ -629,9 +632,22 @@ def _schrijfblok(payload):
     De app schrijft zelf niet: ze zet de opdracht klaar en de bookmarklet voert
     hem uit in jouw eigen Magister-sessie, met een bevestiging vooraf.
     """
-    eckid = st.session_state.get('eckid', 'lokaal')
+    ingest_url, port = _ingest_config()
+    if not ingest_url or not _ontvanger_aan(port):   # zonder ontvanger geen bookmarklet
+        return
+    token = _token()
+
+    # De ontvanger is de enige waarheid over de wachtrij: het token is per
+    # gebruiker en overleeft een nieuwe browsersessie, de sessie-state niet.
+    wachtrij = ingest.schrijf_lees(token)
+    # De uitslag komt één keer uit de ontvanger; in de sessie bewaren tot hij
+    # echt getoond is, want een st.rerun() verderop zou hem anders opslokken.
+    nieuw = ingest.schrijf_uitslag(token)
+    if nieuw:
+        st.session_state.schrijf_uitslag = nieuw
+    uitslag = st.session_state.get('schrijf_uitslag')
     leerlingen = payload.get('students') or []
-    if not leerlingen:
+    if not leerlingen and not wachtrij and not uitslag:
         return
 
     namen = {}
@@ -639,87 +655,95 @@ def _schrijfblok(payload):
         naam = ' '.join(filter(None, [s_.get('roepnaam'), s_.get('tussenvoegsel'),
                                       s_.get('achternaam')])) or str(s_['id'])
         klas = (s_.get('klassen') or ['?'])[0]
-        namen[f'{naam} ({klas})'] = s_['id']
+        label = f'{naam} ({klas})'
+        if label in namen:             # twee keer dezelfde naam: nummer erbij
+            label = f'{label} · {s_["id"]}'
+        namen[label] = s_['id']
 
-    wachtrij = st.session_state.setdefault('schrijf_wachtrij', [])
+    if uitslag:
+        gelukt = sum(1 for g in uitslag if g.get('ok'))
+        if gelukt:
+            st.success(f'{gelukt} notitie(s) in Magister gezet.')
+        for g in uitslag:
+            if not g.get('ok'):
+                st.error(f"Niet gelukt: {g.get('fout') or 'onbekende fout'}")
 
     with st.expander(f'Logboeknotitie schrijven in Magister'
                      + (f' — {len(wachtrij)} klaargezet' if wachtrij else '')):
         st.caption('Wat je hier klaarzet, schrijft de bookmarklet bij je volgende klik '
                    'in Magister — op jouw naam, in het logboek van die leerling. '
                    'Je krijgt daar eerst nog een bevestiging.')
+        melding = st.session_state.pop('schrijf_melding', None)
+        if melding:
+            st.success(melding)
 
-        kol1, kol2 = st.columns([2, 1])
-        with kol1:
-            wie = st.selectbox('Leerling', list(namen), key='schrijf_wie')
-        with kol2:
-            soort = st.selectbox('Type', list(LOGBOEK_TYPEN), key='schrijf_type')
+        if namen:
+            kol1, kol2 = st.columns([2, 1])
+            with kol1:
+                wie = st.selectbox('Leerling', list(namen), key='schrijf_wie')
+            with kol2:
+                soort = st.selectbox('Type', list(LOGBOEK_TYPEN), key='schrijf_type')
 
-        titel = st.text_input('Titel', value=soort, key='schrijf_titel',
-                              help='Bij sommige typen (zoals Mentoraat) bepaalt Magister '
-                                   'de titel zelf; dan wordt dit genegeerd.')
-        tekst = st.text_area('Tekst', key='schrijf_tekst', height=120,
-                             placeholder='Bijvoorbeeld: 9 sep telefonisch contact met '
-                                         'moeder over het verzuim in de eerste lesuren. '
-                                         'Afspraak: komende twee weken elke dag om 8.15 '
-                                         'melden bij de coördinator.')
+            titel = st.text_input('Titel', value=soort, key='schrijf_titel',
+                                  help='Bij sommige typen (zoals Mentoraat) bepaalt Magister '
+                                       'de titel zelf; dan wordt dit genegeerd.')
+            tekst = st.text_area('Tekst', key='schrijf_tekst', height=120,
+                                 placeholder='Bijvoorbeeld: 9 sep telefonisch contact met '
+                                             'moeder over het verzuim in de eerste lesuren. '
+                                             'Afspraak: komende twee weken elke dag om 8.15 '
+                                             'melden bij de coördinator.')
 
-        if tekst.strip():
-            st.markdown('**Zo komt het in Magister te staan:**')
-            st.info(f'**{wie}** · {soort} · titel "{titel}"\n\n{tekst.strip()}')
+            if tekst.strip():
+                st.markdown('**Zo komt het in Magister te staan:**')
+                st.info(f'**{wie}** · {soort} · titel "{titel}"\n\n{tekst.strip()}')
 
-        if st.button('Klaarzetten voor Magister', type='primary',
-                     disabled=not tekst.strip()):
-            regels = ''.join(f'<p>{_veilig(r)}</p>' for r in tekst.strip().splitlines() if r.strip())
-            wachtrij.append({
-                'sleutel': secrets.token_hex(8),
-                'leerlingId': namen[wie],
-                'leerlingNaam': wie,
-                'typeId': LOGBOEK_TYPEN[soort],
-                'typeNaam': soort,
-                'titel': titel or soort,
-                'inhoud': regels,
-            })
-            _zet_wachtrij_klaar(wachtrij)
-            st.success('Klaargezet. Klik de knop rechtsboven aan in je Magister-tabblad.')
-            st.rerun()
+            if st.button('Klaarzetten voor Magister', type='primary',
+                         disabled=not tekst.strip()):
+                regels = ''.join(f'<p>{_veilig(r)}</p>'
+                                 for r in tekst.strip().splitlines() if r.strip())
+                wachtrij.append({
+                    'sleutel': secrets.token_hex(8),
+                    'leerlingId': namen[wie],
+                    'leerlingNaam': wie,
+                    'typeId': LOGBOEK_TYPEN[soort],
+                    'typeNaam': soort,
+                    'titel': titel or soort,
+                    'inhoud': regels,
+                })
+                ingest.schrijf_zet(token, wachtrij)
+                st.session_state.schrijf_melding = ('Klaargezet. Klik de knop rechtsboven '
+                                                    'aan in je Magister-tabblad.')
+                st.rerun()
 
         for i, o in enumerate(list(wachtrij)):
             rij, weg = st.columns([6, 1])
             with rij:
-                st.write(f"• **{o['leerlingNaam']}** — {o['typeNaam']}: {o['titel']}")
+                st.write(f"• **{o['leerlingNaam']}** — {o['typeNaam']}: {o['titel']}"
+                         + (f"  \n:red[Niet gelukt: {o['fout']}]" if o.get('fout') else ''))
             with weg:
                 if st.button('Weg', key=f"weg_{o['sleutel']}"):
                     wachtrij.pop(i)
-                    _zet_wachtrij_klaar(wachtrij)
+                    ingest.schrijf_zet(token, wachtrij)
                     st.rerun()
 
-    gedaan = payload.get('geschreven') or []
-    if gedaan:
-        gelukt = [g for g in gedaan if g.get('ok')]
-        mis    = [g for g in gedaan if not g.get('ok')]
-        if gelukt:
-            st.success(f'{len(gelukt)} notitie(s) in Magister gezet.')
-            klaar = {g['sleutel'] for g in gelukt}
-            st.session_state.schrijf_wachtrij = [
-                o for o in st.session_state.get('schrijf_wachtrij', [])
-                if o['sleutel'] not in klaar]
-            _zet_wachtrij_klaar(st.session_state.schrijf_wachtrij)
-        for g in mis:
-            st.error(f"Niet gelukt: {g.get('fout', 'onbekende fout')}")
+    st.session_state.pop('schrijf_uitslag', None)   # getoond, zonder rerun ertussen
+
+
+def _ontvanger_aan(port):
+    """Start de ontvanger; False (met melding) als dat niet lukt."""
+    try:
+        ingest.ensure_server(port)
+        return True
+    except OSError as ex:
+        st.error(f'De ontvanger kan niet starten op poort {port} ({ex}). Draait er al '
+                 'een andere app op die poort? Kies een andere via VERZUIM_INGEST_PORT.')
+        return False
 
 
 def _veilig(tekst):
     """Tekst geschikt maken voor het HTML-inhoudsveld van Magister."""
     return (tekst.replace('&', '&amp;').replace('<', '&lt;')
                  .replace('>', '&gt;').replace('"', '&quot;'))
-
-
-def _zet_wachtrij_klaar(wachtrij):
-    ingest_url, port = _ingest_config()
-    if ingest_url:
-        ingest.ensure_server(port)
-        ingest.schrijf_zet(_token(), wachtrij)
 
 
 def _coord_rapport(payload, config):

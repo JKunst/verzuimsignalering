@@ -153,11 +153,13 @@ try{
    (a.verantwoordingen||[]).forEach(function(v){
      var reden=v.reden||{};
      if(!reden.code||reden.type==='present')return;
-     out.push({
+     var r={
        date:dt?dt.slice(0,10):'',time:dt?dt.slice(11,16):'',
        code:reden.code,period:a.lesuurBegin||null,subject:a.omschrijving||'',
-       naam:reden.omschrijving||'',type:reden.type||'',
-       geoorloofd:reden.isGeoorloofd!==false});});});return out;};
+       naam:reden.omschrijving||'',type:reden.type||''};
+     // Alleen meesturen als Magister het echt zegt; anders beslist de codetabel in de app.
+     if(typeof reden.isGeoorloofd==='boolean')r.geoorloofd=reden.isGeoorloofd;
+     out.push(r);});});return out;};
  // Magister beperkt het aantal verzoeken: bij een lange periode of veel
  // leerlingen volgt HTTP 429. Daarom kleine blokjes met een pauze ertussen, en
  // wie toch mislukt komt in een rustiger tweede ronde. Stil verlies van een
@@ -396,15 +398,23 @@ try{
        geschreven.push({sleutel:o.sleutel,ok:!fout,fout:fout});
        await wacht(400);
      }
+     // Meteen aan de app melden wat gelukt is, los van de rest van deze ronde:
+     // dan haalt de ontvanger het uit de wachtrij vóórdat er opnieuw geklikt
+     // kan worden, ook als het ophalen hierna misgaat of er niets op te halen is.
+     var ra=await fetch('__INGEST__?token=__TOKEN__&schrijf=1',{method:'POST',
+       headers:{'Content-Type':'text/plain;charset=UTF-8'},
+       body:JSON.stringify({geschreven:geschreven})}).catch(function(){return null});
      var mis=geschreven.filter(function(g){return !g.ok});
      alert(geschreven.length-mis.length+' van de '+geschreven.length+' notities in Magister gezet.'
-       +(mis.length?'\n\nNiet gelukt:\n'+mis.map(function(g){return '· '+g.fout}).join('\n'):''));
+       +(mis.length?'\n\nNiet gelukt:\n'+mis.map(function(g){return '· '+g.fout}).join('\n'):'')
+       +((!ra||!ra.ok)?'\n\nLet op: de app kon dit niet registreren. Haal daar de wachtrij '
+         +'leeg voordat je opnieuw klikt, anders komen ze er dubbel in.':''));
    }
  }
 
  if(!ids.length){                                  // alleen schrijfwerk, klaar
    document.title='Magister';
-   alert('Klaar. Er staan geen leerlingnummers ingesteld, dus er is niets opgehaald.');
+   if(geschreven.length)alert('Klaar. Er staan geen leerlingnummers ingesteld, dus er is niets opgehaald.');
    return;}
 
  // 2. Periode: deze week plus de drie ervoor.
@@ -494,11 +504,13 @@ try{
    (a.verantwoordingen||[]).forEach(function(v){
      var reden=v.reden||{};
      if(!reden.code||reden.type==='present')return;
-     out.push({
+     var r={
        date:dt?dt.slice(0,10):'',time:dt?dt.slice(11,16):'',
        code:reden.code,period:a.lesuurBegin||null,subject:a.omschrijving||'',
-       naam:reden.omschrijving||'',type:reden.type||'',
-       geoorloofd:reden.isGeoorloofd!==false});});});return out;};
+       naam:reden.omschrijving||'',type:reden.type||''};
+     // Alleen meesturen als Magister het echt zegt; anders beslist de codetabel in de app.
+     if(typeof reden.isGeoorloofd==='boolean')r.geoorloofd=reden.isGeoorloofd;
+     out.push(r);});});return out;};
  var entries={},lijstIds=slim.map(function(s){return s.id});
  var haalVerzuim=async function(lijst,pogingen,label){
    var mis=[];
@@ -543,7 +555,7 @@ try{
  var payload={period:{begin:b,einde:e},scope:'eigen lijst',students:slim,
    own_ids:lijstIds,entries:entries,verzuim_fouten:mislukt.length,
    niet_gevonden:kwijt,via:direct?'per leerling':'zoeklijst',
-   logboek:logboek,logboek_bron:bron,logboek_diag:[],geschreven:geschreven,
+   logboek:logboek,logboek_bron:bron,logboek_diag:[],
    logboek_periode:{begin:lb,einde:le}};
 
  document.title='Versturen...';
