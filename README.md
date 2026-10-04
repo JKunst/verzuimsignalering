@@ -1,9 +1,10 @@
 # Verzuimsignalering
 
-Streamlit-app voor teamleiders: haalt het verzuim van een hele afdeling uit
-Magister en maakt daar een signaleringsdashboard van — wie zit tegen de
-meldgrens aan, wie komt structureel te laat, en met welke mentor moet dat
-besproken worden.
+Signaleringsdashboard voor teamleiders: het verzuim van een hele afdeling uit
+Magister — wie zit tegen de meldgrens aan, wie komt structureel te laat, en met
+welke mentor moet dat besproken worden. Het verzuim wordt in de browser van de
+teamleider opgehaald en verwerkt en komt niet op de server; de Streamlit-app
+levert de bladwijzer en beheert de instellingen.
 
 De mentorvariant (één mentorgroep) zit in de mentoruur-app; deze app is de
 teamleiderskant en draait los. Het dashboard is de uitgewerkte versie van
@@ -29,21 +30,40 @@ Voor lokaal ontwikkelen kun je de inlogpoort overslaan:
 VERZUIM_TL_ZONDER_LOGIN=1 streamlit run app.py
 ```
 
-Doe dat nooit op een server: dan kan iedereen die de URL kent binnenlopen én
-een binnengekomen verzuimbestand oppikken.
+Doe dat nooit op een server: dan kan iedereen die de URL kent binnenlopen en
+de leerlingnummers en klaargezette notities van een ander zien.
 
 ## Hoe het werkt
 
 1. Je sleept eenmalig een **bookmarklet** naar je bladwijzerbalk.
-2. Je klikt die aan in je eigen, ingelogde Magister-tabblad. Daar worden de
-   leerlingen van je afdeling en hun verzuim opgehaald — met jouw sessie,
-   same-origin, dus zonder CORS-gedoe.
-3. De data komt in de app binnen (direct, of als bestand dat je uploadt).
-4. De app rendert het dashboard en kan het als los HTML-bestand meegeven, om te
-   printen of mee te nemen naar een overleg.
+2. Je klikt die aan in je eigen, ingelogde Magister-tabblad. Er opent een
+   **rapportvenster**; daarin kies je periode en klassen.
+3. De bookmarklet haalt in het Magister-tabblad de leerlingen en hun verzuim
+   op — met jouw sessie, same-origin, dus zonder CORS-gedoe — en geeft het via
+   `postMessage` door aan het rapportvenster (tabblad naar tabblad).
+4. Het rapportvenster rekent het dashboard uit en tekent het. Daar kun je het
+   ook als los HTML-bestand downloaden.
 
-Er draait dus **geen browser op de server** en er komt **geen Magister-wachtwoord
-op de server**; alleen het opgehaalde resultaat, en dat wordt niet opgeslagen.
+Het verzuim komt dus **niet op de server**: niet in de app, niet in de
+ontvanger, ook niet tijdelijk in het geheugen. Er draait geen browser op de
+server en er komt geen Magister-wachtwoord op de server.
+
+**Waarom de data niet kan weglekken:** het rapportvenster heeft een
+Content-Security-Policy met `default-src 'none'` (als header én in de pagina).
+De browser blokkeert daardoor elke verbinding vanuit dat venster (fetch, XHR,
+WebSocket, sendBeacon, formulieren, ook lettertypen). De bookmarklet stuurt de
+data alleen naar de origin van het rapportvenster en reageert alleen op
+berichten van die origin; het venster accepteert alleen berichten van het
+Magister-tabblad dat het opende.
+
+Van de app haalt de bookmarklet alleen dingen die geen leerlinggegevens zijn:
+de instellingen (codes, mentornamen, grenzen, standaardselectie), de
+leerlingnummers van de coördinator en klaargezette logboeknotities. Terug naar
+de app gaat alleen per notitie of het schrijven gelukt is.
+
+**Vertrouwen in de server blijft nodig voor de code.** Het rapportvenster en de
+bookmarklet komen van onze server; wie die beheert, bepaalt wat ze doen. De data
+zelf gaat er niet langs.
 
 ## Starten
 
@@ -52,14 +72,16 @@ pip install -r requirements.txt
 VERZUIM_TL_ZONDER_LOGIN=1 streamlit run app.py     # lokaal, zonder portaal
 ```
 
-De app draait op <http://localhost:8501>, de ontvanger van de bookmarklet op
-poort **8766** (in te stellen met `VERZUIM_TL_INGEST_PORT`; de mentoruur-app
-gebruikt 8765). Vanaf de https-pagina van Magister posten naar
-`http://localhost` mag: browsers zien localhost als een veilige origin.
+De app draait op <http://localhost:8501>, de ontvanger op poort **8766** (in te
+stellen met `VERZUIM_TL_INGEST_PORT`; de mentoruur-app gebruikt 8765). De
+ontvanger levert ook het rapportvenster: <http://localhost:8766/rapport.html>.
+Een venster op `http://localhost` openen vanaf de https-pagina van Magister mag:
+browsers zien localhost als een veilige origin.
 
 Zonder Magister kijken? Klik onderaan op **Voorbeelddata bekijken** — dat is
-`voorbeeld_school.json` met 90 verzonnen leerlingen (opnieuw te maken met
-`python maak_voorbeeld.py`).
+`voorbeeld_school.json` met 86 verzonnen leerlingen (opnieuw te maken met
+`python maak_voorbeeld.py`). Je kunt dat bestand ook in het rapportvenster
+openen via *Een verzuimbestand openen*.
 
 ## De bookmarklet
 
@@ -70,8 +92,7 @@ en sleep de blauwe knop **📋 Verzuim teamleider** uit de app erheen.
 
 > De knop heet bewust anders dan de **📋 Verzuim ophalen** uit de mentoruur-app.
 > Die twee kunnen naast elkaar in de balk staan: de mentorknop haalt één
-> mentorgroep op, deze een hele afdeling. Ook de voortgang in de tabbladtitel
-> verschilt (`Verzuim TL 60/99…`).
+> mentorgroep op, deze een hele afdeling.
 
 **Handmatig** — als slepen niet lukt (of de balk uitstaat):
 
@@ -85,37 +106,45 @@ en sleep de blauwe knop **📋 Verzuim teamleider** uit de app erheen.
 > eerst in Kladblok, kopieer opnieuw, en plak dat in het URL-veld.
 
 De bladwijzer bevat een token dat aan **jouw** account hangt (afgeleid van je
-eckid). Daardoor komt jouw opgehaalde verzuim alleen in jouw eigen sessie
-terecht, ook als een collega tegelijk bezig is. Het token blijft geldig zolang
-`VERZUIM_TL_SECRET` (of anders `.secret`) niet verandert; daarna moet iedereen
-de knop opnieuw slepen.
+eckid). Daarmee haalt hij jouw instellingen, leerlingnummers en notities op bij
+de app. Het token blijft geldig zolang `VERZUIM_TL_SECRET` (of anders `.secret`)
+niet verandert; daarna moet iedereen de knop opnieuw slepen. Dat geldt ook als
+`VERZUIM_TL_INGEST_URL` of `VERZUIM_TL_RAPPORT_URL` verandert.
+
+**Had je de knop al van vóór oktober 2026?** Vervang hem. De oude stuurde het
+verzuim naar de server; de ontvanger neemt dat niet meer aan.
 
 ### Gebruiken
 
 1. Ga naar Magister en log in.
-2. Klik in de bladwijzerbalk op **📋 Verzuim teamleider**.
-3. Vul **begindatum** en **einddatum** in (standaard de laatste 4 weken, vanaf
-   een maandag).
+2. Klik in de bladwijzerbalk op **📋 Verzuim teamleider**. Er opent een venster.
+   Gebeurt er niets, dan houdt de pop-upblokker het tegen: sta pop-ups toe voor
+   Magister en klik opnieuw.
+3. Kies in dat venster **begindatum** en **einddatum** (standaard de laatste 4
+   weken, vanaf een maandag).
 4. Vul in welke **klassen of leerjaren** je wilt: `H4,H5` pakt alle klassen die
    daarmee beginnen, `H4A` alleen die klas. Leeg laten = alles wat je in
-   Magister mag zien — dat kan bij een grote school lang duren.
-5. De **logboeken** haalt hij daarna vanzelf op, alleen voor leerlingen met
-   verzuim. Alleen bij meer dan 150 van die leerlingen vraagt hij het nog.
-6. De titel van het tabblad toont de voortgang (`Verzuim TL 120/240...`). Bij meer
-   dan 150 leerlingen vraagt de bookmarklet eerst om bevestiging.
-7. Als het klaar is: terug naar het tabblad van de app. Daar staat het
-   dashboard (of, bij de downloadvariant, upload je het bestand).
+   Magister mag zien — dat kan bij een grote school lang duren. De standaard
+   stel je in de zijbalk van de app in.
+5. **Logboeken ophalen** staat aan; ze worden alleen gehaald voor leerlingen
+   met verzuim.
+6. Klik **Ophalen**. Het venster toont de voortgang; laat het Magister-tabblad
+   open tot het klaar is.
+7. Het dashboard verschijnt in het venster, met boven het dashboard eventuele
+   meldingen (onvolledige lijst, onbekende codes, mentorgroepen zonder naam).
+
+Is Magister intussen herladen, dan luistert de bladwijzer niet meer: klik hem
+opnieuw aan. Het venster meldt dat zelf als er geen antwoord komt.
 
 Het logboek komt van:
 
-    /api/leerlingen/<id>/lvs/logboekformulieren?begin=2026-08-01&einde=2027-07-31
+    /api/leerlingen/<id>/lvs/logboekformulieren?begin=1980-01-01&einde=2030-01-01
 
-Die URL vraagt om een periode; de bookmarklet vult daar het **hele schooljaar**
-in (afgeleid van je einddatum), want een notitie uit juli hoort in september nog
-steeds bij de leerling. Doet een andere Magister-omgeving het anders, dan
-probeert hij nog vier varianten op de eerste leerlingen; welke werkte meldt de
-app boven het dashboard. Staat daar dat er niets gevonden is, dan moet die URL in
-`bookmarklet.py` bij `kandidaten` worden bijgezet.
+Die URL vraagt om een periode; we nemen hem ruim, want een notitie van vorig
+schooljaar (de warme overdracht in juli) is juist bruikbaar. Doet een andere
+Magister-omgeving het anders, dan probeert hij nog vier varianten op de eerste
+leerlingen; welke werkte meldt het venster. Staat daar dat er niets gevonden is,
+dan moet die URL in `bookmarklet.py` bij `kandidaten` worden bijgezet.
 
 ### Hoe snel gaat het
 
@@ -142,14 +171,15 @@ Verder:
 - **De leerlingenlijst kost één verzoek.** Zoeken op je selectie (`H5`) geeft in
   één keer alle leerlingen van dat leerjaar (0,6 s). Alleen zonder selectie moet
   de hele school gepagineerd worden. Het antwoord wordt tegen `totalCount`
-  gelegd; klopt dat niet, dan vraagt de bookmarklet of je wilt doorgaan.
-- **Je ziet tussenstanden.** Elke twintig leerlingen stuurt de bookmarklet wat
-  hij heeft; de app toont dat met een voortgangsbalk en vult aan. Ook tijdens het
-  ophalen van de logboeken, want die komen ná het verzuim: de app meldt dan
-  *"Verzuim is binnen; nu de logboeken"*, zodat een tussenstand niet voor het
-  eindresultaat wordt aangezien. Komt er 90 seconden niets meer binnen, dan meldt
-  de app dat het onvolledig is — een gesloten tabblad ziet er anders uit als een
-  ronde die nog loopt.
+  gelegd; klopt dat niet, dan gaat hij door en meldt het venster dat de lijst
+  onvolledig is.
+- **Je ziet de voortgang** in het rapportvenster: welke stap (leerlingen,
+  verzuim, herkansing, logboek) en hoeveel er binnen zijn. Het dashboard
+  verschijnt pas als alles binnen is, zodat een tussenstand niet voor het
+  eindresultaat wordt aangezien.
+- **Wat mislukt, wordt gemeld.** Leerlingen waarvan het verzuim ook in de
+  tweede ronde niet lukte, staan als foutmelding boven het dashboard: die staan
+  daar anders ten onrechte op nul.
 - Er is **geen bulkroute**: ook Magisters eigen scherm haalt de leerlingen één
   voor één op. Dat is geprobeerd met allerlei URL-vormen; allemaal 404.
 
@@ -200,7 +230,7 @@ contact heeft, staat bovenaan. Leg je contact vast, dan zakt die leerling
 vanzelf. Sorteren op uren of naam kan nog steeds.
 
 Vanaf 16 uur ongeoorloofd verschijnt het label **melden** — een wettelijk feit,
-geen stuurmiddel. Die grens en die van *vaak te laat* stel je in de zijbalk in
+geen stuurmiddel. Die grens en die van *vaak te laat* stel je in de zijbalk van de app in
 (standaard dicht, open hem met de **»** linksboven). Meer grenzen zijn er niet:
 sinds de pagina op gespreksredenen stuurt, deed *nadert de grens* niets meer en
 is die eruit.
@@ -236,8 +266,8 @@ gemeld, anders) en een korte notitie. Achter de naam verschijnt dan de datum van
 het laatste contact, en met het vierde signaal *Contact gelegd* filter je op
 leerlingen waar je al iets mee gedaan hebt.
 
-**Dit staat alleen in jouw browser** (`localStorage` van de app), niet op de
-server. Dus: niet zichtbaar voor collega's, weg bij een andere computer, een
+**Dit staat alleen in jouw browser** (`localStorage` van het rapportvenster),
+niet op de server. Dus: niet zichtbaar voor collega's, weg bij een andere computer, een
 ander browserprofiel of het legen van je browsergegevens, en niet aanwezig in het
 gedownloade HTML-bestand. Bewaar wat je wilt houden via *contactmomenten
 vastgelegd — bekijken* boven de lijst; daar zit **Download als JSON**. Zodra
@@ -256,7 +286,7 @@ is juist bruikbaar. Staat er niets van dit schooljaar, dan zegt het blok dat:
 
 Logboektekst is gevoelig (thuissituatie, diagnoses). Daarom zit die **niet** in
 het bestand dat je downloadt, tenzij je in de zijbalk *Logboektekst in de
-download* aanzet. In de app zie je hem altijd.
+download* aanzet. In het rapportvenster zie je hem altijd.
 
 ## Coördinator: een eigen lijst leerlingen
 
@@ -269,9 +299,13 @@ afdelingen heen.
    staat in de Magister-URL van de leerling: `…/leerling/17884/…`.
 2. Sleep de knop **📋 Mijn leerlingen ophalen** rechtsboven eenmalig naar je
    bladwijzerbalk.
-3. Klik hem in je Magister-tabblad aan. Hij vraagt niets: de periode is deze week
-   plus de drie ervoor, en de leerlingnummers haalt hij op bij de app. Verandert
-   je lijst, dan hoeft de knop dus **niet** opnieuw geïnstalleerd te worden.
+3. Klik hem in je Magister-tabblad aan. Het rapportvenster opent op de pagina
+   *Coördinator*; klik daar **Ophalen**. De periode is deze week plus de drie
+   ervoor, en de leerlingnummers haalt de bladwijzer op bij de app. Verandert je
+   lijst, dan hoeft de knop dus **niet** opnieuw geïnstalleerd te worden.
+
+Het is dezelfde bladwijzer-code als die van de teamleider; alleen de pagina
+waarop het venster opent verschilt. In het venster kun je wisselen.
 
 Per leerling worden drie dingen opgehaald — `/api/leerlingen/<id>` voor de naam,
 `/aanmeldingen` voor de klas, en de `mentoren`-link daaruit voor de mentor. De
@@ -284,28 +318,33 @@ codes die er staan, daaronder de weken ervoor als streepjes (één blokje per
 lesdag) en de laatste drie logboekformulieren. Bovenaan staat wie deze week het
 meest had; wie niets had, staat onderaan en wat lichter.
 
-Nummers die Magister niet kent worden apart gemeld, zodat een typefout niet stil
-verdwijnt.
+Nummers die Magister niet kent worden in het venster apart gemeld, zodat een
+typefout niet stil verdwijnt.
 
 De lijst wordt bewaard in `lijsten.json`, per gebruiker (op eckid). Dat zijn
 alleen nummers, geen namen.
 
 ## Een logboeknotitie in Magister schrijven
 
-Op de coördinatorpagina staat onder het overzicht **Logboeknotitie schrijven in
-Magister**. Daarmee zet je een notitie klaar; hij komt in het logboek van die
-leerling te staan, op jouw naam.
+Op de coördinatorpagina staat **Logboeknotitie schrijven in Magister**. Daarmee
+zet je een notitie klaar; hij komt in het logboek van die leerling te staan, op
+jouw naam.
 
 Zo werkt het, en waarom zo:
 
-1. Je kiest leerling, type en tekst, en ziet meteen hoe het eruit komt te zien.
+1. Je kiest het leerlingnummer, het type en de tekst, en ziet meteen hoe het
+   eruit komt te zien. De app kent alleen nummers: namen komen uit Magister en
+   blijven in je browser.
 2. **Klaarzetten voor Magister** legt de opdracht in een wachtrij. De app schrijft
    zelf niets — dat kan ook niet, want de server heeft geen Magister-sessie.
-3. Bij je volgende klik op de bookmarklet vraagt die eerst om bevestiging, met de
-   namen erbij, en schrijft daarna één voor één weg.
+3. Klik de bladwijzer aan in Magister. Het rapportvenster toont op de pagina
+   *Coördinator* wat er klaarstaat, met de namen erbij zodra je hebt opgehaald.
+   **In Magister zetten** vraagt eerst om bevestiging en schrijft daarna één voor
+   één weg, vanuit het Magister-tabblad.
 4. Wat gelukt is verdwijnt uit de wachtrij; wat niet lukte blijft staan met de
-   foutmelding erbij. Elke opdracht heeft een eigen sleutel, dus een tweede klik
-   schrijft nooit iets dubbel.
+   foutmelding erbij. Elke opdracht heeft een eigen sleutel, dus een tweede
+   ronde schrijft nooit iets dubbel. Naar de app gaat alleen per sleutel of het
+   gelukt is.
 
 Achter de schermen is dat:
 
@@ -331,16 +370,18 @@ zelf.
 
 Hoeft niet meer nagelopen te worden: Magister levert per registratie zelf de
 betekenis en of de code geoorloofd is (zie hierboven). Onder **Verzuimcodes
-indelen** zie je wat er in je data zit en kun je de terugval-lijst bijstellen
-voor codes die Magister niet duidt.
+indelen** kun je de terugval-lijst bijstellen voor codes die Magister niet
+duidt. Welke dat zijn, meldt het rapportvenster boven het dashboard; voeg ze in
+de tabel toe en klik **Codes opslaan**. Bij je volgende ophaalronde tellen ze
+mee.
 
 ## Mentorgroepen en mentoren
 
 De mentor hangt niet aan de klas maar aan een **lesgroep**: `h4mtu1` t/m
 `h4mtu8`. De app zoekt die lesgroep op bij elke leerling — herkend aan het
 stukje tekst dat links in de zijbalk staat (standaard `mtu`). Heten de
-mentorgroepen bij jullie anders, pas dat daar aan; het dashboard rekent meteen
-opnieuw.
+mentorgroepen bij jullie anders, pas dat daar aan; het geldt bij je volgende
+ophaalronde.
 
 De mentorgroep bepaalt drie dingen:
 
@@ -349,29 +390,37 @@ De mentorgroep bepaalt drie dingen:
 - de regel onder de naam van de leerling: `H4A · h4mtu1 · mentor T. Vermeer`.
 
 Magister geeft de mentornaam niet mee. Vul die in de zijbalk in als
-`h4mtu1 = T. Vermeer` — zodra er data geladen is, staan de gevonden
-mentorgroepen daar al klaar en hoef je alleen de namen te typen. **Mentoren
-opslaan** schrijft `mentoren.json` (niet in git).
+`h4mtu1 = T. Vermeer`. Het rapportvenster toont boven het dashboard welke
+mentorgroepen nog geen naam hebben, al in die vorm (`h4mtu1 = `): kopieer dat
+naar de zijbalk en typ alleen de namen. **Mentoren opslaan** schrijft
+`mentoren.json` (niet in git).
 
 Zit een leerling in geen enkele mentorgroep, dan valt die terug op zijn klas;
-de app meldt hoeveel dat er zijn.
+het venster meldt hoeveel dat er zijn.
 
 ## Bestanden
 
 | Bestand | Wat het doet |
 |---|---|
-| `app.py` | de Streamlit-app: portaal-login, instellingen, bookmarklet-installatie, dashboard |
-| `bookmarklet.py` | genereert de bookmarklet (downloadvariant en directe variant) |
-| `ingest.py` | ontvanger (localhost, poort uit `VERZUIM_TL_INGEST_PORT`) waar de bookmarklet naartoe post |
-| `dashboard.py` | rekent de payload om en bouwt het HTML-dashboard |
-| `coordinator.py` / `coordinator.js` | de weekpagina voor een eigen lijst leerlingen |
-| `template.html` | de opmaak van het dashboard (styling + lege panelen) |
-| `render.js` | tekent de panelen uit de data; draait in de pagina zelf |
+| `app.py` | de Streamlit-app: portaal-login, instellingen, bladwijzer-installatie, leerlingnummers, notities klaarzetten |
+| `bookmarklet.py` | genereert de bladwijzer (draait in Magister, haalt op, praat met het rapportvenster) |
+| `rapport_bron.html` | het rapportvenster: CSP, formulier, verbinding met Magister, meldingen, download |
+| `rapport.py` | zet `rapport.html` in elkaar uit `rapport_bron.html` en de bestanden hieronder |
+| `verwerk.js` | rekent een payload om tot het dashboard (alles wat geteld wordt) |
+| `template.html` | de opmaak van het teamleider-dashboard (styling + lege panelen) |
+| `render.js` | tekent de panelen van het teamleider-dashboard; draait in de pagina zelf |
+| `coordinator.js` / `coordinator.css` | het weekbeeld voor een eigen lijst leerlingen |
+| `ingest.py` | ontvanger (localhost, poort uit `VERZUIM_TL_INGEST_PORT`): levert het rapportvenster, de instellingen, de leerlingnummers en de schrijfwachtrij |
+| `dashboard.py` | codetabel lezen en opslaan, standaardgrenzen |
+| `coordinator.py` | leerlingnummers uit vrije tekst halen |
 | `codes.json` | verzuimcodes → betekenis + soort (ongeoorloofd/te laat/geoorloofd) |
 | `maak_voorbeeld.py` | schrijft `voorbeeld_school.json` met verzonnen data |
 
-Alles wat geteld wordt, gebeurt in `dashboard.py`; `render.js` tekent alleen.
-Zo geven de app en het gedownloade HTML-bestand altijd dezelfde cijfers.
+Alles wat geteld wordt, gebeurt in `verwerk.js`; `render.js` en `coordinator.js`
+tekenen alleen. Zo geven het venster en het gedownloade HTML-bestand altijd
+dezelfde cijfers. `verwerk.js` is een één-op-één omzetting van de vroegere
+Python-versie; bij de omzetting gaf hij op de voorbeelddata exact dezelfde data
+en HTML.
 
 ## Op een server draaien
 
@@ -386,6 +435,7 @@ VERZUIM_TL_INGEST_URL=https://<jouw-domein>/verzuim-tl-ingest   # publiek pad, n
 VERZUIM_TL_INGEST_PORT=8767                                     # interne poort achter nginx
 VERZUIM_TL_SECRET=<een-ander-lang-geheim>                       # anders wordt .secret gebruikt
 PORTAAL_URL=https://bovenbouwsucces.nl                          # waar de inlogmelding heen wijst
+# VERZUIM_TL_RAPPORT_URL=https://<jouw-domein>/verzuim-tl-ingest/rapport.html   # optioneel, dit is de standaard
 ```
 
 `JWT_SECRET` moet exact gelijk zijn aan dat van het portaal, anders wordt geen
@@ -394,8 +444,14 @@ de ontvangsttokens van de bookmarklet en hoeft niets met het portaal te maken te
 hebben — neem daar dus een eigen waarde voor.
 
 `VERZUIM_TL_INGEST_URL` is het adres dat **in de bookmarklet** terechtkomt, dus
-het publieke pad. Wijzigt dat pad later, dan moet iedereen de knop opnieuw
+het publieke pad. Het rapportvenster staat standaard op hetzelfde pad plus
+`/rapport.html`; de ontvanger levert het, dus daarvoor is geen extra nginx-regel
+nodig. Wijzigt een van beide adressen later, dan moet iedereen de knop opnieuw
 installeren.
+
+Laat het rapportvenster op **hetzelfde domein** staan als de app. De
+contactmomenten staan in `localStorage` van het venster; op een ander domein
+begint iedereen met een lege lijst.
 
 ### 2. systemd
 
@@ -435,31 +491,33 @@ location /verzuim-tl/ {
     proxy_read_timeout 3600s;
 }
 
-# Ontvanger voor de teamleider-bookmarklet
+# Ontvanger: rapportvenster, instellingen, leerlingnummers, schrijfwachtrij
 location /verzuim-tl-ingest {
     proxy_pass http://127.0.0.1:8767/ingest;
     proxy_set_header Host $host;
-    client_max_body_size 20m;      # anders HTTP 413 bij een lange periode
 }
 ```
+
+Zet hier **geen** `Cross-Origin-Opener-Policy`: dan verliest het rapportvenster
+de koppeling met het Magister-tabblad (`window.opener`).
 
 Draai je de app op een **subpad** (`/verzuim-tl/`) in plaats van een eigen
 (sub)domein, start Streamlit dan met `--server.baseUrlPath verzuim-tl`; anders
 laden de statische bestanden niet.
 
 Het pad achter `proxy_pass` (`/ingest`) maakt de ontvanger niet uit — die kijkt
-alleen naar de `?token=`. De querystring stuurt nginx vanzelf mee.
+alleen of het eindigt op `/rapport.html` en verder naar de `?token=`. De
+querystring stuurt nginx vanzelf mee.
 
-`client_max_body_size` is de enige echte valkuil: nginx staat standaard 1 MB
-toe. Een afdeling van 250 leerlingen over 4 weken is ongeveer 0,2 MB, dus dat
-past meestal wel, maar over een heel jaar niet. Loopt het mis, dan meldt de
-bookmarklet "De app antwoordde met HTTP 413".
+De oude `client_max_body_size 20m` mag weg: er komt geen verzuim meer binnen,
+alleen kleine schrijfuitslagen (de ontvanger weigert alles boven 64 KB).
 
 ### 4. Controleren
 
 ```bash
 sudo ss -lntp | grep -E '8507|8767'     # 8767 hoort op 127.0.0.1 te staan, niet 0.0.0.0
 curl -si -X POST 'https://<jouw-domein>/verzuim-tl-ingest' --data 'x'   # 400 = nginx komt aan
+curl -sI 'https://<jouw-domein>/verzuim-tl-ingest/rapport.html'          # 200 + Content-Security-Policy
 ```
 
 Let ook op de jwt-module: het pakket **`jwt`** (1.x) heet net zo als **PyJWT**
@@ -494,8 +552,7 @@ tweede die start een `address already in use` en heeft die geen ontvanger.
 
 Een gedeeld geheim is geen probleem: de tokens worden met een andere boodschap
 berekend (`verzuim:<eckid>` versus `verzuimsignalering-teamleider`), dus ze
-verschillen sowieso. En omdat elke app zijn data in het geheugen van zijn eigen
-proces houdt, kan de ene de payload van de andere niet oppikken.
+verschillen sowieso.
 
 De ontvanger luistert standaard alleen op `127.0.0.1`; nginx staat ervoor, dus
 de poort hoeft niet van buiten bereikbaar te zijn.
@@ -504,23 +561,31 @@ de poort hoeft niet van buiten bereikbaar te zijn.
 
 - Het ophalen gebeurt in de browser van de teamleider, met diens eigen
   Magister-sessie en rechten. De app kan niet meer zien dan die persoon zelf.
-- De opgehaalde data staat maximaal 15 minuten in het geheugen en wordt nergens
-  weggeschreven. Het gedownloade HTML-bestand bevat wél leerlinggegevens —
-  behandel dat als een verzuimlijst en zet het niet op een gedeelde schijf.
+- Het verzuim, de namen en de logboekteksten komen niet op de server. Ze gaan
+  van het Magister-tabblad naar het rapportvenster en blijven in die browser;
+  het venster kan door zijn CSP zelf niets versturen. Sluit je het venster, dan
+  zijn ze weg.
+- Op de server staan alleen instellingen (`codes.json`, `mentoren.json`), de
+  leerlingnummers van coördinatoren (`lijsten.json`, nummers zonder namen) en,
+  in het geheugen, klaargezette logboeknotities tot ze geschreven zijn. Die
+  notities typt de coördinator zelf in de app.
+- Het gedownloade HTML-bestand bevat wél leerlinggegevens — behandel dat als
+  een verzuimlijst en zet het niet op een gedeelde schijf.
 - `mentoren.json` en `.secret` blijven lokaal (staan in `.gitignore`).
 - Inloggen gaat via het portaal; alleen `docent` en `beheerder` komen binnen. Het
-  ontvangsttoken van de bookmarklet is per gebruiker, dus een binnengekomen
-  bestand kan niet in de sessie van een ander belanden.
+  token van de bookmarklet is per gebruiker, dus niemand kan bij de lijst of de
+  schrijfwachtrij van een ander.
 - Contactmomenten staan in `localStorage` van de browser van de teamleider — niet
   op de server, niet in het downloadbestand, niet zichtbaar voor anderen.
-- Logboekteksten blijven standaard uit het downloadbestand; in de app zijn ze
-  zichtbaar voor wie is ingelogd.
+- Logboekteksten blijven standaard uit het downloadbestand; in het rapportvenster
+  zijn ze zichtbaar.
 
 ## Bekende beperkingen
 
 - De leerlingen komen uit `/api/leerlingen/zoeken?q=**`; wat dat teruggeeft,
-  hangt af van je rechten in Magister. Krijg je niets, dan meldt de bookmarklet
+  hangt af van je rechten in Magister. Krijg je niets, dan meldt het venster
   dat expliciet.
+- Het rapportvenster moet als pop-up mogen openen vanuit Magister.
 - De klasnaam bepaalt de afdelingstab. Klassen die niet met M/H/V/A/G + een
   cijfer beginnen, belanden onder **Overig**.
 - Een leerling met meerdere klassen wordt bij de eerste geteld.
