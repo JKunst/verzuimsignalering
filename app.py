@@ -1,23 +1,24 @@
 """
-app.py — Verzuimsignalering voor teamleiders.
+app.py — Verzuimsignalering voor teamleiders en coördinatoren.
 
 Flow:
 0. De gebruiker komt binnen via het portaal, met een SSO-token in de URL.
-1. De teamleider sleept hier eenmalig een bookmarklet naar de bladwijzerbalk.
-2. In het ingelogde Magister-tabblad klikt hij die aan: de leerlingen van zijn
-   afdeling + hun verzuim worden daar opgehaald (met zijn eigen sessie).
-3. De data komt hier binnen — direct via de ontvanger, of als geüpload bestand.
-4. De app rendert het dashboard en kan het als los HTML-bestand meegeven.
+1. Hier sleept hij eenmalig een bladwijzer naar de bladwijzerbalk.
+2. In het ingelogde Magister-tabblad klikt hij die aan. Er opent een
+   rapportvenster; daarin kiest hij periode en selectie.
+3. De bladwijzer haalt het verzuim op met zijn eigen Magister-sessie en geeft
+   het door aan dat venster. Het venster rekent en tekent het dashboard.
 
-Er staat geen Magister-wachtwoord op de server en er draait geen browser op de
-server. Zie README.md voor de bookmarklet-instructies.
+Het verzuim komt dus **niet op de server**: niet in deze app, niet in de
+ontvanger, niet tijdelijk in het geheugen. De app beheert alleen instellingen
+(codes, mentornamen, grenzen), de leerlingnummers van de coördinator en
+klaargezette logboeknotities. Zie README.md.
 
 Start met:  streamlit run app.py
 """
 
 import os
 import json
-import time
 import hmac
 import hashlib
 import secrets
@@ -34,6 +35,7 @@ if not hasattr(jwt, 'decode'):
         'Herstellen met:  pip uninstall -y jwt && pip install --force-reinstall PyJWT')
 
 import ingest
+import rapport
 import bookmarklet
 import dashboard
 import coordinator
@@ -54,7 +56,6 @@ TOEGESTANE_ROLLEN = ('docent', 'beheerder')
 # mentoruur-app (die heet '📋 Verzuim ophalen' en pakt één mentorgroep).
 KNOP_NAAM      = 'Verzuim teamleider'
 KNOP           = f'📋 {KNOP_NAAM}'
-KNOP_DOWNLOAD  = f'📋 {KNOP_NAAM} (bestand)'
 KNOP_COORD     = '📋 Mijn leerlingen ophalen'
 
 # Logboektypen zoals Magister ze kent. Welke je mag aanmaken hangt af van je rol
@@ -83,11 +84,10 @@ def _secret():
 
 
 def _token():
-    """Ontvangsttoken van de bookmarklet — per gebruiker.
+    """Token van de bookmarklet — per gebruiker.
 
-    Het eckid zit erin, zodat de payload van de één niet in de sessie van de
-    ander kan belanden: de ontvanger geeft een binnengekomen bestand alleen aan
-    wie hetzelfde token gebruikt.
+    Het eckid zit erin, zodat de lijst en de schrijfwachtrij van de één niet
+    bij de ander terechtkomen.
     """
     wie = st.session_state.get('eckid') or 'lokaal'
     return hmac.new(_secret().encode(),
@@ -159,11 +159,10 @@ def inloggen():
 
 
 def _ingest_config():
-    """(url, poort) van de ontvanger. Leeg zetten schakelt de directe flow uit.
+    """(url, poort) van de ontvanger. Leeg zetten schakelt de bladwijzer uit.
 
     Eigen namen en een eigen poort (8766), want de mentoruur-app gebruikt
-    VERZUIM_INGEST_URL/PORT en poort 8765. Draaien ze op dezelfde server, dan
-    zouden ze elkaars ontvanger overnemen.
+    VERZUIM_INGEST_URL/PORT en poort 8765.
 
     Lokaal werkt http://localhost:8766 gewoon vanaf de https-pagina van
     Magister: browsers behandelen localhost als een veilige origin.
@@ -171,6 +170,12 @@ def _ingest_config():
     url  = os.environ.get('VERZUIM_TL_INGEST_URL', 'http://localhost:8766').strip()
     port = int(os.environ.get('VERZUIM_TL_INGEST_PORT', '8766'))
     return (url or None), port
+
+
+def _rapport_url(ingest_url):
+    """Publieke URL van het rapportvenster; standaard levert de ontvanger het."""
+    eigen = os.environ.get('VERZUIM_TL_RAPPORT_URL', '').strip()
+    return eigen or ingest_url.rstrip('/') + '/rapport.html'
 
 
 def laad_mentoren():
@@ -208,32 +213,39 @@ def bewaar_lijst(eckid, ids):
     LIJSTEN_PAD.write_text(json.dumps(alles, ensure_ascii=False, indent=2), encoding='utf-8')
 
 
-def _valideer(payload):
-    if not isinstance(payload, dict):
-        raise ValueError('Onverwacht bestandsformaat.')
-    if 'students' not in payload or 'entries' not in payload:
-        raise ValueError('Dit lijkt geen verzuimbestand (velden ontbreken).')
+def _gedeelde_instellingen():
+    """Wat voor iedereen geldt; de ontvanger vraagt dit bij elke klik opnieuw op."""
+    try:
+        codes = dashboard.laad_codes()
+    except Exception:
+        codes = {}
+    return {'codes': codes, 'mentoren': laad_mentoren(),
+            **dashboard.STANDAARD_CONFIG, 'patroon': dashboard.MENTORGROEP_PATROON}
 
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 def sidebar():
+    """Instellingen die het rapportvenster via de bladwijzer meekrijgt."""
     st.sidebar.header('Instellingen')
     naam = st.session_state.get('naam')
     if naam:
         st.sidebar.caption(f'Ingelogd als {naam}')
+    st.sidebar.caption('Deze instellingen gelden bij je volgende klik op de bladwijzer.')
 
     st.sidebar.subheader('Grenzen')
     config = {
         'normCrit': st.sidebar.number_input(
-            "Label 'melden' vanaf (uren ongeoorloofd)", 1, 100, 16, key='normCrit'),
+            "Label 'melden' vanaf (uren ongeoorloofd)", 1, 100,
+            dashboard.STANDAARD_CONFIG['normCrit'], key='normCrit'),
         'normLaat': st.sidebar.number_input(
-            "Signaal 'vaak te laat' vanaf (keer)", 1, 100, 6, key='normLaat'),
+            "Signaal 'vaak te laat' vanaf (keer)", 1, 100,
+            dashboard.STANDAARD_CONFIG['normLaat'], key='normLaat'),
     }
 
     st.sidebar.subheader('Standaard selectie')
-    st.sidebar.text_input(
+    config['scope'] = st.sidebar.text_input(
         'Klassen of leerjaren', key='scope',
-        help="Wordt voorgesteld in de bookmarklet, bijvoorbeeld 'H4,H5'. "
+        help="Wordt voorgesteld in het rapportvenster, bijvoorbeeld 'H4,H5'. "
              'Leeg = alles wat je in Magister mag zien.')
 
     st.sidebar.subheader('Mentorgroepen')
@@ -243,22 +255,19 @@ def sidebar():
              "Dit stukje tekst moet in de lesgroepnaam zitten.")
 
     st.sidebar.subheader('Logboek')
-    st.sidebar.checkbox(
+    config['logboekInDownload'] = st.sidebar.checkbox(
         'Logboektekst in de download', value=False, key='logboek_in_download',
-        help='In de app zie je het logboek altijd. Het losse HTML-bestand komt '
-             'buiten de app terecht; daar laten we die teksten standaard uit.')
+        help='In het rapportvenster zie je het logboek altijd. Het losse HTML-bestand '
+             'komt daarbuiten terecht; daar laten we die teksten standaard uit.')
 
     huidig = laad_mentoren()
-    # Groepen uit de geladen data erbij, zodat je alleen de namen hoeft te typen.
-    gevonden = (dashboard.mentorgroepen_van(st.session_state.payload, config['patroon'])
-                if 'payload' in st.session_state else [])
-    regels = [f'{g} = {huidig.get(g, "")}'.rstrip()
-              for g in sorted(set(gevonden) | set(huidig))]
     tekst = st.sidebar.text_area(
-        'Eén per regel: mentorgroep = mentor', '\n'.join(regels), height=160,
+        'Eén per regel: mentorgroep = mentor',
+        '\n'.join(f'{g} = {n}' for g, n in sorted(huidig.items())), height=160,
         help='Magister geeft de mentor niet mee bij het zoeken naar leerlingen. '
-             'Wat je hier invult verschijnt bij de leerling en in het overzicht '
-             'per mentorgroep.')
+             'Wat je hier invult verschijnt bij de leerling en in het overzicht per '
+             'mentorgroep. Het rapportvenster toont welke mentorgroepen nog geen naam '
+             'hebben; die lijst kun je hier plakken.')
     if st.sidebar.button('Mentoren opslaan', width='stretch'):
         mapping = {}
         for regel in tekst.splitlines():
@@ -273,310 +282,175 @@ def sidebar():
     return config
 
 
-def codes_editor(codes, gebruikt=None, openen=False):
+def codes_editor(codes):
     """Codes indelen als ongeoorloofd / te laat / geoorloofd."""
-    with st.expander('Verzuimcodes indelen', expanded=openen):
+    with st.expander('Verzuimcodes indelen'):
         st.caption('Magister geeft per registratie zelf door wat een code betekent en of '
                    'hij geoorloofd is; die informatie wint. Deze lijst is de terugval, '
-                   'voor oudere bestanden en codes die Magister niet duidt.')
-        rijen = [{'code': c, 'naam': v.get('naam', c), 'soort': v.get('soort', 'geo'),
-                  'komt voor': (gebruikt or {}).get(c, 0)}
+                   'voor oudere bestanden en codes die Magister niet duidt. Het '
+                   'rapportvenster meldt welke codes nog onbekend zijn.')
+        rijen = [{'code': c, 'naam': v.get('naam', c), 'soort': v.get('soort', 'geo')}
                  for c, v in codes.items()]
-        for c, n in (gebruikt or {}).items():
-            if c not in codes:
-                rijen.append({'code': c, 'naam': c, 'soort': 'geo', 'komt voor': n})
-        rijen.sort(key=lambda r: (-r['komt voor'], r['code']))   # gebruikte codes eerst
+        rijen.sort(key=lambda r: r['code'])
 
         bewerkt = st.data_editor(
-            rijen, hide_index=True, width='stretch', key='codes_editor',
+            rijen, hide_index=True, width='stretch', key='codes_editor', num_rows='dynamic',
             column_config={
-                'code': st.column_config.TextColumn('Code', disabled=True, width='small'),
+                'code': st.column_config.TextColumn('Code', width='small'),
                 'naam': st.column_config.TextColumn('Betekenis'),
                 'soort': st.column_config.SelectboxColumn(
                     'Telt als', options=['ong', 'laat', 'vergeten', 'geo'], required=True,
                     help='ong = ongeoorloofd (telt in de norm), laat = te laat, '
                          'vergeten = huiswerk of materiaal vergeten (geen verzuim), '
                          'geo = geoorloofd'),
-                'komt voor': st.column_config.NumberColumn(
-                    'In deze data', disabled=True, width='small'),
             })
         if st.button('Codes opslaan'):
-            nieuw = {r['code']: {'naam': r['naam'], 'soort': r['soort']}
-                     for r in bewerkt if r.get('code')}
+            nieuw = {str(r['code']).strip(): {'naam': r.get('naam') or r['code'],
+                                               'soort': r.get('soort') or 'geo'}
+                     for r in bewerkt if r.get('code') and str(r['code']).strip()}
             dashboard.bewaar_codes(nieuw)
             st.success('Codes opgeslagen.')
             st.rerun()
 
 
-# ── Intake ────────────────────────────────────────────────────────────────────
-def _installatieblok(href, label):
-    st.caption('Sleep deze knop naar je bladwijzerbalk (Ctrl+Shift+B toont hem).')
-    st.iframe(
-        f'''<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif">
+# ── Koppeling met de bladwijzer ───────────────────────────────────────────────
+def _ontvanger_aan(port):
+    """Start de ontvanger; False (met melding) als dat niet lukt."""
+    try:
+        ingest.ensure_server(port)
+        return True
+    except OSError as ex:
+        st.error(f'De ontvanger kan niet starten op poort {port} ({ex}). Draait er al '
+                 'een andere app op die poort? Kies een andere via VERZUIM_TL_INGEST_PORT.')
+        return False
+
+
+def koppeling(config):
+    """Zet klaar wat de bladwijzer bij de app ophaalt. Geeft (rapport_url,
+    ingest_url) terug, of (None, None) als de ontvanger niet draait."""
+    ingest_url, port = _ingest_config()
+    if not ingest_url or not _ontvanger_aan(port):
+        return None, None
+    token = _token()
+    ingest.zet_standaard(_gedeelde_instellingen)
+    ingest.config_zet(token, config)
+    ingest.lijst_zet(token, laad_lijst(st.session_state.get('eckid', 'lokaal')))
+    return _rapport_url(ingest_url), ingest_url
+
+
+def _knop_html(href, label, rechts=False):
+    return f'''<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif{';text-align:right' if rechts else ''}">
         <a href="{href}"
            style="display:inline-block;padding:9px 18px;background:#1d3f8f;color:#fff;
                   border-radius:9px;text-decoration:none;font-weight:700;font-size:14px;
-                  cursor:grab">{label}</a>
-        </div>''',
-        height=62,
-    )
+                  cursor:grab">{label}</a></div>'''
+
+
+def _installatieblok(href, label, naam):
+    st.caption('Sleep deze knop naar je bladwijzerbalk (Ctrl+Shift+B toont hem).')
+    st.iframe(_knop_html(href, label), height=62)
     with st.expander('Lukt slepen niet? Maak de bladwijzer handmatig'):
         st.markdown(
             '1. Druk op **Ctrl+Shift+O** (bladwijzerbeheer) → **Nieuwe bladwijzer**.\n'
-            f'2. Naam: `{KNOP_NAAM}`.\n'
+            f'2. Naam: `{naam}`.\n'
             '3. Plak hieronder gekopieerde tekst in het veld **URL**.')
         st.code(href, language=None)
 
 
-def _uploadblok():
-    key = f"upload_{st.session_state.get('upload_nonce', 0)}"
-    up = st.file_uploader('Verzuimbestand (JSON)', type=['json'], key=key)
-    if up is not None and st.button('Dashboard maken', type='primary'):
-        try:
-            payload = json.loads(up.getvalue().decode('utf-8'))
-            _valideer(payload)
-        except Exception as ex:
-            st.error(f'Kon het bestand niet verwerken: {ex}')
-        else:
-            st.session_state.payload = payload
-            st.rerun()
+PRIVACY = ('Het verzuim wordt in **jouw eigen browser** uit Magister gehaald, met jouw '
+           'login, en blijft daar: het dashboard wordt in het rapportvenster gemaakt. '
+           'Er komt geen verzuim en geen Magister-wachtwoord op de server.')
 
 
-def _stappen(scope):
-    selectie = f'**{scope}**' if scope else 'de klassen die je invult'
-    st.markdown(
-        '1. Ga naar **Magister** en log in (in hetzelfde tabblad).\n'
-        f'2. Klik in je bladwijzerbalk op **{KNOP}**.\n'
-        '3. Vul begin- en einddatum in (standaard de laatste 4 weken).\n'
-        f'4. Vul bij de selectie {selectie} in.\n'
-        '5. Wacht tot de melding komt — de titel van het tabblad toont de voortgang.')
+# ── Teamleider ────────────────────────────────────────────────────────────────
+def teamleider_pagina(config):
+    st.title('📋 Verzuimsignalering')
+    st.info(PRIVACY)
 
-
-def intake():
-    scope = st.session_state.get('scope', '')
-    ingest_url, port = _ingest_config()
-
-    st.info('Het verzuim wordt in **jouw eigen browser** uit Magister gehaald, met jouw '
-            'login. Er komt geen Magister-wachtwoord op de server; alleen het resultaat '
-            'komt hier binnen en wordt niet opgeslagen.')
-
-    if ingest_url and _ontvanger_aan(port):
-        token = _token()
-
-        # Al iets binnengekomen?
-        payload = ingest.peek(token)
-        if payload:
-            try:
-                _valideer(payload)
-            except Exception as ex:
-                st.error(f'Ontvangen data ongeldig: {ex}')
-            else:
-                st.session_state.payload = payload
-                st.session_state.pop('wachten', None)
-                st.rerun()
-
-        st.subheader('Stap 1 — installeer de knop (eenmalig)')
-        _installatieblok(bookmarklet.post_href(ingest_url, token, scope),
-                         KNOP)
-
-        st.subheader('Stap 2 — haal het verzuim op')
-        _stappen(scope)
-
-        if st.session_state.get('wachten'):
-            st.info('⏳ Wachten op je verzuim uit Magister…')
-            if st.button('Stoppen met wachten'):
-                st.session_state.pop('wachten', None)
-                st.rerun()
-            time.sleep(2)
-            st.rerun()
-        elif st.button('Ik heb geklikt — wacht op de data', type='primary'):
-            st.session_state.wachten = True
-            st.rerun()
-
-        with st.expander('Liever via een bestand? (download → upload)'):
-            st.caption('Gebruik deze knop in plaats van de bovenste; die downloadt een bestand.')
-            _installatieblok(bookmarklet.download_href(scope), KNOP_DOWNLOAD)
-            _uploadblok()
+    rapport_url, ingest_url = koppeling(config)
+    if not rapport_url:
+        st.error('De koppeling met de bladwijzer staat uit (VERZUIM_TL_INGEST_URL is leeg). '
+                 'Zonder die koppeling werkt de bladwijzer niet.')
     else:
         st.subheader('Stap 1 — installeer de knop (eenmalig)')
-        _installatieblok(bookmarklet.download_href(scope), KNOP_DOWNLOAD)
+        _installatieblok(bookmarklet.href(rapport_url, ingest_url, _token(), 'tl'),
+                         KNOP, KNOP_NAAM)
+        st.caption('Had je de knop al van vóór oktober 2026? Vervang hem door deze; de '
+                   'oude stuurde het verzuim naar de server en werkt niet meer.')
+
         st.subheader('Stap 2 — haal het verzuim op')
-        _stappen(scope)
-        st.subheader('Stap 3 — upload het bestand')
-        _uploadblok()
+        st.markdown(
+            '1. Ga naar **Magister** en log in.\n'
+            f'2. Klik in dat tabblad op de bladwijzer **{KNOP}**. Er opent een nieuw venster.\n'
+            '3. Kies daar de periode (standaard de laatste 4 weken) en de klassen of '
+            'leerjaren, en klik **Ophalen**.\n'
+            '4. Het dashboard verschijnt in dat venster. Daar kun je het ook als '
+            'HTML-bestand downloaden.')
+        st.caption('Opent er geen venster? Dan houdt de pop-upblokker het tegen: sta '
+                   'pop-ups toe voor Magister en klik opnieuw.')
+
+    codes_editor(dashboard.laad_codes())
 
     if VOORBEELD_PAD.exists():
         st.divider()
-        if st.button('Voorbeelddata bekijken (verzonnen leerlingen)'):
-            st.session_state.payload = json.loads(
-                VOORBEELD_PAD.read_text(encoding='utf-8'))
+        if st.session_state.get('demo'):
+            if st.button('Voorbeeld sluiten'):
+                st.session_state.pop('demo', None)
+                st.rerun()
+            voorbeeld = {
+                'modus': 'tl',
+                'payload': json.loads(VOORBEELD_PAD.read_text(encoding='utf-8')),
+                'opties': {'codes': dashboard.laad_codes(), 'mentoren': laad_mentoren(),
+                           'config': {'normCrit': config['normCrit'],
+                                      'normLaat': config['normLaat']},
+                           'patroon': config['patroon'],
+                           'logboekInDownload': config['logboekInDownload']},
+            }
+            st.iframe(rapport.bouw(voorbeeld=voorbeeld), height=1600)
+        elif st.button('Voorbeelddata bekijken (verzonnen leerlingen)'):
             st.session_state.demo = True
             st.rerun()
-
-
-# ── Dashboard ─────────────────────────────────────────────────────────────────
-def rapport(payload, config):
-    codes    = dashboard.laad_codes()
-    mentoren = laad_mentoren()
-    demo     = st.session_state.get('demo', False)
-
-    config  = dict(config)
-    patroon = config.pop('patroon', dashboard.MENTORGROEP_PATROON)
-
-    html, info = dashboard.bouw_html(
-        payload, codes=codes, config=config, mentoren=mentoren, patroon=patroon,
-        banner=dashboard.demo_banner() if demo else '')
-
-    # Het downloadbestand kan zonder de logboekteksten; die zijn gevoelig en
-    # verlaten met dat bestand de app.
-    if st.session_state.get('logboek_in_download') or not info['logboek_aantal']:
-        download_html = html
-    else:
-        download_html, _ = dashboard.bouw_html(
-            payload, codes=codes, config=config, mentoren=mentoren, patroon=patroon,
-            banner=dashboard.demo_banner() if demo else '', met_logboek=False)
-
-    nog_bezig = not payload.get('klaar', True)
-    if nog_bezig:
-        v = payload.get('voortgang') or {}
-        gedaan, totaal = v.get('gedaan', 0), v.get('leerlingen', 0)
-        fase = v.get('fase', 'verzuim')
-
-        # Bijhouden wanneer er voor het laatst iets binnenkwam. Een gesloten
-        # tabblad of een verlopen Magister-sessie ziet er anders uit als een
-        # ophaalronde die nog loopt, en dan lijkt onvolledige data compleet.
-        nu = time.time()
-        if st.session_state.get('laatste_gedaan') != gedaan:
-            st.session_state.laatste_gedaan = gedaan
-            st.session_state.laatste_tijd = nu
-        stil = nu - st.session_state.get('laatste_tijd', nu)
-
-        if stil > 90:
-            st.warning(f'⚠️ Er komt al {int(stil)} seconden niets meer binnen. Staat het '
-                       'Magister-tabblad nog open en ben je daar nog ingelogd? '
-                       f'Wat je hieronder ziet is **onvolledig**: {gedaan} van de {totaal} '
-                       'leerlingen. Klik de knop daar opnieuw aan, of begin met *Nieuwe data*.')
-        else:
-            if fase == 'logboek':
-                st.info(f'⏳ Verzuim is binnen ({gedaan} leerlingen); nu de logboeken — '
-                        f'{v.get("logboeken", 0)} opgehaald. Die verschijnen vanzelf.')
-            else:
-                st.info(f'⏳ Nog bezig met ophalen — {gedaan} van de {totaal} leerlingen '
-                        'binnen. Wat je hieronder ziet groeit vanzelf aan.')
-        if totaal:
-            st.progress(min(gedaan / totaal, 1.0))
-
-    kop, knop1, knop2 = st.columns([4, 1, 1])
-    with kop:
-        st.success(f"{info['aantal_leerlingen']} leerlingen · "
-                   f"{info['aantal_registraties']} registraties · "
-                   f"{info['weken']} weken"
-                   + (f" · selectie {info['scope']}" if info['scope'] else ''))
-    with knop1:
-        st.download_button('Download HTML', data=download_html,
-                           file_name=f"verzuimsignalering_{payload.get('period', {}).get('einde', '')}.html",
-                           mime='text/html', width='stretch')
-    with knop2:
-        if st.button('Nieuwe data', width='stretch'):
-            ingest_url, _ = _ingest_config()
-            if ingest_url:
-                ingest.vergeet(_token())
-            for sleutel in ('payload', 'demo', 'wachten', 'laatste_gedaan', 'laatste_tijd'):
-                st.session_state.pop(sleutel, None)
-            st.session_state.upload_nonce = st.session_state.get('upload_nonce', 0) + 1
-            st.rerun()
-
-    if info['verzuim_fouten']:
-        st.error(f"Van {info['verzuim_fouten']} leerlingen is het verzuim niet "
-                 'opgehaald: Magister beperkte het aantal verzoeken. Die staan hier '
-                 'dus ten onrechte op nul. Haal opnieuw op met een kortere periode '
-                 'of een kleinere selectie.')
-
-    if info['logboek_aantal']:
-        extra = ('' if st.session_state.get('logboek_in_download')
-                 else ' De teksten blijven uit het downloadbestand.')
-        st.caption(f"📓 {info['logboek_aantal']} logboekformulieren opgehaald "
-                   f"(bron: {info['logboek_bron'] or 'onbekend'}).{extra}")
-    elif info['logboek_bron'] == 'niet gevonden':
-        st.warning('De bookmarklet kon geen lijst-URL voor logboekformulieren vinden.')
-        if info['logboek_diag']:
-            with st.expander('Wat de geprobeerde URLs teruggaven'):
-                st.code('\n'.join(info['logboek_diag']), language=None)
-                st.caption('Stuur dit door, dan weten we welke URL het wel moet zijn.')
-
-    if not info['mentorgroepen']:
-        st.warning(f"Geen mentorgroepen gevonden met '{patroon}' in de lesgroepnaam — "
-                   'het overzicht valt terug op de klas. Pas de herkenning links aan '
-                   'als de mentorgroepen bij jullie anders heten.')
-    elif info['zonder_mentorgroep']:
-        st.info(f"{info['zonder_mentorgroep']} leerlingen zitten in geen enkele "
-                f"mentorgroep met '{patroon}'; die staan onder hun klas.")
-
-    if info['onbekende_codes']:
-        st.warning('Codes die Magister niet duidde en die wij niet kennen: **'
-                   + ', '.join(info['onbekende_codes'])
-                   + '** — die tellen nu als geoorloofd. Deel ze hieronder in.')
-    elif info['te_controleren_codes']:
-        st.warning('Nog niet nagelopen codes in deze data: **'
-                   + ', '.join(info['te_controleren_codes'])
-                   + '** — die tellen nu als geoorloofd.')
-
-    codes_editor(codes, info['code_telling'],
-                 openen=bool(info['onbekende_codes'] or info['te_controleren_codes']))
-
-    st.iframe(html, height=1500)
-
-    if nog_bezig:                      # tussenstand: zelf even opnieuw kijken
-        time.sleep(3)
-        st.rerun()
 
 
 # ── Coördinator: eigen lijst leerlingen ───────────────────────────────────────
 def coordinator_pagina(config):
     eckid = st.session_state.get('eckid', 'lokaal')
-    ingest_url, port = _ingest_config()
-    lijst_url = (ingest_url.rstrip('/') + '/lijst') if ingest_url else None
+    rapport_url, ingest_url = koppeling(config)
     ids = laad_lijst(eckid)
-
-    if ingest_url and _ontvanger_aan(port):
-        ingest.lijst_zet(_token(), ids)          # de bookmarklet haalt hem hier op
 
     kop, knop = st.columns([3, 1])
     with kop:
         st.title('📋 Mijn leerlingen')
         st.caption(f'{len(ids)} leerlingnummers ingesteld' if ids
                    else 'Nog geen leerlingnummers ingesteld')
+    href = (bookmarklet.href(rapport_url, ingest_url, _token(), 'coord')
+            if rapport_url else None)
     with knop:
-        if lijst_url:
-            st.iframe(
-                f'''<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;text-align:right">
-                <a href="{bookmarklet.coordinator_href(ingest_url, lijst_url, _token())}"
-                   style="display:inline-block;padding:9px 18px;background:#1d3f8f;color:#fff;
-                          border-radius:9px;text-decoration:none;font-weight:700;font-size:14px;
-                          cursor:grab">{KNOP_COORD}</a></div>''',
-                height=52)
+        if href:
+            st.iframe(_knop_html(href, KNOP_COORD, rechts=True), height=52)
         else:
             st.caption('Zet VERZUIM_TL_INGEST_URL om de knop te gebruiken.')
 
-    with st.expander('Hoe je de knop installeert', expanded=not ids):
+    st.info(PRIVACY)
+
+    with st.expander('Hoe je de knop installeert en gebruikt', expanded=not ids):
         st.markdown(
             "1. Zet je bladwijzerbalk aan met **Ctrl+Shift+B**.\n"
             f"2. Sleep de knop **{KNOP_COORD}** hierboven naar die balk.\n"
             "3. Ga naar **Magister** en log in.\n"
-            "4. Klik in de balk op die knop. Hij vraagt niets: de periode is deze week "
-            "plus de drie ervoor, en je leerlingnummers haalt hij hier op.\n"
-            "5. De titel van het Magister-tabblad toont de voortgang. Als hij klaar is, "
-            "kom je terug naar dit tabblad.")
+            "4. Klik in de balk op die knop. Er opent een venster; klik daar **Ophalen**. "
+            "De periode is deze week plus de drie ervoor, en je leerlingnummers haalt hij "
+            "hier op.\n"
+            "5. Het weekbeeld verschijnt in dat venster.")
         st.caption('Eenmalig. Verandert je lijst hieronder, dan blijft de knop werken — '
                    'die haalt de nummers elke keer opnieuw op.')
-        if lijst_url:
+        if href:
             with st.expander('Lukt slepen niet? Maak de bladwijzer handmatig'):
                 st.markdown(
                     "1. Druk op **Ctrl+Shift+O** → **Nieuwe bladwijzer toevoegen**.\n"
                     f"2. Naam: `{KNOP_COORD}`.\n"
                     "3. Plak de regel hieronder bij **URL**.")
-                st.code(bookmarklet.coordinator_href(ingest_url, lijst_url, _token()),
-                        language=None)
+                st.code(href, language=None)
 
     with st.expander('Leerlingnummers', expanded=not ids):
         tekst = st.text_area(
@@ -587,7 +461,7 @@ def coordinator_pagina(config):
             if st.button('Opslaan', type='primary'):
                 nieuw = coordinator.lees_ids(tekst)
                 bewaar_lijst(eckid, nieuw)
-                if ingest_url:
+                if rapport_url:
                     ingest.lijst_zet(_token(), nieuw)
                 st.success(f'{len(nieuw)} leerlingnummers opgeslagen.')
                 st.rerun()
@@ -595,46 +469,18 @@ def coordinator_pagina(config):
             st.caption('Het leerlingnummer staat in de Magister-URL van de leerling: '
                        '…/leerling/**17884**/…')
 
-    if 'coord_payload' in st.session_state:
-        _coord_rapport(st.session_state.coord_payload, config)
-        return
-
-    if not ids:
-        st.info('Vul eerst de leerlingnummers in; daarna haalt de knop rechtsboven '
-                'hun verzuim en logboek op.')
-        return
-
-    if st.session_state.get('coord_wachten'):
-        payload = ingest.take(_token())
-        if payload:
-            st.session_state.coord_payload = payload
-            st.session_state.pop('coord_wachten', None)
-            st.rerun()
-        st.info('⏳ Wachten op de gegevens uit Magister…')
-        if st.button('Stoppen met wachten'):
-            st.session_state.pop('coord_wachten', None)
-            st.rerun()
-        time.sleep(2)
-        st.rerun()
-    else:
-        payload = ingest.take(_token())
-        if payload:
-            st.session_state.coord_payload = payload
-            st.rerun()
-        if st.button('Ik heb geklikt — wacht op de gegevens', type='primary'):
-            st.session_state.coord_wachten = True
-            st.rerun()
+    if rapport_url:
+        _schrijfblok(ids)
 
 
-def _schrijfblok(payload):
+def _schrijfblok(ids):
     """Een notitie klaarzetten voor het logboek in Magister.
 
-    De app schrijft zelf niet: ze zet de opdracht klaar en de bookmarklet voert
-    hem uit in jouw eigen Magister-sessie, met een bevestiging vooraf.
+    De app schrijft zelf niet: ze zet de opdracht klaar en de bladwijzer voert
+    hem uit in jouw eigen Magister-sessie, na een bevestiging in het
+    rapportvenster. Daar staan ook de namen bij; hier alleen nummers, want de
+    namen komen uit Magister en blijven in je browser.
     """
-    ingest_url, port = _ingest_config()
-    if not ingest_url or not _ontvanger_aan(port):   # zonder ontvanger geen bookmarklet
-        return
     token = _token()
 
     # De ontvanger is de enige waarheid over de wachtrij: het token is per
@@ -646,19 +492,8 @@ def _schrijfblok(payload):
     if nieuw:
         st.session_state.schrijf_uitslag = nieuw
     uitslag = st.session_state.get('schrijf_uitslag')
-    leerlingen = payload.get('students') or []
-    if not leerlingen and not wachtrij and not uitslag:
+    if not ids and not wachtrij and not uitslag:
         return
-
-    namen = {}
-    for s_ in leerlingen:
-        naam = ' '.join(filter(None, [s_.get('roepnaam'), s_.get('tussenvoegsel'),
-                                      s_.get('achternaam')])) or str(s_['id'])
-        klas = (s_.get('klassen') or ['?'])[0]
-        label = f'{naam} ({klas})'
-        if label in namen:             # twee keer dezelfde naam: nummer erbij
-            label = f'{label} · {s_["id"]}'
-        namen[label] = s_['id']
 
     if uitslag:
         gelukt = sum(1 for g in uitslag if g.get('ok'))
@@ -668,19 +503,20 @@ def _schrijfblok(payload):
             if not g.get('ok'):
                 st.error(f"Niet gelukt: {g.get('fout') or 'onbekende fout'}")
 
-    with st.expander(f'Logboeknotitie schrijven in Magister'
+    with st.expander('Logboeknotitie schrijven in Magister'
                      + (f' — {len(wachtrij)} klaargezet' if wachtrij else '')):
-        st.caption('Wat je hier klaarzet, schrijft de bookmarklet bij je volgende klik '
-                   'in Magister — op jouw naam, in het logboek van die leerling. '
-                   'Je krijgt daar eerst nog een bevestiging.')
+        st.caption('Wat je hier klaarzet, kun je in het rapportvenster in Magister zetten — '
+                   'op jouw naam, in het logboek van die leerling. Klik daarvoor de knop '
+                   'rechtsboven aan in je Magister-tabblad; het venster laat de namen zien '
+                   'en vraagt eerst om bevestiging.')
         melding = st.session_state.pop('schrijf_melding', None)
         if melding:
             st.success(melding)
 
-        if namen:
+        if ids:
             kol1, kol2 = st.columns([2, 1])
             with kol1:
-                wie = st.selectbox('Leerling', list(namen), key='schrijf_wie')
+                wie = st.selectbox('Leerlingnummer', ids, key='schrijf_wie')
             with kol2:
                 soort = st.selectbox('Type', list(LOGBOEK_TYPEN), key='schrijf_type')
 
@@ -695,7 +531,7 @@ def _schrijfblok(payload):
 
             if tekst.strip():
                 st.markdown('**Zo komt het in Magister te staan:**')
-                st.info(f'**{wie}** · {soort} · titel "{titel}"\n\n{tekst.strip()}')
+                st.info(f'**Leerling {wie}** · {soort} · titel "{titel}"\n\n{tekst.strip()}')
 
             if st.button('Klaarzetten voor Magister', type='primary',
                          disabled=not tekst.strip()):
@@ -703,16 +539,17 @@ def _schrijfblok(payload):
                                  for r in tekst.strip().splitlines() if r.strip())
                 wachtrij.append({
                     'sleutel': secrets.token_hex(8),
-                    'leerlingId': namen[wie],
-                    'leerlingNaam': wie,
+                    'leerlingId': int(wie),
+                    'leerlingNaam': f'Leerling {wie}',
                     'typeId': LOGBOEK_TYPEN[soort],
                     'typeNaam': soort,
                     'titel': titel or soort,
                     'inhoud': regels,
                 })
                 ingest.schrijf_zet(token, wachtrij)
-                st.session_state.schrijf_melding = ('Klaargezet. Klik de knop rechtsboven '
-                                                    'aan in je Magister-tabblad.')
+                st.session_state.schrijf_melding = ('Klaargezet. Klik de knop rechtsboven aan '
+                                                    'in je Magister-tabblad en bevestig in het '
+                                                    'venster dat opent.')
                 st.rerun()
 
         for i, o in enumerate(list(wachtrij)):
@@ -729,53 +566,10 @@ def _schrijfblok(payload):
     st.session_state.pop('schrijf_uitslag', None)   # getoond, zonder rerun ertussen
 
 
-def _ontvanger_aan(port):
-    """Start de ontvanger; False (met melding) als dat niet lukt."""
-    try:
-        ingest.ensure_server(port)
-        return True
-    except OSError as ex:
-        st.error(f'De ontvanger kan niet starten op poort {port} ({ex}). Draait er al '
-                 'een andere app op die poort? Kies een andere via VERZUIM_INGEST_PORT.')
-        return False
-
-
 def _veilig(tekst):
     """Tekst geschikt maken voor het HTML-inhoudsveld van Magister."""
     return (tekst.replace('&', '&amp;').replace('<', '&lt;')
                  .replace('>', '&gt;').replace('"', '&quot;'))
-
-
-def _coord_rapport(payload, config):
-    codes    = dashboard.laad_codes()
-    mentoren = laad_mentoren()
-    config   = dict(config)
-    patroon  = config.pop('patroon', dashboard.MENTORGROEP_PATROON)
-
-    html, info = coordinator.bouw_html(payload, codes=codes, config=config,
-                                       mentoren=mentoren, patroon=patroon)
-
-    regel, knop = st.columns([4, 1])
-    with regel:
-        melding = (f"{info['aantal_leerlingen']} leerlingen · "
-                   f"{info['aantal_registraties']} registraties · {info['weken']} weken")
-        st.success(melding)
-    with knop:
-        if st.button('Opnieuw ophalen', width='stretch'):
-            st.session_state.pop('coord_payload', None)
-            st.rerun()
-
-    _schrijfblok(payload)
-
-    kwijt = payload.get('niet_gevonden') or []
-    if kwijt:
-        st.warning('Deze nummers zijn niet gevonden in Magister: ' +
-                   ', '.join(str(k) for k in kwijt))
-    if payload.get('verzuim_fouten'):
-        st.error(f"Van {payload['verzuim_fouten']} leerlingen is het verzuim niet "
-                 'opgehaald (Magister beperkte het aantal verzoeken). Haal opnieuw op.')
-
-    st.iframe(html, height=1500)
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
@@ -788,23 +582,8 @@ def main():
 
     if pagina == 'Coördinator':
         coordinator_pagina(config)
-        return
-
-    st.title('📋 Verzuimsignalering')
-    if 'payload' in st.session_state:
-        # Loopt de ophaalronde nog? Dan bij elke doorloop de nieuwste
-        # tussenstand pakken, anders blijft het scherm op de eerste hangen.
-        if not st.session_state.payload.get('klaar', True):
-            ingest_url, _ = _ingest_config()
-            if ingest_url:
-                nieuwer = ingest.peek(_token())
-                if nieuwer:
-                    st.session_state.payload = nieuwer
-                    if nieuwer.get('klaar'):
-                        ingest.vergeet(_token())
-        rapport(st.session_state.payload, config)
     else:
-        intake()
+        teamleider_pagina(config)
 
 
 main()

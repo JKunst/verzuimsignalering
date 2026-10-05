@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<!--
+  rapport.html — het verzuimdashboard, volledig in de browser.
+
+  Bron van de pagina; rapport.py vult de plekhouders (/*__…__*/) met
+  verwerk.js, template.html, render.js, coordinator.js en coordinator.css.
+
+  Twee manieren om hier data in te krijgen, allebei zonder dat er iets naar een
+  server gaat:
+  1. De bladwijzer in Magister opent deze pagina en geeft de data door via
+     postMessage (tabblad → tabblad).
+  2. Een verzuimbestand (.json) kiezen; dat wordt lokaal gelezen.
+
+  De CSP hieronder verbiedt deze pagina om zelf verbindingen te maken
+  (connect-src valt terug op default-src 'none'): fetch, XHR, WebSockets en
+  sendBeacon worden door de browser geblokkeerd. Het dashboard staat in een
+  iframe met srcdoc; dat erft deze CSP.
+-->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; form-action 'none'; base-uri 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Verzuimsignalering</title>
+<style>
+:root {
+  color-scheme: light;
+  --paper: #f2f2f4; --card: #ffffff; --sunk: #f7f7f9; --line: #dededf;
+  --ink: #16161a; --ink-2: #45454e; --muted: #6a6a75;
+  --knop: #1d3f8f; --knop-ink: #ffffff;
+  --crit: #d03b3b; --crit-bg: #fbeaea; --warn-bg: #fdf3dc; --warn-ink: #7a5300;
+  --info-bg: #e8eef9; --good: #0ca30c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #131317; --card: #1e1e23; --sunk: #26262c; --line: #33333c;
+    --ink: #ecedef; --ink-2: #c2c3cb; --muted: #9a9aa6;
+    --knop: #3d6fd9; --crit-bg: #37201f; --warn-bg: #342913; --warn-ink: #fab219;
+    --info-bg: #1b2538;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif; font-size: 14px; line-height: 1.5; }
+.paneel { max-width: 1180px; margin: 0 auto; padding: 16px 22px 0; }
+.kaart { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+.kop { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  margin-bottom: 10px; }
+.kop h1 { font-size: 1.05rem; margin: 0; }
+.modi { display: flex; gap: 2px; border-bottom: 1px solid var(--line); }
+.modi button { padding: 6px 13px 7px; border: none; background: none; cursor: pointer; font: inherit;
+  color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.modi button[aria-selected="true"] { color: var(--ink); font-weight: 600; border-bottom-color: var(--ink); }
+#verbinding { font-size: .8rem; color: var(--ink-2); margin: 0 0 10px; }
+.rij { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+.rij label { display: flex; flex-direction: column; gap: 3px; font-size: .75rem; color: var(--ink-2); font-weight: 600; }
+.rij label.vink { flex-direction: row; align-items: center; gap: 6px; font-weight: 500; padding-bottom: 6px; }
+input[type=date], input[type=text] { font: inherit; padding: 5px 8px; border: 1px solid var(--line);
+  border-radius: 6px; background: var(--card); color: var(--ink); }
+button.knop { font: inherit; font-weight: 700; padding: 7px 16px; border-radius: 7px; border: none;
+  background: var(--knop); color: var(--knop-ink); cursor: pointer; }
+button.knop:disabled { opacity: .5; cursor: default; }
+button.knop.licht { background: var(--sunk); color: var(--ink); border: 1px solid var(--line); }
+.uitleg { font-size: .8rem; color: var(--ink-2); margin: 0 0 10px; }
+#voortgang { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-size: .8rem; color: var(--ink-2); }
+#voortgang progress { width: 220px; }
+#status { margin-top: 8px; font-size: .82rem; color: var(--ink-2); min-height: 1.2em; }
+#status.fout { color: var(--crit); font-weight: 600; }
+.meldingen { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.melding { padding: 8px 11px; border-radius: 8px; font-size: .8rem; background: var(--info-bg); }
+.melding.let { background: var(--warn-bg); color: var(--warn-ink); }
+.melding.fout { background: var(--crit-bg); color: var(--crit); }
+.melding textarea { display: block; width: 100%; margin-top: 6px; font: .76rem ui-monospace, Menlo, monospace;
+  background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 6px; }
+.melding pre { white-space: pre-wrap; margin: 6px 0 0; font: .74rem ui-monospace, Menlo, monospace; }
+#schrijven ul { margin: 6px 0 10px; padding-left: 18px; font-size: .8rem; }
+#schrijven .fout { color: var(--crit); }
+.acties { display: flex; gap: 8px; justify-content: flex-end; margin: 12px 0 0; }
+details.los { margin-top: 10px; font-size: .8rem; color: var(--ink-2); }
+details.los summary { cursor: pointer; }
+.privacy { font-size: .72rem; color: var(--muted); margin-top: 10px; }
+#dashboard { display: block; width: 100%; border: 0; height: 0; margin-top: 4px; }
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="paneel">
+  <div class="kaart">
+    <div class="kop">
+      <h1>Verzuimsignalering</h1>
+      <div class="modi" role="tablist">
+        <button role="tab" data-modus="tl">Teamleider</button>
+        <button role="tab" data-modus="coord">Coördinator</button>
+      </div>
+    </div>
+    <p id="verbinding"></p>
+
+    <div id="form-tl" hidden>
+      <div class="rij">
+        <label>Begindatum <input type="date" id="begin"></label>
+        <label>Einddatum <input type="date" id="einde"></label>
+        <label>Klassen of leerjaren <input type="text" id="scope" placeholder="bijv. H4,H5 of H4A" size="18"></label>
+        <label class="vink"><input type="checkbox" id="logboek" checked> logboeken ophalen</label>
+        <button class="knop" id="ophalen-tl" disabled>Ophalen</button>
+      </div>
+      <p class="uitleg" style="margin-top:8px">Leeg bij klassen = alles wat je in Magister mag zien; dat
+        kan bij een grote school lang duren. Logboeken worden alleen opgehaald voor leerlingen met verzuim.</p>
+    </div>
+
+    <div id="form-coord" hidden>
+      <p class="uitleg" id="coord-uitleg">Deze week plus de drie ervoor, voor de leerlingnummers die je in de app hebt ingesteld.</p>
+      <button class="knop" id="ophalen-coord" disabled>Ophalen</button>
+    </div>
+
+    <div id="voortgang" hidden><progress id="balk"></progress><span id="voortgang-tekst"></span></div>
+    <div id="status" role="status" aria-live="polite"></div>
+
+    <div id="schrijven" class="melding" hidden></div>
+    <div id="meldingen" class="meldingen"></div>
+
+    <details class="los" id="los">
+      <summary>Een verzuimbestand openen (.json)</summary>
+      <p>Het bestand wordt alleen in deze browser gelezen, niet geüpload.</p>
+      <input type="file" id="bestand" accept=".json,application/json">
+    </details>
+
+    <p class="privacy">Het verzuim wordt in jouw eigen browser uit Magister gehaald, met jouw
+      login, en blijft in deze browser. Deze pagina kan zelf niets versturen.</p>
+
+    <div class="acties" id="acties" hidden>
+      <button class="knop licht" id="download">Download HTML</button>
+    </div>
+  </div>
+</div>
+
+<iframe id="dashboard" title="Dashboard"></iframe>
+
+<script>
+var BRONNEN = /*__BRONNEN__*/;
+var VOORBEELD = /*__VOORBEELD__*/;
+</script>
+<script>
+/*__VERWERK_JS__*/
+</script>
+<script>
+(function () {
+  'use strict';
+
+  var MAGISTER = /^https:\/\/[a-z0-9-]+\.magister\.net$/;
+  var TEST     = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;   // nagebootste Magister
+
+  var opener = window.opener, magisterOrigin = null, app = null;
+  var modus = location.hash.slice(1) === 'coord' ? 'coord' : 'tl';
+  var laatste = { tl: null, coord: null };        // per modus: {payload, html, download, info}
+  var wachtOp = null, antwoord = false, demo = false;
+
+  function $(id) { return document.getElementById(id); }
+  var esc = VZS.esc;
+
+  function status(tekst, fout) {
+    $('status').textContent = tekst || '';
+    $('status').classList.toggle('fout', !!fout);
+  }
+
+  // ── Instellingen uit de app (geen leerlinggegevens) ───────────────────────
+  function instellingen() {
+    var c = (app && app.ok && app.config) || {};
+    return {
+      codes:    c.codes || {},
+      mentoren: c.mentoren || {},
+      config:   { normCrit: c.normCrit || 16, normLaat: c.normLaat || 6 },
+      patroon:  c.patroon == null ? VZS.MENTORGROEP_PATROON : c.patroon,
+      scope:    c.scope || '',
+      logboekInDownload: !!c.logboekInDownload
+    };
+  }
+
+  // ── Modus ─────────────────────────────────────────────────────────────────
+  function zetModus(m) {
+    modus = m === 'coord' ? 'coord' : 'tl';
+    if (location.hash.slice(1) !== modus) history.replaceState(null, '', '#' + modus);
+    document.querySelectorAll('[data-modus]').forEach(function (b) {
+      b.setAttribute('aria-selected', String(b.dataset.modus === modus));
+    });
+    $('form-tl').hidden = demo || modus !== 'tl';
+    $('form-coord').hidden = demo || modus !== 'coord';
+    tekenSchrijven();
+    var l = laatste[modus];
+    if (l) zetDashboard(l); else wisDashboard();
+  }
+
+  // ── Dashboard ─────────────────────────────────────────────────────────────
+  var frame = $('dashboard');
+  function pasHoogte() {
+    var d = frame.contentDocument;
+    if (d && d.documentElement) frame.style.height = d.documentElement.scrollHeight + 'px';
+  }
+  frame.addEventListener('load', function () {
+    var d = frame.contentDocument;
+    if (!d || !d.body) return;
+    pasHoogte();
+    if (window.ResizeObserver) new ResizeObserver(pasHoogte).observe(d.body);
+    d.addEventListener('toggle', pasHoogte, true);
+  });
+
+  function zetDashboard(l) {
+    frame.srcdoc = l.html;
+    $('acties').hidden = false;
+    tekenMeldingen(l);
+  }
+  function wisDashboard() {
+    frame.removeAttribute('srcdoc');
+    frame.style.height = '0';
+    $('acties').hidden = true;
+    $('meldingen').innerHTML = '';
+  }
+
+  function geldig(p) {
+    return p && typeof p === 'object' && Array.isArray(p.students) &&
+           p.entries && typeof p.entries === 'object';
+  }
+
+  function toon(m, payload, opties) {
+    opties = opties || instellingen();
+    var bouw = m === 'coord' ? VZS.bouwCoordinator : VZS.bouwTeamleider;
+    var basis = { codes: opties.codes, config: opties.config, mentoren: opties.mentoren,
+                  patroon: opties.patroon, banner: demo ? VZS.demoBanner() : '' };
+    var r = bouw(payload, basis, BRONNEN);
+    // Het downloadbestand kan zonder de logboekteksten; die zijn gevoelig en
+    // verlaten met dat bestand deze browser.
+    var download = (opties.logboekInDownload || !r.info.logboekAantal) ? r.html
+                 : bouw(payload, Object.assign({}, basis, { metLogboek: false }), BRONNEN).html;
+    laatste[m] = { modus: m, payload: payload, html: r.html, download: download,
+                   info: r.info, logboekInDownload: opties.logboekInDownload };
+    zetModus(m);
+  }
+
+  function melding(soort, html) {
+    return '<div class="melding ' + soort + '">' + html + '</div>';
+  }
+
+  function tekenMeldingen(l) {
+    var p = l.payload, info = l.info, uit = [];
+    var samen = info.aantalLeerlingen + ' leerlingen · ' + info.aantalRegistraties +
+                ' registraties · ' + info.weken + ' weken' +
+                (info.scope && l.modus === 'tl' ? ' · selectie ' + esc(info.scope) : '');
+    uit.push(melding('', samen));
+    (p.meldingen || []).forEach(function (m) { uit.push(melding('let', esc(m))); });
+    if (info.verzuimFouten) {
+      uit.push(melding('fout', 'Van ' + info.verzuimFouten + ' leerlingen is het verzuim niet ' +
+        'opgehaald: Magister beperkte het aantal verzoeken. Die staan hier dus ten onrechte op nul. ' +
+        'Haal opnieuw op' + (l.modus === 'tl' ? ' met een kortere periode of een kleinere selectie.' : '.')));
+    }
+    if ((p.niet_gevonden || []).length) {
+      uit.push(melding('let', 'Deze nummers zijn niet gevonden in Magister: ' +
+        esc(p.niet_gevonden.join(', '))));
+    }
+    if (info.logboekAantal) {
+      uit.push(melding('', info.logboekAantal + ' logboekformulieren opgehaald (bron: ' +
+        esc(info.logboekBron || 'onbekend') + ').' +
+        (l.logboekInDownload ? '' : ' De teksten blijven uit het downloadbestand.')));
+    } else if (info.logboekBron === 'niet gevonden') {
+      uit.push(melding('let', 'Er is geen lijst-URL voor logboekformulieren gevonden. ' +
+        'Wat de geprobeerde URLs teruggaven (stuur dit door, dan weten we welke het moet zijn):' +
+        '<pre>' + esc(info.logboekDiag.join('\n')) + '</pre>'));
+    }
+    if (l.modus === 'tl') {
+      var patroon = instellingen().patroon;
+      if (!info.mentorgroepen.length) {
+        uit.push(melding('let', 'Geen mentorgroepen gevonden met "' + esc(patroon) +
+          '" in de lesgroepnaam; het overzicht valt terug op de klas. Pas de herkenning in de ' +
+          'app aan als de mentorgroepen bij jullie anders heten.'));
+      } else if (info.zonderMentorgroep) {
+        uit.push(melding('', info.zonderMentorgroep + ' leerlingen zitten in geen enkele ' +
+          'mentorgroep met "' + esc(patroon) + '"; die staan onder hun klas.'));
+      }
+      if (info.mentorgroepenZonderNaam.length) {
+        uit.push(melding('', 'Mentorgroepen zonder mentornaam. Kopieer dit naar de app ' +
+          '(zijbalk, Mentorgroepen) en vul de namen in:' +
+          '<textarea readonly rows="' + Math.min(6, info.mentorgroepenZonderNaam.length) + '">' +
+          esc(info.mentorgroepenZonderNaam.map(function (g) { return g + ' = '; }).join('\n')) +
+          '</textarea>'));
+      }
+    }
+    if (info.onbekendeCodes.length) {
+      uit.push(melding('let', 'Codes die Magister niet duidde en die de app niet kent: <b>' +
+        esc(info.onbekendeCodes.join(', ')) + '</b>. Die tellen nu als geoorloofd; deel ze in ' +
+        'de app in onder Verzuimcodes indelen.'));
+    } else if (info.teControlerenCodes.length) {
+      uit.push(melding('let', 'Nog niet nagelopen codes in deze data: <b>' +
+        esc(info.teControlerenCodes.join(', ')) + '</b>. Die tellen nu als geoorloofd.'));
+    }
+    $('meldingen').innerHTML = uit.join('');
+  }
+
+  $('download').addEventListener('click', function () {
+    var l = laatste[modus];
+    if (!l) return;
+    var url = URL.createObjectURL(new Blob([l.download], { type: 'text/html' }));
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = (l.modus === 'coord' ? 'mijn_leerlingen_' : 'verzuimsignalering_') +
+                 ((l.payload.period || {}).einde || '') + '.html';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  });
+
+  // ── Logboeknotities die in de app klaarstaan ──────────────────────────────
+  function naamBij(id) {
+    var l = laatste.coord || laatste.tl;
+    var s = l && (l.payload.students || []).filter(function (x) { return String(x.id) === String(id); })[0];
+    return s ? [s.roepnaam, s.tussenvoegsel, s.achternaam].filter(Boolean).join(' ') : '';
+  }
+  var schrijfUitslag = null;
+  function tekenSchrijven() {
+    var el = $('schrijven');
+    var lijst = (app && app.ok && app.schrijf) || [];
+    if (demo || modus !== 'coord' || (!lijst.length && !schrijfUitslag)) { el.hidden = true; return; }
+    var html = '';
+    if (schrijfUitslag) {
+      var gelukt = schrijfUitslag.geschreven.filter(function (g) { return g.ok; }).length;
+      html += '<b>' + gelukt + ' van de ' + schrijfUitslag.geschreven.length +
+              ' notities in Magister gezet.</b>' +
+              (schrijfUitslag.gemeld ? '' : ' <span class="fout">Let op: de app kon dit niet ' +
+               'registreren. Haal daar de wachtrij leeg voordat je opnieuw schrijft, anders komen ' +
+               'ze er dubbel in.</span>');
+      var mis = schrijfUitslag.geschreven.filter(function (g) { return !g.ok; });
+      if (mis.length) html += '<ul>' + mis.map(function (g) {
+        return '<li class="fout">Niet gelukt: ' + esc(g.fout) + '</li>'; }).join('') + '</ul>';
+    }
+    if (lijst.length) {
+      html += '<p><b>' + lijst.length + ' logboeknotitie(s) klaargezet in de app.</b> Die komen in het ' +
+              'logboek van deze leerlingen, op jouw naam:</p><ul>' + lijst.map(function (o) {
+        var naam = naamBij(o.leerlingId);
+        return '<li>' + esc(naam ? naam + ' (' + o.leerlingId + ')' : o.leerlingNaam) + ' — ' +
+               esc(o.typeNaam) + ': ' + esc(String(o.titel || '').slice(0, 60)) +
+               (o.fout ? ' <span class="fout">(eerder niet gelukt: ' + esc(o.fout) + ')</span>' : '') +
+               '</li>';
+      }).join('') + '</ul><button class="knop" id="schrijf-knop"' +
+              (magisterOrigin ? '' : ' disabled') + '>In Magister zetten</button>';
+    }
+    el.innerHTML = html;
+    el.hidden = false;
+  }
+  document.addEventListener('click', function (ev) {
+    if (!ev.target.closest('#schrijf-knop')) return;
+    var lijst = (app && app.schrijf) || [];
+    if (!lijst.length || !verbonden()) return;
+    if (!confirm(lijst.length + ' notitie(s) in het Magister-logboek zetten, op jouw naam?\n\n' +
+                 'Een notitie die er eenmaal staat, haal je weg in Magister zelf.')) return;
+    stuurNaarMagister({ type: 'vzs-schrijf', sleutels: lijst.map(function (o) { return o.sleutel; }) },
+                      'schrijf');
+  });
+
+  // ── Verbinding met het Magister-tabblad ───────────────────────────────────
+  function verbonden() {
+    if (!opener || opener.closed || !magisterOrigin) {
+      status('Het Magister-tabblad is gesloten of niet verbonden. Open Magister en klik opnieuw op de bladwijzer.', true);
+      return false;
+    }
+    return true;
+  }
+
+  function knoppen(aan) {
+    $('ophalen-tl').disabled = !aan;
+    $('ophalen-coord').disabled = !aan;
+    var k = $('schrijf-knop');
+    if (k) k.disabled = !aan;
+  }
+
+  function stuurNaarMagister(bericht, soort) {
+    wachtOp = soort; antwoord = false; knoppen(false);
+    schrijfUitslag = null;
+    status(soort === 'schrijf' ? 'Schrijven in Magister…' : 'Ophalen…');
+    opener.postMessage(bericht, magisterOrigin);
+    // Is Magister intussen herladen, dan luistert de bladwijzer niet meer.
+    setTimeout(function () {
+      if (!wachtOp || antwoord) return;
+      wachtOp = null; knoppen(true);
+      status('Geen antwoord van Magister. Klik in het Magister-tabblad opnieuw op de bladwijzer.', true);
+    }, 8000);
+  }
+
+  function voortgang(tekst, klaar, totaal) {
+    $('voortgang').hidden = !tekst;
+    var balk = $('balk');
+    if (totaal) { balk.max = totaal; balk.value = klaar || 0; } else { balk.removeAttribute('value'); }
+    $('voortgang-tekst').textContent = tekst ? tekst + (totaal ? ' ' + (klaar || 0) + '/' + totaal : '') + '…' : '';
+  }
+
+  function verbindingTekst() {
+    var el = $('verbinding');
+    if (demo) { el.textContent = 'Voorbeeld met verzonnen leerlingen.'; return; }
+    if (!magisterOrigin) return;
+    var t = 'Verbonden met ' + magisterOrigin.replace(/^https?:\/\//, '') + '.';
+    if (!app || !app.ok) {
+      t += ' De app is niet bereikbaar: de instellingen (mentornamen, codes, grenzen) ontbreken' +
+           (modus === 'coord' ? ' en de leerlingnummers ook.' : '.');
+    } else if (modus === 'coord') {
+      t += ' ' + (app.ids || []).length + ' leerlingnummers ingesteld in de app.';
+    }
+    el.textContent = t;
+  }
+
+  window.addEventListener('message', function (ev) {
+    if (!opener || ev.source !== opener) return;
+    if (!MAGISTER.test(ev.origin) && !TEST.test(ev.origin)) return;
+    var m = ev.data || {};
+    if (m.type === 'vzs-hallo') {
+      if (magisterOrigin && ev.origin !== magisterOrigin) return;
+      var eerste = !magisterOrigin;
+      magisterOrigin = ev.origin;
+      app = m.app || null;
+      if (eerste && app && app.ok && app.config && app.config.scope && !$('scope').value) {
+        $('scope').value = app.config.scope;
+      }
+      verbindingTekst(); tekenSchrijven();
+      if (!wachtOp) knoppen(true);
+      return;
+    }
+    if (ev.origin !== magisterOrigin) return;
+    antwoord = true;
+    if (m.type === 'vzs-voortgang') {
+      voortgang(m.tekst, m.klaar, m.totaal);
+      status('');
+    } else if (m.type === 'vzs-data' && wachtOp === 'data') {
+      wachtOp = null; knoppen(true); voortgang('');
+      if (!geldig(m.payload)) { status('Onverwachte data uit Magister.', true); return; }
+      status('Klaar: ' + m.payload.students.length + ' leerlingen.');
+      toon(m.modus === 'coord' ? 'coord' : 'tl', m.payload);
+    } else if (m.type === 'vzs-geschreven' && wachtOp === 'schrijf') {
+      wachtOp = null; knoppen(true); voortgang('');
+      schrijfUitslag = m.uitslag; status('');
+      klop();                                       // wachtrij in de app is veranderd
+      tekenSchrijven();
+    } else if (m.type === 'vzs-fout') {
+      wachtOp = null; knoppen(true); voortgang('');
+      status(String(m.melding || 'Onbekende fout.'), true);
+    }
+  });
+
+  $('ophalen-tl').addEventListener('click', function () {
+    var b = $('begin').value, e = $('einde').value;
+    if (!b || !e) { status('Kies een begin- en einddatum.', true); return; }
+    if (b > e)    { status('De begindatum ligt na de einddatum.', true); return; }
+    if (!verbonden()) return;
+    stuurNaarMagister({ type: 'vzs-ophalen', modus: 'tl', begin: b, einde: e,
+                        scope: $('scope').value.trim(), logboek: $('logboek').checked }, 'data');
+  });
+  $('ophalen-coord').addEventListener('click', function () {
+    if (!verbonden()) return;
+    stuurNaarMagister({ type: 'vzs-ophalen', modus: 'coord' }, 'data');
+  });
+
+  document.querySelectorAll('[data-modus]').forEach(function (b) {
+    b.addEventListener('click', function () { zetModus(b.dataset.modus); verbindingTekst(); });
+  });
+  window.addEventListener('hashchange', function () {
+    zetModus(location.hash.slice(1)); verbindingTekst();
+    klop();                       // opnieuw op de bladwijzer geklikt: verbinding verversen
+  });
+
+  // Standaardperiode: de laatste vier weken, vanaf een maandag.
+  function lokaal(dt) { return new Date(dt.getTime() - dt.getTimezoneOffset() * 6e4).toISOString().slice(0, 10); }
+  var nu = new Date(), start = new Date();
+  start.setDate(start.getDate() - 27);
+  start.setDate(start.getDate() - ((start.getDay() + 6) % 7));
+  $('einde').value = lokaal(nu);
+  $('begin').value = lokaal(start);
+
+  // De bladwijzer luistert al voordat deze pagina laadt; herhaal een paar keer
+  // voor de zekerheid. 'vzs-ready' bevat geen gegevens, dus '*' is hier veilig.
+  function klop() {
+    if (!opener) return;
+    var pogingen = 0, voor = app;
+    (function nogEens() {
+      if (app !== voor && magisterOrigin) return;
+      try { opener.postMessage({ type: 'vzs-ready' }, '*'); } catch (_) {}
+      if (++pogingen < 10) { setTimeout(nogEens, 300); return; }
+      if (!magisterOrigin) {
+        $('verbinding').textContent = 'Geen verbinding met Magister. Klik in het Magister-tabblad ' +
+          'opnieuw op de bladwijzer, of open hieronder een verzuimbestand.';
+        $('los').open = true;
+      }
+    })();
+  }
+
+  // ── Een verzuimbestand lokaal openen ──────────────────────────────────────
+  $('bestand').addEventListener('change', function () {
+    var f = this.files && this.files[0];
+    if (!f) return;
+    var lezer = new FileReader();
+    lezer.onload = function () {
+      var p = null;
+      try { p = JSON.parse(lezer.result); } catch (_) {}
+      if (!geldig(p)) { status('Dit lijkt geen verzuimbestand (velden ontbreken).', true); return; }
+      status('Bestand geopend: ' + p.students.length + ' leerlingen.');
+      toon(p.scope === 'eigen lijst' ? 'coord' : 'tl', p);
+    };
+    lezer.readAsText(f);
+  });
+
+  // ── Start ─────────────────────────────────────────────────────────────────
+  if (VOORBEELD) {
+    demo = true;
+    $('los').hidden = true;
+    verbindingTekst();
+    var vo = VOORBEELD.opties || {};
+    toon(VOORBEELD.modus === 'coord' ? 'coord' : 'tl', VOORBEELD.payload, {
+      codes: vo.codes || {}, mentoren: vo.mentoren || {},
+      config: vo.config || VZS.STANDAARD_CONFIG,
+      patroon: vo.patroon == null ? VZS.MENTORGROEP_PATROON : vo.patroon,
+      logboekInDownload: !!vo.logboekInDownload
+    });
+  } else {
+    zetModus(modus);
+    if (opener) {
+      $('verbinding').textContent = 'Verbinden met Magister…';
+      klop();
+    } else {
+      $('verbinding').textContent = 'Dit venster is niet vanuit Magister geopend. Klik in Magister ' +
+        'op de bladwijzer, of open hieronder een verzuimbestand.';
+      $('los').open = true;
+    }
+  }
+})();
+</script>
+</body>
+</html>
