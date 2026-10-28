@@ -230,6 +230,12 @@ def _logboek_voor(payload, sid, met_tekst=True):
     return uit[:LOGBOEK_MAX]
 
 
+def _opmerking_voor(payload, sid):
+    """Opmerkingen bij de leerling uit de verzuimmodule (studentRemarks)."""
+    bron = payload.get('opmerkingen') or {}
+    return html_naar_tekst(bron.get(str(sid)) or bron.get(sid) or '')
+
+
 def _uur_label(e):
     uur = e.get('period')
     if uur:
@@ -325,6 +331,7 @@ def verwerk(payload, codes, config=None, mentoren=None,
             'entries': rij_entries,
             'logboek': logboek_items,
             'logboekDitJaar': any(x['datum'] >= schooljaar_start for x in logboek_items),
+            'opmerking':   _opmerking_voor(payload, s['id']) if met_logboek else '',
         })
 
     groepen = sorted({l['groep'] for l in leerlingen})
@@ -352,6 +359,7 @@ def verwerk(payload, codes, config=None, mentoren=None,
         'weekStarts': [m.isoformat() for m in weken],
         'groepen': ['Alle'] + groepen,
         'logboekOpgehaald': bool(payload.get('logboek_bron')),
+        'opmerkingenOpgehaald': str(payload.get('opmerkingen_status', '')).startswith('ok'),
         'leerlingen': leerlingen,
     }
 
@@ -371,6 +379,8 @@ def verwerk(payload, codes, config=None, mentoren=None,
         'zonder_mentorgroep': sum(1 for l in leerlingen if not l['mentorgroep']),
         'logboek_aantal': sum(len(l['logboek']) for l in leerlingen),
         'logboek_bron': payload.get('logboek_bron', ''),
+        'opmerkingen_status': payload.get('opmerkingen_status', ''),
+        'opmerkingen_aantal': sum(1 for l in leerlingen if l.get('opmerking')),
         'logboek_diag': payload.get('logboek_diag') or [],
         'verzuim_fouten': payload.get('verzuim_fouten') or 0,
     }

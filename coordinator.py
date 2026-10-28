@@ -74,6 +74,11 @@ EIGEN_STIJL = """
   letter-spacing: .05em; }
 .totaal { font-size: .72rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 .kaart .logboek { margin: 8px 0 0; }
+.opm { margin: 8px 0 0; padding: 6px 9px; border-left: 3px solid var(--s-telaat);
+  background: var(--card-sunk); border-radius: 0 6px 6px 0; }
+.opm-kop { display: block; font-size: .68rem; font-weight: 600; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; }
+.opm .lb-tekst { margin: 0; }
 @media (max-width: 760px) { .week { grid-template-columns: repeat(3, 1fr); } }
 </style>
 </head>

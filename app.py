@@ -774,6 +774,12 @@ def _coord_rapport(payload, config):
     if payload.get('verzuim_fouten'):
         st.error(f"Van {payload['verzuim_fouten']} leerlingen is het verzuim niet "
                  'opgehaald (Magister beperkte het aantal verzoeken). Haal opnieuw op.')
+    opm = payload.get('opmerkingen_status', '')
+    if opm.startswith('ok'):
+        st.caption(f"{info['opmerkingen_aantal']} leerlingen met een opmerking in de "
+                   f"verzuimmodule{' — ' + opm[2:].strip() if opm != 'ok' else ''}.")
+    elif opm:
+        st.warning(f'Opmerkingen uit de verzuimmodule niet opgehaald: {opm}.')
 
     st.iframe(html, height=1500)
 

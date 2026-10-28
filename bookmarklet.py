@@ -435,8 +435,10 @@ try{
    if(!r1||!r1.ok)return null;
    var d1=await r1.json().catch(function(){return null});
    if(!d1)return null;
+   // externeId is de GUID waarmee attendance.magister.net de leerling kent.
    var uit={id:d1.id||id,roepnaam:d1.roepnaam,tussenvoegsel:d1.tussenvoegsel,
-     achternaam:d1.achternaam,lesgroepen:[],studies:[],klassen:[],mentor:''};
+     achternaam:d1.achternaam,lesgroepen:[],studies:[],klassen:[],mentor:'',
+     guid:d1.externeId||''};
    var r2=await haal('/api/leerlingen/'+id+'/aanmeldingen',2);
    if(r2&&r2.ok){
      var items=((await r2.json().catch(function(){return{}}))||{}).items||[];
@@ -488,7 +490,8 @@ try{
    var wil={}; ids.forEach(function(id){wil[id]=1});
    slim=alle.filter(function(s){return wil[s.id]}).map(function(s){
      return{id:s.id,roepnaam:s.roepnaam,tussenvoegsel:s.tussenvoegsel,achternaam:s.achternaam,
-       lesgroepen:s.lesgroepen||[],studies:s.studies||[],klassen:s.klassen||[],mentor:''};});
+       lesgroepen:s.lesgroepen||[],studies:s.studies||[],klassen:s.klassen||[],mentor:'',
+       guid:s.externeId||''};});
  }
  var gevonden={}; slim.forEach(function(s){gevonden[s.id]=1});
  var kwijt=ids.filter(function(id){return !gevonden[id]});
@@ -552,11 +555,50 @@ try{
    if(i3+SZ<lijstIds.length)await wacht(pauze);
  }
 
+ // 6. Opmerkingen uit de verzuimmodule (attendance.magister.net). Ander
+ //    domein: geen cookies, wel de Bearer-token die de Magister-pagina zelf in
+ //    sessionStorage heeft. Per leerling op GUID (externeId), niet op nummer.
+ var opmerkingen={},opmStatus='';
+ var tKey=Object.keys(sessionStorage).filter(function(k){return k.indexOf('oidc.user:')===0})[0];
+ var aTok='';
+ try{aTok=tKey?JSON.parse(sessionStorage.getItem(tKey)).access_token||'':''}catch(_){}
+ var metGuid=slim.filter(function(s){return s.guid});
+ if(!aTok)opmStatus='geen token';
+ else if(!metGuid.length)opmStatus='geen GUID';
+ else{
+   var haalOpm=async function(s){
+     var g=String(s.guid).replace(/-/g,'').toLowerCase();
+     for(var poging=0;poging<3;poging++){
+       var r=await fetch('https://attendance.magister.net/api/v2/student/'+g+'/remarks',
+         {headers:{Authorization:'Bearer '+aTok},signal:AbortSignal.timeout(20000)})
+         .catch(function(){return null});
+       if(r&&r.ok){var d=await r.json().catch(function(){return null});
+         return{id:s.id,ok:true,tekst:(d&&d.studentRemarks)||''};}
+       if(r&&r.status===429){vertraag();await wacht(30000);continue;}
+       if(r&&r.status>=500){await wacht(1500*(poging+1));continue;}
+       return{id:s.id,ok:false,status:r?r.status:0};
+     }
+     return{id:s.id,ok:false,status:429};};
+   var opmOk=0,opmFout=0;
+   for(var i4=0;i4<metGuid.length;i4+=SZ){
+     document.title='Opmerkingen '+Math.min(i4+SZ,metGuid.length)+'/'+metGuid.length+'...';
+     var res4=await Promise.all(metGuid.slice(i4,i4+SZ).map(function(s){
+       return haalOpm(s).catch(function(){return{id:s.id,ok:false}})}));
+     res4.forEach(function(r){
+       if(!r.ok){opmFout++;return;}
+       opmOk++; if(r.tekst&&r.tekst.trim())opmerkingen[r.id]=r.tekst;});
+     if(i4+SZ<metGuid.length)await wacht(pauze);
+   }
+   opmStatus=opmOk?'ok':'mislukt';
+   if(opmFout)opmStatus+=' ('+opmFout+' fout)';
+ }
+
  var payload={period:{begin:b,einde:e},scope:'eigen lijst',students:slim,
    own_ids:lijstIds,entries:entries,verzuim_fouten:mislukt.length,
    niet_gevonden:kwijt,via:direct?'per leerling':'zoeklijst',
    logboek:logboek,logboek_bron:bron,logboek_diag:[],
-   logboek_periode:{begin:lb,einde:le}};
+   logboek_periode:{begin:lb,einde:le},
+   opmerkingen:opmerkingen,opmerkingen_status:opmStatus};
 
  document.title='Versturen...';
  var body=JSON.stringify(payload);

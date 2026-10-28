@@ -128,6 +128,12 @@
       (l.logboekDitJaar ? '' : ' — niets van dit schooljaar') + '</summary>' + rijen + '</details>';
   }
 
+  function opmerkingBlok(l) {
+    if (!l.opmerking) return '';
+    return '<div class="opm"><span class="opm-kop">Opmerking verzuim</span>' +
+      '<pre class="lb-tekst">' + esc(l.opmerking) + '</pre></div>';
+  }
+
   function tekenKaarten() {
     /* Wie deze week het meest had, staat bovenaan. */
     var lijst = LEERLINGEN.slice().sort(function (a, b) {
@@ -165,6 +171,7 @@
           '<span class="totaal">' + l.ong + ' u ongeoorloofd · ' + l.laat + '× te laat in ' +
             WEKEN.length + ' weken</span>' +
         '</div>' +
+        opmerkingBlok(l) +
         logboekBlok(l) +
       '</article>';
     }).join('') || '<div class="leeg">Nog geen leerlingen opgehaald.</div>';
