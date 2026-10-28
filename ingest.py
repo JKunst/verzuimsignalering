@@ -1,98 +1,86 @@
 """
-ingest.py — kleine HTTP-ontvanger voor de verzuim-data van de bookmarklet.
+ingest.py — kleine HTTP-server tussen de app en de bladwijzer.
 
 Draait in een achtergrond-thread binnen hetzelfde proces als de Streamlit-app,
-op een aparte poort. De bookmarklet (op de magister.net-origin) POST't hier de
-opgehaalde verzuim-JSON naartoe; de Streamlit-pagina haalt hem daarna uit het
-geheugen op via take().
+op een aparte poort, achter nginx. Hij ontvangt **geen verzuim**: dat blijft in
+de browser (zie bookmarklet.py en rapport.py). Wat hij wel doet:
 
-Overgenomen uit `mentoruur/verzuim_ingest.py`; alleen de limieten zijn hier
-ruimer, omdat een teamleider een hele afdeling ophaalt in plaats van één
-mentorgroep.
+- GET  .../rapport.html            het rapportvenster (statische code)
+- GET  ...?token=<t>               voor de bladwijzer: instellingen (codes,
+                                   mentornamen, grenzen), de leerlingnummers van
+                                   de coördinator en klaargezette logboeknotities
+- POST ...?token=<t>&schrijf=1     per notitie of het schrijven in Magister lukte
 
-Bewaart data alleen kort in het geheugen (TTL) — niets op schijf.
+Het token is per gebruiker (afgeleid van het eckid, zie app._token), zodat
+niemand bij de lijst of wachtrij van een ander kan.
 
-Let op: dit deelt geheugen met de Streamlit-reruns omdat het hetzelfde proces is.
-Bij meerdere Streamlit-workers/replica's moet dit vervangen worden door een
-gedeelde store (Redis/db).
+Alles staat alleen in het geheugen. Bij meerdere Streamlit-workers/replica's
+moet dit vervangen worden door een gedeelde store.
 """
 
-import time
 import json
 import threading
 from urllib.parse import urlparse, parse_qs
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-_TTL         = 900                 # seconden dat een payload geldig blijft (ophalen duurt langer)
-_MAX_BYTES   = 25 * 1024 * 1024    # 25 MB veiligheidslimiet
-_STORE       = {}                  # token -> (payload, timestamp)
+import rapport
+
+_MAX_BYTES   = 64 * 1024           # alleen schrijfuitslagen komen hier binnen
 _LIJSTEN     = {}                  # token -> [leerling-ids] voor de coördinator
 _SCHRIJF     = {}                  # token -> [logboekopdrachten die nog weg moeten]
-_UITSLAG     = {}                  # token -> [uitslag per opdracht van de laatste klik]
+_UITSLAG     = {}                  # token -> [uitslag per opdracht van de laatste ronde]
+_CONFIG      = {}                  # token -> instellingen uit de zijbalk van de app
 _STORE_LOCK  = threading.Lock()
 _START_LOCK  = threading.Lock()
 _started_port = None
+_standaard   = lambda: {}          # gedeelde instellingen (codes, mentoren); zet de app
+
+# Het rapportvenster mag zelf niets versturen; de meta-CSP in de pagina zegt
+# hetzelfde, maar als header geldt hij ook als iemand de pagina anders opent.
+_RAPPORT_HEADERS = {
+    'Content-Type': 'text/html; charset=utf-8',
+    'Content-Security-Policy': ("default-src 'none'; script-src 'unsafe-inline'; "
+                                "style-src 'unsafe-inline'; img-src data:; "
+                                "form-action 'none'; base-uri 'none'"),
+    'Referrer-Policy': 'no-referrer',
+    'X-Content-Type-Options': 'nosniff',
+    'Cache-Control': 'no-cache',
+    # Bewust géén Cross-Origin-Opener-Policy: dan verliest het venster de
+    # koppeling met het Magister-tabblad (window.opener).
+}
 
 
-def put(token, payload, samenvoegen=False):
-    """Payload bewaren; met samenvoegen=True groeit een lopende ophaalronde aan.
+def zet_standaard(functie):
+    """Functie die de gedeelde instellingen levert (codes.json, mentoren.json).
 
-    De bookmarklet stuurt tussenstanden, zodat de app al iets kan tonen terwijl
-    Magister nog wordt afgelopen (dat duurt minuten door de aanvraaglimiet).
+    Wordt bij elke vraag opnieuw aangeroepen, zodat een wijziging in de app
+    meteen bij de bladwijzer is — ook na een herstart, voordat iemand de app
+    heeft geopend.
     """
+    global _standaard
+    _standaard = functie
+
+
+def config_zet(token, config):
+    """Instellingen uit de zijbalk van deze gebruiker (grenzen, selectie, ...)."""
     with _STORE_LOCK:
-        if samenvoegen:
-            bestaand = _STORE.get(token)
-            if bestaand and time.time() - bestaand[1] <= _TTL:
-                payload = _voeg_samen(bestaand[0], payload)
-        _STORE[token] = (payload, time.time())
-        _prune_locked()
+        _CONFIG[token] = dict(config)
 
 
-def _voeg_samen(oud, nieuw):
-    """Twee (deel)payloads tot één geheel maken."""
-    uit = dict(oud)
-    uit.update({k: v for k, v in nieuw.items()
-                if k not in ('students', 'entries', 'logboek', 'own_ids')})
-
-    op_id = {s['id']: s for s in oud.get('students', [])}
-    for s in nieuw.get('students', []):
-        op_id[s['id']] = s
-    uit['students'] = list(op_id.values())
-
-    for veld in ('entries', 'logboek'):
-        samen = dict(oud.get(veld) or {})
-        samen.update(nieuw.get(veld) or {})
-        uit[veld] = samen
-
-    ids = list(oud.get('own_ids') or [])
-    for i in nieuw.get('own_ids') or []:
-        if i not in ids:
-            ids.append(i)
-    uit['own_ids'] = ids
+def config_lees(token):
+    try:
+        uit = dict(_standaard() or {})
+    except Exception:
+        uit = {}
+    with _STORE_LOCK:
+        uit.update(_CONFIG.get(token, {}))
     return uit
 
 
-def peek(token):
-    """Kijken wat er staat zonder het weg te halen — voor tussenstanden."""
-    with _STORE_LOCK:
-        item = _STORE.get(token)
-    if not item:
-        return None
-    payload, ts = item
-    return payload if time.time() - ts <= _TTL else None
-
-
-def vergeet(token):
-    with _STORE_LOCK:
-        _STORE.pop(token, None)
-
-
 def lijst_zet(token, ids):
-    """Leerlingnummers klaarzetten die de coördinator-bookmarklet ophaalt.
+    """Leerlingnummers klaarzetten die de bladwijzer bij elke klik ophaalt.
 
-    Zo hoeft de knop niet opnieuw geïnstalleerd te worden als de lijst wijzigt:
-    de bookmarklet vraagt hem bij elke klik op.
+    Zo hoeft de knop niet opnieuw geïnstalleerd te worden als de lijst wijzigt.
     """
     with _STORE_LOCK:
         _LIJSTEN[token] = [int(i) for i in ids]
@@ -104,10 +92,10 @@ def lijst_lees(token):
 
 
 def schrijf_zet(token, opdrachten):
-    """Logboekopdrachten klaarzetten die de bookmarklet moet wegschrijven.
+    """Logboekopdrachten klaarzetten die de bladwijzer moet wegschrijven.
 
-    Elke opdracht heeft een sleutel; de bookmarklet meldt per sleutel terug of
-    het gelukt is, zodat een tweede klik niets dubbel schrijft.
+    Elke opdracht heeft een sleutel; de bladwijzer meldt per sleutel terug of
+    het gelukt is, zodat een tweede ronde niets dubbel schrijft.
     """
     with _STORE_LOCK:
         _SCHRIJF[token] = list(opdrachten)
@@ -119,12 +107,11 @@ def schrijf_lees(token):
 
 
 def schrijf_meld(token, geschreven):
-    """Uitslag van de bookmarklet verwerken, meteen bij binnenkomst.
+    """Uitslag van de bladwijzer verwerken, meteen bij binnenkomst.
 
     Gelukte opdrachten gaan uit de wachtrij; mislukte blijven staan met de
-    foutmelding erbij. Dit gebeurt hier, in de ontvanger, en niet pas als de
-    Streamlit-pagina de payload verwerkt — anders schrijft een tweede klik
-    dezelfde notities nog een keer.
+    foutmelding erbij. Dit gebeurt hier en niet pas als de Streamlit-pagina
+    herlaadt — anders schrijft een tweede ronde dezelfde notities nog een keer.
     """
     per_sleutel = {g.get('sleutel'): g for g in geschreven if isinstance(g, dict)}
     with _STORE_LOCK:
@@ -134,34 +121,18 @@ def schrijf_meld(token, geschreven):
             if g and g.get('ok'):
                 continue
             if g:
-                o = dict(o, fout=g.get('fout') or 'onbekende fout')
+                o = dict(o, fout=str(g.get('fout') or 'onbekende fout')[:200])
             rest.append(o)
         _SCHRIJF[token] = rest
-        _UITSLAG[token] = list(geschreven)
+        _UITSLAG[token] = [{'sleutel': g.get('sleutel'), 'ok': bool(g.get('ok')),
+                            'fout': str(g.get('fout') or '')[:200]}
+                           for g in per_sleutel.values()]
 
 
 def schrijf_uitslag(token):
     """Haal (en verwijder) de laatste uitslag, om hem één keer te tonen."""
     with _STORE_LOCK:
         return _UITSLAG.pop(token, None)
-
-
-def take(token):
-    """Haal (en verwijder) de payload voor dit token, indien vers genoeg."""
-    with _STORE_LOCK:
-        item = _STORE.pop(token, None)
-    if not item:
-        return None
-    payload, ts = item
-    if time.time() - ts > _TTL:
-        return None
-    return payload
-
-
-def _prune_locked():
-    now = time.time()
-    for k in [k for k, (_, ts) in _STORE.items() if now - ts > _TTL]:
-        _STORE.pop(k, None)
 
 
 class _Handler(BaseHTTPRequestHandler):
@@ -176,46 +147,60 @@ class _Handler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        """De bookmarklet haalt hier de ingestelde leerlingnummers op."""
-        token = (parse_qs(urlparse(self.path).query).get('token') or [''])[0]
+        url = urlparse(self.path)
+        if url.path.rstrip('/').endswith('/rapport.html'):
+            self._rapport()
+            return
+        token = (parse_qs(url.query).get('token') or [''])[0]
         if not token:
             self._reply(400, {'ok': False, 'error': 'bad request'})
             return
         self._reply(200, {'ok': True, 'ids': lijst_lees(token),
-                          'schrijf': schrijf_lees(token)})
+                          'schrijf': schrijf_lees(token),
+                          'config': config_lees(token)})
 
     def do_POST(self):
         vraag = parse_qs(urlparse(self.path).query)
         token = (vraag.get('token') or [''])[0]
-        deel = (vraag.get('deel') or [''])[0] == '1'
-        schrijf = (vraag.get('schrijf') or [''])[0] == '1'
         length = int(self.headers.get('Content-Length', 0) or 0)
-        if not token or length <= 0 or length > _MAX_BYTES:
+        if (not token or (vraag.get('schrijf') or [''])[0] != '1'
+                or length <= 0 or length > _MAX_BYTES):
             self._reply(400, {'ok': False, 'error': 'bad request'})
             return
         try:
-            raw = self.rfile.read(length)
-            payload = json.loads(raw.decode('utf-8'))
+            payload = json.loads(self.rfile.read(length).decode('utf-8'))
         except Exception:
             self._reply(400, {'ok': False, 'error': 'invalid json'})
             return
-        if schrijf:                       # uitslag van het logboek schrijven
-            geschreven = payload.get('geschreven') if isinstance(payload, dict) else None
-            if not isinstance(geschreven, list):
-                self._reply(400, {'ok': False, 'error': 'bad request'})
-                return
-            schrijf_meld(token, geschreven)
-            self._reply(200, {'ok': True, 'rest': len(schrijf_lees(token))})
+        geschreven = payload.get('geschreven') if isinstance(payload, dict) else None
+        if not isinstance(geschreven, list):
+            self._reply(400, {'ok': False, 'error': 'bad request'})
             return
-        put(token, payload, samenvoegen=deel)
-        n = len(peek(token).get('students', [])) if isinstance(payload, dict) else 0
-        self._reply(200, {'ok': True, 'students': n})
+        schrijf_meld(token, geschreven)
+        self._reply(200, {'ok': True, 'rest': len(schrijf_lees(token))})
+
+    def _rapport(self):
+        try:
+            body = rapport.bouw().encode('utf-8')
+        except Exception:
+            self._reply(500, {'ok': False, 'error': 'rapport niet te bouwen'})
+            return
+        self.send_response(200)
+        for k, v in _RAPPORT_HEADERS.items():
+            self.send_header(k, v)
+        self.send_header('Content-Length', str(len(body)))
+        self.end_headers()
+        try:
+            self.wfile.write(body)
+        except Exception:
+            pass
 
     def _reply(self, code, obj):
-        body = json.dumps(obj).encode('utf-8')
+        body = json.dumps(obj, ensure_ascii=False).encode('utf-8')
         self.send_response(code)
         self._cors()
-        self.send_header('Content-Type', 'application/json')
+        self.send_header('Content-Type', 'application/json; charset=utf-8')
+        self.send_header('Cache-Control', 'no-store')
         self.send_header('Content-Length', str(len(body)))
         self.end_headers()
         try:
@@ -224,15 +209,14 @@ class _Handler(BaseHTTPRequestHandler):
             pass
 
     def log_message(self, *args):
-        pass  # geen console-spam
+        pass  # geen console-spam, en geen tokens in de log
 
 
 def ensure_server(port, host='127.0.0.1'):
-    """Start de ontvanger één keer per proces (idempotent).
+    """Start de server één keer per proces (idempotent).
 
     Standaard alleen op localhost: op een server staat nginx ervoor, dus de
-    poort hoeft niet van buiten bereikbaar te zijn. Zet host op '0.0.0.0' als
-    je er wél rechtstreeks bij moet.
+    poort hoeft niet van buiten bereikbaar te zijn.
     """
     global _started_port
     with _START_LOCK:

@@ -1,5 +1,5 @@
 /* render.js — tekent het verzuimdashboard uit window.DATA.
-   De cijfers komen uit dashboard.py; hier wordt alleen opgeteld per selectie:
+   De cijfers komen uit verwerk.js; hier wordt alleen opgeteld per selectie:
    de tab (afdeling/leerjaar), de codeknoppen en de signaalfilters.
 
    De pagina is een werklijst, geen verantwoording: wie moet ik spreken, waarover,
